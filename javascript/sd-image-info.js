@@ -75,6 +75,7 @@ async function image_info_parser() {
     }
     const Zdiv = document.createElement('div');
     Zdiv.classList.add('imgInfoZoom');
+    Zdiv.setAttribute('tabindex', '0');
     document.body.style.overflow = 'hidden';
 
     Object.assign(Zdiv.style, {
@@ -107,6 +108,7 @@ async function image_info_parser() {
 
     Zdiv.appendChild(Zimg);
     document.body.appendChild(Zdiv);
+    Zdiv.focus();
 
     let scale = 1;
     let offsetX = 0;
@@ -180,11 +182,17 @@ async function image_info_parser() {
       }
     });
 
-    Zdiv.addEventListener('click', (e) => {
-      if (e.target === Zdiv) {
+    Zdiv.onclick = Zdiv.onkeydown = (e) => {
+      if (e.target === Zdiv || e.key === 'Escape') {
         closeZoom();
       }
-    });
+    };
+
+    Zdiv.onkeydown = (e) => {
+      if (e.key === 'Escape') { 
+        closeZoom();
+      }
+    };
 
     function closeZoom() {
       Zimg.style.transition = 'transform 0.8s ease, opacity 0.4s ease';

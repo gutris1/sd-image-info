@@ -145,7 +145,7 @@ async function image_info_parser() {
       e.preventDefault();
       GropinTime = setTimeout(() => {
         Groped = true;
-        Zimg.style.transition = 'transform 60ms ease, opacity 0.4s ease';
+        Zimg.style.transition = 'transform 0s ease, opacity 0.4s ease';
         Zimg.style.cursor = 'grab';
         lastX = e.clientX - offsetX;
         lastY = e.clientY - offsetY;
@@ -420,41 +420,9 @@ function imgInfoEvent(e) {
     }, 1500);
   }
 
-  const imgInfoNotify = {
-    create: function (msg) {
-      const Notify = document.createElement('div');
-      Notify.className = 'copy-NoTify';
-      Notify.innerText = msg;
-      Object.assign(Notify.style, {
-        position: 'fixed',
-        top: '-50px',
-        right: '20px',
-        padding: '5px 5px',
-        fontSize: '30px',
-        fontWeight: 'bold',
-        zIndex: '9999',
-        opacity: '0',
-        transition: 'opacity 0.5s, transform 0.5s'
-      });
-      document.body.appendChild(Notify);
-      setTimeout(() => {
-        Notify.style.opacity = '1';
-        Notify.style.transform = 'translateY(70px)';
-      }, 100);
-      setTimeout(() => {
-        Notify.style.opacity = '0';
-        Notify.style.transform = 'translateX(100rem)';
-        setTimeout(() => {
-          document.body.removeChild(Notify);
-        }, 500);
-      }, 1000);
-    }
-  };
-
   function imgInfoCopy(CopyCopy, whichBorder) {
     navigator.clipboard.writeText(CopyCopy);
     pulseBorderSection(whichBorder);
-    imgInfoNotify.create("📋");
   }
 
   if (e.target && e.target.id === "promptButton") {

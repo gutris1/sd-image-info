@@ -11,5 +11,5 @@ Support:
 - SwarmUI PNG parameters and JPEG/WEBP UserComment
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/8c4139d4-f8a6-45d1-ac19-ad44d84d0959", width=1000px>
+  <img src="https://github.com/user-attachments/assets/2ad4cee4-649f-496e-b964-dff944ee4510", width=1000px>
 </p>

@@ -13,3 +13,7 @@ Support:
 <p align="center">
   <img src="https://github.com/user-attachments/assets/2ad4cee4-649f-496e-b964-dff944ee4510", width=1000px>
 </p>
+
+## Credits
+[NoCrypt](https://github.com/NoCrypt)<br>
+[viyiviyi](https://github.com/viyiviyi)

@@ -45,7 +45,7 @@ async function image_info_parser() {
   } else {
     const fullSizeHeight = getComputedStyle(imgInfoImage).getPropertyValue('var(--size-full)').trim();
     imgInfoImage.style.height = fullSizeHeight;
-    imgInfoHTML.innerHTML = plainTextToHTML('');
+    imgInfoHTML.innerHTML = await plainTextToHTML('');
     return;
   }
 
@@ -124,7 +124,6 @@ async function image_info_parser() {
     };
 
     Zimg.addEventListener('wheel', (e) => {
-      e.preventDefault();
       e.stopPropagation();
       const centerX = Zdiv.offsetWidth / 2;
       const centerY = Zdiv.offsetHeight / 2;
@@ -141,7 +140,7 @@ async function image_info_parser() {
       offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * scale - centerY;
       Zimg.style.transition = 'transform 0.3s ease, opacity 0.4s ease';
       Zimg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-    });
+    }, { passive: true });
 
     Zimg.addEventListener('mousedown', (e) => {
       e.preventDefault();
@@ -189,7 +188,7 @@ async function image_info_parser() {
     };
 
     Zdiv.onkeydown = (e) => {
-      if (e.key === 'Escape') { 
+      if (e.key === 'Escape') {
         closeZoom();
       }
     };
@@ -266,7 +265,7 @@ async function image_info_parser() {
       imgInfoRawOutput.value = output;
       updateInput(imgInfoRawOutput);
       imgInfoHTML.classList.add('prose');
-      imgInfoHTML.innerHTML = plainTextToHTML(output);
+      imgInfoHTML.innerHTML = await plainTextToHTML(output);
     }
   }
   return tags;
@@ -413,8 +412,12 @@ function UserCommentDecoder(array) {
 }
 
 function imgInfoEvent(e) {
+  let OutputRaw = '';
+
   const imgInfoRawOutput = gradioApp().querySelector("#imgInfoGenInfo > label > textarea");
-  const OutputRaw = imgInfoRawOutput.value;
+  if (imgInfoRawOutput) {
+    OutputRaw = imgInfoRawOutput.value;
+  }
 
   function pulseBorderSection(button) {
     var section = button.closest('.imgInfoOutputSection');
@@ -475,7 +478,154 @@ function imgInfoEvent(e) {
   }
 }
 
-function plainTextToHTML(inputs) {
+async function FetchingModelOutput(i) {
+  let FetchedModels = '';
+  const Cat = {
+    checkpoint: [], vae: [], lora: [], embed: [],
+  };
+
+  let modelEX;
+  if (i.includes('Model: "')) {
+    modelEX = i.match(/Model:\s*"?([^"]+)"/);
+  } else {
+    modelEX = i.match(/Model:\s*([^,]+)/);
+  }
+
+  const modelHashEX = i.match(/Model hash:\s*([^,]+)/);
+  const vaeEX = i.match(/VAE:\s*([^,]+)/);
+  const vaeHashEX = i.match(/VAE hash:\s*([^,]+)/);
+  const loraHashEX = i.match(/Lora hashes:\s*"([^"]+)"/);
+  const tiHashEX = i.match(/TI hashes:\s*"([^"]+)"/);
+  const hashesIndex = i.indexOf("Hashes:");
+  const hashesEX = hashesIndex !== -1
+    ? i.slice(hashesIndex).match(/Hashes:\s*(\{.*?\})(,\s*)?/)
+    : null;
+
+  let HashesDict = {};
+  let TIHashDict = {};
+
+  if (hashesEX && hashesEX[1]) {
+    const s = JSON.parse(hashesEX[1].trim());
+    for (const [k, h] of Object.entries(s)) {
+      if (k.startsWith("embed:")) {
+        const n = k.replace("embed:", "");
+        HashesDict[n] = h;
+
+        const fetchedHash = await FetchingModels(n, h, false);
+        Cat.embed.push(fetchedHash);
+      }
+    }
+  }
+
+  if (tiHashEX) {
+    const embedPairs = tiHashEX[1].split(',').map(pair => pair.trim());
+    for (const pair of embedPairs) {
+      const [n, h] = pair.split(':').map(item => item.trim());
+      if (h && !HashesDict[n]) {
+        TIHashDict[n] = h;
+
+        const fetchedHash = await FetchingTIHashes(n, h);
+        Cat.embed.push(fetchedHash);
+      }
+    }
+  }
+
+  if (modelEX) {
+    const modelValue = modelEX[1];
+    const modelHash = modelHashEX ? modelHashEX[1] : null;
+    const vaeValue = vaeEX ? vaeEX[1] : null;
+    const vaeHash = vaeHashEX ? vaeHashEX[1] : null;
+
+    if (modelHash || vaeValue || vaeHash) {
+      Cat.checkpoint.push({ n: modelValue, h: modelHash });
+    }
+  }
+
+  const vaeValue = vaeEX ? vaeEX[1] : null;
+  const vaeHash = vaeHashEX ? vaeHashEX[1] : null;
+  if (vaeValue || vaeHash) {
+    Cat.vae.push({ n: vaeValue, h: vaeHash });
+  }
+
+  if (loraHashEX) {
+    const loraPairs = loraHashEX[1].split(',').map(pair => pair.trim());
+    for (const pair of loraPairs) {
+      const [n, h] = pair.split(':').map(item => item.trim());
+      if (h) {
+        Cat.lora.push({ n, h });
+      }
+    }
+  }
+
+  const FetchResult = (l, m) => {
+    return `
+      <div class="output-line">
+        <div class="label">${l}</div>
+        <div class="hashes">${m.join(' ')}</div>
+      </div>
+    `;
+  };
+
+  for (const [category, items] of Object.entries(Cat)) {
+    if (items.length > 0) {
+      let models;
+
+      if (category === 'embed') {
+        models = items.map(item => item);
+      } else if (category === 'lora') {
+        models = await Promise.all(items.map(async ({ n, h }) => {
+          return await FetchingModels(n, h, false);
+        }));
+      } else {
+        const isTHat = category === 'checkpoint' || category === 'vae';
+        models = await Promise.all(items.map(async ({ n, h }) => {
+          return await FetchingModels(n, h, isTHat);
+        }));
+      }
+
+      FetchedModels += FetchResult(category, models);
+    }
+  }
+
+  return `${FetchedModels}`;
+}
+
+async function FetchingModels(n, h, isTHat = false) {
+  const nonLink = isTHat 
+    ? `<span class="imgInfoModelOutputNonLink">${n}</span>` 
+    : `<span class="imgInfoModelOutputNonLink">${n}: ${h}</span>`;
+
+  if (h) {
+    const r = await fetch(`https://civitai.com/api/v1/model-versions/by-hash/${h}`);
+    const d = await r.json();
+    if (d.error === "Model not found") {
+      return nonLink;
+    } else {
+      const modelName = d.model?.name;
+      if (modelName) {
+        const { modelId, id } = d;
+        const link = `https://civitai.com/models/${modelId}?modelVersionId=${id}`;
+        return `<a class="imgInfoModelOutputLink" href="${link}" target="_blank">${modelName}</a>`;
+      } else {
+        return nonLink;
+      }
+    }
+  }
+  return nonLink;
+}
+
+async function FetchingTIHashes(n, h) {
+  const nonLink = `<span class="imgInfoModelOutputNonLink">${n}: ${h}</span>`;
+
+  if (h) {
+    const link = `https://civitai.com/search/models?sortBy=models_v9&query=${h}`;
+    return `<a class="imgInfoModelOutputLink" href="${link}" target="_blank">${n}</a>`;
+  }
+
+  return nonLink;
+}
+
+async function plainTextToHTML(inputs) {
   const EnCrypt = window.EnCrypt;
   const PWSha = window.PWSha;
   const sourceNAI = window.sourceNAI;
@@ -521,7 +671,7 @@ function plainTextToHTML(inputs) {
       Params
     </button>`;
 
-  const titleCivitaiHashes = `<b style="${sty};">Civitai Hashes</b>`;
+  const titleModels = '';
   const titleEncrypt = `<b style="${sty};">Encrypt</b>`;
   const titleSha = `<b style="${sty};">EncryptPwdSha</b>`;
   const titleSoftware = `<b style="${sty};">Software</b>`;
@@ -533,39 +683,7 @@ function plainTextToHTML(inputs) {
   let promptText = '';
   let negativePromptText = '';
   let paramsText = '';
-  let civitaiHashes = '';
-
-  function civitaiHashesGroup(s) {
-    let HashesLines = '';
-    const Cat = {
-      checkpoint: [],
-      vae: [],
-      lora: [],
-      embed: [],
-    };
-
-    for (const [k, v] of Object.entries(s)) {
-      if (k === "model") {
-        Cat.checkpoint.push(v);
-      } else if (k === "vae") {
-        Cat.vae.push(v);
-      } else if (k.startsWith("lora:")) {
-        Cat.lora.push(k.split(":")[1] + " " + v);
-      } else if (k.startsWith("embed:")) {
-        Cat.embed.push(k.split(":")[1] + " " + v);
-      }
-    }
-
-    Object.entries(Cat).forEach(([c, vv]) => {
-      if (vv.length > 0) {
-        HashesLines += `${c}: `;
-        const Hashes = vv.join(", ");
-        HashesLines += Hashes + "<br>";
-      }
-    });
-
-    return HashesLines.trim();
-  }
+  let modelBox = '';
 
   function imgInfoOutput(title, content) {
     return `<div class="imgInfoOutputSection"><p>${title}${content}</p></div>`;
@@ -617,17 +735,74 @@ function plainTextToHTML(inputs) {
       }
 
       if (stepsIndex !== -1) {
-        paramsText = inputs.slice(stepsIndex).trim();
-        if (hashesIndex !== -1 && hashesIndex > stepsIndex) {
-          const ifHashes = inputs.slice(hashesIndex).match(/Hashes:\s*(\{.*?\})(,\s*)?/);
-          if (ifHashes && ifHashes[1]) {
-            const s = JSON.parse(ifHashes[1].trim());
-            civitaiHashes = civitaiHashesGroup(s);
-            paramsText = paramsText.replace(ifHashes[0], '').trim();
+        const hashesEX = inputs.slice(hashesIndex).match(/Hashes:\s*(\{.*?\})(,\s*)?/);
+        paramsRAW = inputs.slice(stepsIndex).trim();
+        paramsText = inputs.slice(stepsIndex).trim()
+        .replace(/,\s*(Lora hashes|TI hashes):\s*"[^"]+"/g, '')
+        .trim();
+
+        modelBox = `
+          <div id="imgInfoModelOutput" class="modelBox">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                x="0px" y="0px" width="100" height="100"
+                viewBox="0 0 48 48" id="refresh-spinner">
+              <path fill="${buttonColor}"
+                d="M8,24c0-8.8,7.2-16,16-16c1,0,2,0.1,3,0.3l0.7-3.9C26.5,4.1,25.3,4,24,4C12.9,4,4,13,4,24
+                c0,4.8,1.7,9.5,4.8,13.1l3-2.6C9.5,31.6,8,28,8,24z">
+              </path>
+              <path fill="${buttonColor}"
+                d="M39.5,11.3l-3.1,2.5C38.6,16.6,40,20.1,40,24c0,8.8-7.2,16-16,16c-1,0-2-0.1-3-0.3l-0.7,3.8
+                c1.3,0.2,2.5,0.3,3.7,0.3c11.1,0,20-8.9,20-20C44,19.4,42.4,14.8,39.5,11.3z">
+              </path>
+              <polygon fill="${buttonColor}" points="31,7 44,8.7 33.3,19"></polygon>
+              <polygon fill="${buttonColor}" points="17,41 4,39.3 14.7,29"></polygon>
+            </svg>
+          </div>
+        `;
+
+        setTimeout(() => {
+          const imgInfoModelOutput = document.querySelector("#imgInfoModelOutput");
+          if (imgInfoModelOutput) {
+            const imgInfoModelBox = imgInfoModelOutput.closest(".imgInfoOutputSection");
+            if (imgInfoModelBox) {
+              imgInfoModelBox.classList.add("modelBox");
+            }
+
+            imgInfoModelOutput.innerHTML = modelBox;
           }
-          if (paramsText.endsWith(',')) {
-            paramsText = paramsText.slice(0, -1).trim();
+        }, 0);
+
+        setTimeout(async () => {
+          const fetchTimeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 60000)
+          );
+
+          try {
+            const ModelOutputFetched = await Promise.race([
+              FetchingModelOutput(paramsRAW),
+              fetchTimeout
+            ]);
+
+            const imgInfoModelOutput = document.querySelector("#imgInfoModelOutput");
+            if (imgInfoModelOutput) {
+              imgInfoModelOutput.classList.add("imgInfoModelOutputReveal");
+              imgInfoModelOutput.innerHTML = ModelOutputFetched;
+            }
+          } catch (error) {
+            if (error.message === 'Timeout') {
+              const imgInfoModelOutput = document.querySelector("#imgInfoModelOutput");
+              if (imgInfoModelOutput) {
+                imgInfoModelOutput.innerHTML = 'Failed to fetch...';
+              }
+            }
           }
+        }, 500);
+
+        if (hashesEX && hashesEX[1]) {
+          paramsText = paramsText.replace(hashesEX[0], '').trim();
+        }
+        if (paramsText.endsWith(',')) {
+          paramsText = paramsText.slice(0, -1).trim();
         }
       } else {
         paramsText = inputs.trim();
@@ -637,8 +812,8 @@ function plainTextToHTML(inputs) {
         { title: titlePrompt, content: promptText },
         { title: titleNegativePrompt, content: negativePromptText },
         { title: titleParams, content: paramsText },
-        { title: titleCivitaiHashes, content: civitaiHashes },
         { title: titleSoftware, content: softWare },
+        { title: titleModels, content: modelBox },
         { title: titleEncrypt, content: EnCrypt },
         { title: titleSha, content: PWSha },
         { title: titleSource, content: sourceNAI }
@@ -652,7 +827,7 @@ function plainTextToHTML(inputs) {
     }
   }
 
-  return `<div class="imgInfoHTMLOutput" style="margin-bottom: -8px;">${outputHTML}</div>`;
+  return `${outputHTML}`;
 }
 
 onUiLoaded(function () {

@@ -60,7 +60,7 @@
 }
 
 #imgInfoModelOutput .label {
-  width: 15%;
+  width: 9rem;
   font-size: 15px;
   border: 1px solid transparent;
   border-top-left-radius: 0.5rem;
@@ -71,7 +71,7 @@
 }
 
 #imgInfoModelOutput .hashes {
-  width: 85%;
+  width: 41rem;
   overflow-wrap: break-word;
   column-gap: 7px;
   row-gap: 0px;

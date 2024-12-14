@@ -5,6 +5,34 @@ onUiLoaded(function () {
   }
 });
 
+onUiUpdate(function() {
+  var Id = 'imgInfoHidingScrollBar';
+  const BS = document.querySelector('button.selected.svelte-kqij2n');
+
+  if (BS && BS.textContent.trim() === 'Image Info') {
+    document.documentElement.style.setProperty('scrollbar-width', 'none');
+
+    if (!document.getElementById(Id)) {
+      const style = document.createElement('style');
+      style.id = Id;
+      style.innerHTML = `
+        ::-webkit-scrollbar {
+          width: 0 !important;
+          height: 0 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+  } else if (BS && BS.textContent.trim() !== 'Image Info') {
+    document.documentElement.style.setProperty('scrollbar-width', 'auto');
+    const SB = document.getElementById(Id);
+    if (SB) {
+      document.head.removeChild(SB);
+    }
+  }
+});
+
 async function image_info_parser() {
   window.EnCrypt = '';
   window.PWSha = '';
@@ -548,10 +576,12 @@ function imgInfoimgViewer(img) {
     let lastLen = 1;
     let GropinTime = null;
     let Groped = false;
-    let touchStore = {};
+    let TouchGrass = {};
     let velocityX = 0;
     let velocityY = 0;
-    let lastTouchMoveTime = 0;
+    let LastTouch = 0;
+    let ZoomMomentum = 0;
+    let LastZoom = 0;
 
     imgEL.onload = function() {
       imgEL.style.opacity = '1';
@@ -560,28 +590,42 @@ function imgInfoimgViewer(img) {
 
     imgEL.addEventListener('wheel', (e) => {
       e.stopPropagation();
+      e.preventDefault();
+    
+      const currentTime = Date.now();
+      const timeDelta = currentTime - LastZoom;
+      LastZoom = currentTime;
       const centerX = imgBox.offsetWidth / 2;
       const centerY = imgBox.offsetHeight / 2;
       const delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
-      const zoomStep = 0.1;
+      const zoomStep = 0.1 * (1 + Math.abs(ZoomMomentum));
       const zoom = 1 + delta * zoomStep;
       const lastScale = scale;
       scale *= zoom;
       scale = Math.max(0.1, scale);
       scale = Math.min(scale, 10);
+      ZoomMomentum = delta / (timeDelta || 1);
+      ZoomMomentum = Math.min(Math.max(ZoomMomentum, -1), 1);
       const imgCenterX = offsetX + centerX;
       const imgCenterY = offsetY + centerY;
       offsetX = e.clientX - ((e.clientX - imgCenterX) / lastScale) * scale - centerX;
       offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * scale - centerY;
-      imgEL.style.transition = 'transform 0.3s ease, opacity 0.4s ease';
+      const momentumFactor = Math.abs(ZoomMomentum);
+      const ZoomTransition = `transform ${0.5 * (1 + momentumFactor)}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+      
+      imgEL.style.transition = ZoomTransition;
       imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-    }, { passive: true });
+      setTimeout(() => {
+        ZoomMomentum *= 0.95;
+      }, 100);
+    }, { passive: false });
 
     imgEL.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
       e.preventDefault();
       GropinTime = setTimeout(() => {
         Groped = true;
-        imgEL.style.transition = 'transform 0s ease, opacity 0.4s ease';
+        imgEL.style.transition = 'transform 0s ease';
         imgEL.style.cursor = 'grab';
         lastX = e.clientX - offsetX;
         lastY = e.clientY - offsetY;
@@ -608,15 +652,16 @@ function imgInfoimgViewer(img) {
       }
       Groped = false;
       imgEL.style.cursor = 'auto';
-      imgEL.style.transition = 'transform 0.3s ease, opacity 0.4s ease';
+      imgEL.style.transition = 'transform 0.3s ease';
     });
 
-    imgEL.addEventListener('mouseleave', (e) => {
-      if (Groped) {
-        lastX = e.clientX - offsetX;
-        lastY = e.clientY - offsetY;
+    const imgInfoMouseLeave = (e) => {
+      if (!imgBox) return;
+      if (e.buttons === 0) {
+        Groped = false;
+        imgEL.style.cursor = 'auto';
       }
-    });
+    };
 
     imgBox.onclick = imgBox.onkeydown = (e) => {
       if (e.target === imgBox || e.key === 'Escape') {
@@ -630,17 +675,6 @@ function imgInfoimgViewer(img) {
       }
     };
 
-    function closeZoom() {
-      imgEL.style.transition = 'transform 0.8s ease, opacity 0.4s ease';
-      imgEL.style.opacity = '0';
-      imgEL.style.transform = 'translate(0px, 0px) scale(0)';
-      setTimeout(() => {
-        imgBox.remove();
-        document.body.style.overflow = 'auto';
-        ZoomeD = false;
-      }, 200);
-    }
-
     imgEL.addEventListener('touchcancel', (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -649,18 +683,18 @@ function imgInfoimgViewer(img) {
       let newScale = scale * e.scale;
       imgEL.style.transform = "translate(" + offsetX + "px, " + offsetY + "px) scale(" + scale + ")";
     });
-    
+
     imgEL.addEventListener('touchend', (e) => {
       e.stopPropagation();
       imgEL.onclick = undefined;
       imgEL.style.transition = 'none';
 
       if (e.targetTouches.length === 1) {
-        touchStore.touchScale = true;
+        TouchGrass.touchScale = true;
         return;
       }
 
-      touchStore.touchScale = false;
+      TouchGrass.touchScale = false;
 
       function applyMomentum() {
         let momentumDecay = 0.95;
@@ -687,7 +721,7 @@ function imgInfoimgViewer(img) {
         velocityY = 0;
       }
     });
-    
+
     imgEL.addEventListener('touchstart', (e) => {
       e.stopPropagation();
       imgEL.style.transition = 'none';
@@ -695,26 +729,26 @@ function imgInfoimgViewer(img) {
       velocityX = 0;
       velocityY = 0;
 
-      if (!touchStore.touchScale) {
+      if (!TouchGrass.touchScale) {
         lastX = e.targetTouches[0].clientX;
         lastY = e.targetTouches[0].clientY;
-        lastTouchMoveTime = Date.now();
+        LastTouch = Date.now();
       }
 
       if (e.targetTouches[1]) {
-        touchStore.touchScale = true;
-        touchStore.last1X = e.targetTouches[0].clientX;
-        touchStore.last1Y = e.targetTouches[0].clientY;
-        touchStore.last2X = e.targetTouches[1].clientX;
-        touchStore.last2Y = e.targetTouches[1].clientY;
-        touchStore.scale = scale;
+        TouchGrass.touchScale = true;
+        TouchGrass.last1X = e.targetTouches[0].clientX;
+        TouchGrass.last1Y = e.targetTouches[0].clientY;
+        TouchGrass.last2X = e.targetTouches[1].clientX;
+        TouchGrass.last2Y = e.targetTouches[1].clientY;
+        TouchGrass.scale = scale;
         lastLen = Math.sqrt(
-          Math.pow(touchStore.last2X - touchStore.last1X, 2) +
-          Math.pow(touchStore.last2Y - touchStore.last1Y, 2)
+          Math.pow(TouchGrass.last2X - TouchGrass.last1X, 2) +
+          Math.pow(TouchGrass.last2Y - TouchGrass.last1Y, 2)
         );
       }
     });
-    
+
     imgEL.addEventListener('touchmove', (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -722,50 +756,64 @@ function imgInfoimgViewer(img) {
       imgEL.style.transition = 'none';
 
       if (e.targetTouches[1]) {
-        touchStore.delta1X = e.targetTouches[0].clientX;
-        touchStore.delta1Y = e.targetTouches[0].clientY;
-        touchStore.delta2X = e.targetTouches[1].clientX;
-        touchStore.delta2Y = e.targetTouches[1].clientY;
+        TouchGrass.delta1X = e.targetTouches[0].clientX;
+        TouchGrass.delta1Y = e.targetTouches[0].clientY;
+        TouchGrass.delta2X = e.targetTouches[1].clientX;
+        TouchGrass.delta2Y = e.targetTouches[1].clientY;
 
         let centerX = imgBox.offsetWidth / 2;
         let centerY = imgBox.offsetHeight / 2;
         let deltaLen = Math.sqrt(
-          Math.pow(touchStore.delta2X - touchStore.delta1X, 2) +
-          Math.pow(touchStore.delta2Y - touchStore.delta1Y, 2)
+          Math.pow(TouchGrass.delta2X - TouchGrass.delta1X, 2) +
+          Math.pow(TouchGrass.delta2Y - TouchGrass.delta1Y, 2)
         );
 
         let zoom = deltaLen / lastLen;
         let lastScale = scale;
-        scale = touchStore.scale * zoom;
+        scale = TouchGrass.scale * zoom;
         scale = Math.max(0.1, scale);
         scale = Math.min(scale, 10);
-        let deltaCenterX = touchStore.delta1X + (touchStore.delta2X - touchStore.delta1X) / 2;
-        let deltaCenterY = touchStore.delta1Y + (touchStore.delta2Y - touchStore.delta1Y) / 2;
+        let deltaCenterX = TouchGrass.delta1X + (TouchGrass.delta2X - TouchGrass.delta1X) / 2;
+        let deltaCenterY = TouchGrass.delta1Y + (TouchGrass.delta2Y - TouchGrass.delta1Y) / 2;
         let imgCenterX = offsetX + centerX;
         let imgCenterY = offsetY + centerY;
         offsetX = deltaCenterX - ((deltaCenterX - imgCenterX) / lastScale) * scale - centerX;
         offsetY = deltaCenterY - ((deltaCenterY - imgCenterY) / lastScale) * scale - centerY;
         imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 
-      } else if (!touchStore.touchScale) {
+      } else if (!TouchGrass.touchScale) {
         let now = Date.now();
         let currentX = e.targetTouches[0].clientX;
         let currentY = e.targetTouches[0].clientY;
         let deltaX = currentX - lastX;
         let deltaY = currentY - lastY;
-        let timeDelta = now - lastTouchMoveTime;
+        let timeDelta = now - LastTouch;
         velocityX = deltaX / timeDelta;
         velocityY = deltaY / timeDelta;
         offsetX += deltaX;
         offsetY += deltaY;
         lastX = currentX;
         lastY = currentY;
-        lastTouchMoveTime = now;
+        LastTouch = now;
         imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
       }
     });
 
+    function closeZoom() {
+      imgEL.style.transition = 'transform 0.8s ease, opacity 0.4s ease';
+      imgEL.style.opacity = '0';
+      imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0)`;
+
+      setTimeout(() => {
+        imgBox.remove();
+        document.body.style.overflow = 'auto';
+        ZoomeD = false;
+        document.removeEventListener('mouseleave', imgInfoMouseLeave);
+      }, 200);
+    }
+
     ZoomeD = true;
+    document.addEventListener('mouseleave', imgInfoMouseLeave);
   });
 }
 

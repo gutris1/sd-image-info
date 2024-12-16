@@ -722,9 +722,8 @@ function imgInfoimgViewer(img) {
         offsetX = deltaCenterX - ((deltaCenterX - imgCenterX) / lastScale) * scale - centerX;
         offsetY = deltaCenterY - ((deltaCenterY - imgCenterY) / lastScale) * scale - centerY;
         imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-      } 
 
-      else if (!TouchGrass.touchScale) {
+      } else if (!TouchGrass.touchScale) {
         let now = Date.now();
         let currentX = e.targetTouches[0].clientX;
         let currentY = e.targetTouches[0].clientY;

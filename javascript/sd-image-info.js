@@ -11,25 +11,20 @@ onUiUpdate(function() {
 
   if (BS && BS.textContent.trim() === 'Image Info') {
     document.documentElement.style.setProperty('scrollbar-width', 'none');
-
+    const tabNav = document.querySelector('.tab-nav.scroll-hide.svelte-kqij2n');
+    Object.assign(tabNav.style, { borderBottom: '0' });
     if (!document.getElementById(Id)) {
-      const style = document.createElement('style');
-      style.id = Id;
-      style.innerHTML = `
-        ::-webkit-scrollbar {
-          width: 0 !important;
-          height: 0 !important;
-        }
-      `;
-      document.head.appendChild(style);
+      const SB = document.createElement('style');
+      SB.id = Id;
+      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
+      document.head.appendChild(SB);
     }
-
   } else if (BS && BS.textContent.trim() !== 'Image Info') {
     document.documentElement.style.setProperty('scrollbar-width', 'auto');
+    const tabNav = document.querySelector('.tab-nav.scroll-hide.svelte-kqij2n');
+    Object.assign(tabNav.style, { borderBottom: '' });
     const SB = document.getElementById(Id);
-    if (SB) {
-      document.head.removeChild(SB);
-    }
+    if (SB) document.head.removeChild(SB);
   }
 });
 
@@ -419,7 +414,7 @@ async function FetchingModelOutput(i) {
       if (h && !HashesDict[n]) {
         TIHashDict[n] = h;
 
-        const fetchedHash = await FetchingTIHashes(n, h);
+        const fetchedHash = await TIHashesSearchLink(n, h);
         Cat.embed.push(fetchedHash);
       }
     }
@@ -509,7 +504,7 @@ async function FetchingModels(n, h, isTHat = false) {
   return nonLink;
 }
 
-async function FetchingTIHashes(n, h) {
+async function TIHashesSearchLink(n, h) {
   const nonLink = `<span class="imgInfoModelOutputNonLink">${n}: ${h}</span>`;
 
   if (h) {
@@ -521,15 +516,7 @@ async function FetchingTIHashes(n, h) {
 }
 
 function imgInfoimgViewer(img) {
-  let ZoomeD = false;
-
   img.addEventListener('click', async () => {
-    if (ZoomeD) return;
-    const EximgBox = document.getElementById('imgInfoZoom');
-    if (EximgBox) {
-      EximgBox.remove();
-    }
-
     const imgBox = document.createElement('div');
     imgBox.id = 'imgInfoZoom';
     imgBox.setAttribute('tabindex', '0');
@@ -576,12 +563,12 @@ function imgInfoimgViewer(img) {
     let lastLen = 1;
     let GropinTime = null;
     let Groped = false;
-    let TouchGrass = {};
     let velocityX = 0;
     let velocityY = 0;
     let LastTouch = 0;
     let ZoomMomentum = 0;
     let LastZoom = 0;
+    let MultiGrope = false;
 
     imgEL.onload = function() {
       imgEL.style.opacity = '1';
@@ -591,33 +578,30 @@ function imgInfoimgViewer(img) {
     imgEL.addEventListener('wheel', (e) => {
       e.stopPropagation();
       e.preventDefault();
-    
+
       const currentTime = Date.now();
       const timeDelta = currentTime - LastZoom;
       LastZoom = currentTime;
       const centerX = imgBox.offsetWidth / 2;
       const centerY = imgBox.offsetHeight / 2;
       const delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
-      const zoomStep = 0.1 * (1 + Math.abs(ZoomMomentum));
+      const zoomStep = 0.15;
       const zoom = 1 + delta * zoomStep;
       const lastScale = scale;
       scale *= zoom;
-      scale = Math.max(0.1, scale);
-      scale = Math.min(scale, 10);
-      ZoomMomentum = delta / (timeDelta || 1);
-      ZoomMomentum = Math.min(Math.max(ZoomMomentum, -1), 1);
+      scale = Math.max(1, Math.min(scale, 10));
+      ZoomMomentum = delta / (timeDelta * 0.5 || 1);
+      ZoomMomentum = Math.min(Math.max(ZoomMomentum, -1.5), 1.5);
       const imgCenterX = offsetX + centerX;
       const imgCenterY = offsetY + centerY;
       offsetX = e.clientX - ((e.clientX - imgCenterX) / lastScale) * scale - centerX;
       offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * scale - centerY;
       const momentumFactor = Math.abs(ZoomMomentum);
-      const ZoomTransition = `transform ${0.5 * (1 + momentumFactor)}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
-      
+      const ZoomTransition = `transform ${0.4 * (1 + momentumFactor)}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
       imgEL.style.transition = ZoomTransition;
       imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-      setTimeout(() => {
-        ZoomMomentum *= 0.95;
-      }, 100);
+
+      ZoomMomentum *= 1;
     }, { passive: false });
 
     imgEL.addEventListener('mousedown', (e) => {
@@ -644,12 +628,7 @@ function imgInfoimgViewer(img) {
 
     imgEL.addEventListener('mouseup', (e) => {
       clearTimeout(GropinTime);
-      if (!Groped) {
-        if (e.button === 0) {
-          imgEL.onclick = closeZoom();
-        }
-        return;
-      }
+      if (!Groped && e.button === 0) return (imgEL.onclick = closeZoom);
       Groped = false;
       imgEL.style.cursor = 'auto';
       imgEL.style.transition = 'transform 0.3s ease';
@@ -657,85 +636,34 @@ function imgInfoimgViewer(img) {
 
     const imgInfoMouseLeave = (e) => {
       if (!imgBox) return;
-      if (e.buttons === 0) {
-        Groped = false;
-        imgEL.style.cursor = 'auto';
-      }
+      if (e.buttons === 0) { Groped = false; imgEL.style.cursor = 'auto'; }
     };
 
     imgBox.onclick = imgBox.onkeydown = (e) => {
-      if (e.target === imgBox || e.key === 'Escape') {
-        closeZoom();
-      }
+      if (e.target === imgBox || e.key === 'Escape') { if (!Groped) closeZoom(); }
     };
 
-    imgBox.onkeydown = (e) => {
-      if (e.key === 'Escape') {
-        closeZoom();
-      }
+    const TouchGrass = {
+      touchScale: false,
+      last1X: 0,
+      last1Y: 0,
+      last2X: 0,
+      last2Y: 0,
+      delta1X: 0,
+      delta1Y: 0,
+      delta2X: 0,
+      delta2Y: 0,
+      scale: 1
     };
-
-    imgEL.addEventListener('touchcancel', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      imgEL.onclick = undefined;
-      imgEL.style.transition = 'none';
-      let newScale = scale * e.scale;
-      imgEL.style.transform = "translate(" + offsetX + "px, " + offsetY + "px) scale(" + scale + ")";
-    });
-
-    imgEL.addEventListener('touchend', (e) => {
-      e.stopPropagation();
-      imgEL.onclick = undefined;
-      imgEL.style.transition = 'none';
-
-      if (e.targetTouches.length === 1) {
-        TouchGrass.touchScale = true;
-        return;
-      }
-
-      TouchGrass.touchScale = false;
-
-      function applyMomentum() {
-        let momentumDecay = 0.95;
-        let momentumMultiplier = 15;
-        let momentumThreshold = 0.05;
-
-        if (Math.abs(velocityX) > momentumThreshold || Math.abs(velocityY) > momentumThreshold) {
-          offsetX += velocityX * momentumMultiplier;
-          offsetY += velocityY * momentumMultiplier;
-          velocityX *= momentumDecay;
-          velocityY *= momentumDecay;
-          imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-          requestAnimationFrame(applyMomentum);
-        } else {
-          velocityX = 0;
-          velocityY = 0;
-        }
-      }
-
-      if (e.targetTouches.length === 0 && (Math.abs(velocityX) > 0.05 || Math.abs(velocityY) > 0.05)) {
-        applyMomentum();
-      } else {
-        velocityX = 0;
-        velocityY = 0;
-      }
-    });
 
     imgEL.addEventListener('touchstart', (e) => {
       e.stopPropagation();
       imgEL.style.transition = 'none';
-
-      velocityX = 0;
+      velocityX = 0; 
       velocityY = 0;
 
-      if (!TouchGrass.touchScale) {
-        lastX = e.targetTouches[0].clientX;
-        lastY = e.targetTouches[0].clientY;
-        LastTouch = Date.now();
-      }
-
       if (e.targetTouches[1]) {
+        MultiGrope = true;
         TouchGrass.touchScale = true;
         TouchGrass.last1X = e.targetTouches[0].clientX;
         TouchGrass.last1Y = e.targetTouches[0].clientY;
@@ -746,6 +674,21 @@ function imgInfoimgViewer(img) {
           Math.pow(TouchGrass.last2X - TouchGrass.last1X, 2) +
           Math.pow(TouchGrass.last2Y - TouchGrass.last1Y, 2)
         );
+      } else {
+        MultiGrope = false;
+        
+        if (!TouchGrass.touchScale) {
+          lastX = e.targetTouches[0].clientX;
+          lastY = e.targetTouches[0].clientY;
+          LastTouch = Date.now();
+        }
+      }
+    });
+
+    imgBox.addEventListener('touchmove', (e) => {
+      if (e.target !== imgEL) {
+        e.stopPropagation();
+        e.preventDefault();
       }
     });
 
@@ -760,7 +703,6 @@ function imgInfoimgViewer(img) {
         TouchGrass.delta1Y = e.targetTouches[0].clientY;
         TouchGrass.delta2X = e.targetTouches[1].clientX;
         TouchGrass.delta2Y = e.targetTouches[1].clientY;
-
         let centerX = imgBox.offsetWidth / 2;
         let centerY = imgBox.offsetHeight / 2;
         let deltaLen = Math.sqrt(
@@ -780,14 +722,16 @@ function imgInfoimgViewer(img) {
         offsetX = deltaCenterX - ((deltaCenterX - imgCenterX) / lastScale) * scale - centerX;
         offsetY = deltaCenterY - ((deltaCenterY - imgCenterY) / lastScale) * scale - centerY;
         imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      } 
 
-      } else if (!TouchGrass.touchScale) {
+      else if (!TouchGrass.touchScale) {
         let now = Date.now();
         let currentX = e.targetTouches[0].clientX;
         let currentY = e.targetTouches[0].clientY;
         let deltaX = currentX - lastX;
         let deltaY = currentY - lastY;
         let timeDelta = now - LastTouch;
+
         velocityX = deltaX / timeDelta;
         velocityY = deltaY / timeDelta;
         offsetX += deltaX;
@@ -795,7 +739,56 @@ function imgInfoimgViewer(img) {
         lastX = currentX;
         lastY = currentY;
         LastTouch = now;
+
         imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      }
+    });
+
+    imgEL.addEventListener('touchcancel', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      imgEL.onclick = undefined;
+      imgEL.style.transition = 'none';
+      imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      MultiGrope = false;
+      TouchGrass.touchScale = false;
+    });
+
+    imgEL.addEventListener('touchend', (e) => {
+      e.stopPropagation();
+      imgEL.onclick = undefined;
+      imgEL.style.transition = 'none';
+
+      if (e.targetTouches.length === 0) {
+        if (MultiGrope) {
+          MultiGrope = false;
+          TouchGrass.touchScale = false;
+        } else {
+          if (!TouchGrass.touchScale && (Math.abs(velocityX) > 0.05 || Math.abs(velocityY) > 0.05)) {
+            function TouchMomentum() {
+              let momentumDecay = 0.95;
+              let momentumMultiplier = 15;
+              let momentumThreshold = 0.05;
+              
+              if (Math.abs(velocityX) > momentumThreshold || Math.abs(velocityY) > momentumThreshold) {
+                offsetX += velocityX * momentumMultiplier;
+                offsetY += velocityY * momentumMultiplier;
+                velocityX *= momentumDecay;
+                velocityY *= momentumDecay;
+                imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                requestAnimationFrame(TouchMomentum);
+              } else { 
+                velocityX = 0; 
+                velocityY = 0; 
+              }
+            }
+            TouchMomentum();
+          }
+        }
+
+        setTimeout(() => {
+          TouchGrass.touchScale = false;
+        }, 10);
       }
     });
 
@@ -807,12 +800,10 @@ function imgInfoimgViewer(img) {
       setTimeout(() => {
         imgBox.remove();
         document.body.style.overflow = 'auto';
-        ZoomeD = false;
         document.removeEventListener('mouseleave', imgInfoMouseLeave);
       }, 200);
     }
 
-    ZoomeD = true;
     document.addEventListener('mouseleave', imgInfoMouseLeave);
   });
 }

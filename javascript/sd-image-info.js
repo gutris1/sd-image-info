@@ -6,25 +6,17 @@ onUiLoaded(function () {
 });
 
 onUiUpdate(function() {
-  var Id = 'imgInfoHidingScrollBar';
-  const BS = document.querySelector('button.selected.svelte-kqij2n');
+  let BS = document.querySelector('button.selected.svelte-kqij2n') || 
+          document.querySelector('button.selected.svelte-1uw5tnk');
 
   if (BS && BS.textContent.trim() === 'Image Info') {
-    document.documentElement.style.setProperty('scrollbar-width', 'none');
-    const tabNav = document.querySelector('.tab-nav.scroll-hide.svelte-kqij2n');
+    let tabNav = document.querySelector('.tab-nav.scroll-hide.svelte-kqij2n') || 
+                document.querySelector('.tab-nav.scroll-hide.svelte-1uw5tnk');
     Object.assign(tabNav.style, { borderBottom: '0' });
-    if (!document.getElementById(Id)) {
-      const SB = document.createElement('style');
-      SB.id = Id;
-      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
-      document.head.appendChild(SB);
-    }
   } else if (BS && BS.textContent.trim() !== 'Image Info') {
-    document.documentElement.style.setProperty('scrollbar-width', 'auto');
-    const tabNav = document.querySelector('.tab-nav.scroll-hide.svelte-kqij2n');
+    let tabNav = document.querySelector('.tab-nav.scroll-hide.svelte-kqij2n') || 
+                document.querySelector('.tab-nav.scroll-hide.svelte-1uw5tnk');
     Object.assign(tabNav.style, { borderBottom: '' });
-    const SB = document.getElementById(Id);
-    if (SB) document.head.removeChild(SB);
   }
 });
 

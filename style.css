@@ -13,6 +13,10 @@
   transition: opacity 0.2s ease;
 }
 
+.gradio-container-4-40-0 #imgInfoOutputPanel {
+  margin-left: -10px;
+}
+
 #imgInfoImage {
   background: var(--input-background-fill);
   border-radius: 0.5rem !important;

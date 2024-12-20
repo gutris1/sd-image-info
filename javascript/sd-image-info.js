@@ -657,6 +657,8 @@ function imgInfoimgViewer(img) {
     imgEL.addEventListener('mousemove', (e) => {
       if (!Groped) return;
       e.preventDefault();
+      imgEL.onclick = (e) => e.stopPropagation();
+      imgBox.onclick = (e) => e.stopPropagation();
 
       const imgELW = imgEL.offsetWidth * scale;
       const imgELH = imgEL.offsetHeight * scale;
@@ -703,30 +705,20 @@ function imgInfoimgViewer(img) {
       }
     });
 
-    imgBox.addEventListener('mouseup', (e) => {
-      if (Groped) {
-        clearTimeout(GropinTime);
-        setTimeout(() => {
-          Groped = false;
-          imgEL.style.cursor = 'auto';
-          SnapBack(imgEL, imgBox);
-          setTimeout(() => {
-            imgEL.style.transition = 'transform 0s ease';
-          }, 100);
-        }, 100);
-      }
-    });
-
-    imgEL.addEventListener('mouseup', (e) => {
+    const imgInfoMouseUp = (e) => {
       clearTimeout(GropinTime);
-      if (!Groped && e.button === 0) return (imgEL.onclick = closeZoom);
+      if (!Groped && e.button === 0) {
+        imgEL.onclick = closeZoom;
+        imgBox.onclick = closeZoom;
+        return;
+      }
       SnapBack(imgEL, imgBox);
       Groped = false;
       imgEL.style.cursor = 'auto';
       setTimeout(() => {
         imgEL.style.transition = 'transform 0s ease';
       }, 100);
-    });
+    };
 
     const imgInfoMouseLeave = (e) => {
       if (e.target !== imgEL && Groped) {
@@ -736,12 +728,10 @@ function imgInfoimgViewer(img) {
       }
     };
 
-    imgBox.onclick = (e) => {
-      if (e.target === imgBox && !Groped) closeZoom();
-    };
-
     imgBox.onkeydown = (e) => {
-      if (e.target === imgBox && e.key === 'Escape' && !Groped) closeZoom();
+      if (!Groped && e.target === imgBox && e.key === 'Escape') {
+        closeZoom();
+      }
     };
 
     function SnapBack(imgEL, imgBox) {
@@ -938,10 +928,12 @@ function imgInfoimgViewer(img) {
         imgBox.remove();
         document.body.style.overflow = 'auto';
         document.removeEventListener('mouseleave', imgInfoMouseLeave);
+        document.removeEventListener('mouseup', imgInfoMouseUp);
       }, 200);
     }
 
     document.addEventListener('mouseleave', imgInfoMouseLeave);
+    document.addEventListener('mouseup', imgInfoMouseUp);
   });
 }
 

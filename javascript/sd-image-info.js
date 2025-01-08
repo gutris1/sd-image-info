@@ -40,7 +40,15 @@ async function image_info_parser() {
   const imgInfoImage = document.getElementById("imgInfoImage");
 
   let img = imgInfoImage.querySelector('img');
-  let closeButton = imgInfoImage.querySelector('button.svelte-1030q2h[aria-label="Clear"]');
+
+  let closeButton;
+  let isThatForge = gradioApp().querySelector('.gradio-container-4-40-0') !== null;
+
+  if (isThatForge) {
+    closeButton = imgInfoImage.querySelector('.image-container > .svelte-s6ybro > button');
+  } else {
+    closeButton = imgInfoImage.querySelector('button.svelte-1030q2h[aria-label="Clear"]');
+  }
 
   if (closeButton) {
     closeButton.style.cssText += `

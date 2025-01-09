@@ -18,8 +18,21 @@
 }
 
 #imgInfoImage {
+  cursor: wait;
   background: var(--input-background-fill);
   border-radius: 0.5rem !important;
+}
+
+#imgInfoImage button.svelte-rk35yg[aria-label="Remove Image"],
+#imgInfoImage button.svelte-1030q2h[aria-label="Clear"] {
+  transform: scale(2);
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 0;
+  color: var(--primary-400) !important;
 }
 
 #imgInfoHTML {

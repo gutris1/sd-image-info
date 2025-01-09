@@ -5,30 +5,6 @@ onUiLoaded(function () {
   }
 });
 
-onUiUpdate(function() {
-  var Id = 'imgInfoHidingScrollBar';
-  let BS = gradioApp().querySelector('#tabs > .tab-nav > button.selected');
-
-  if (BS && BS.textContent.trim() === 'Image Info') {
-    const tabNav = document.querySelector('.tab-nav.scroll-hide');
-    Object.assign(tabNav.style, { borderBottom: '0' });
-    if (!document.getElementById(Id)) {
-      const SB = document.createElement('style');
-      SB.id = Id;
-      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
-      document.head.appendChild(SB);
-    }
-    Object.assign(document.documentElement.style, { scrollbarWidth: 'none' });
-
-  } else if (BS && BS.textContent.trim() !== 'Image Info') {
-    const tabNav = document.querySelector('.tab-nav.scroll-hide');
-    Object.assign(tabNav.style, { borderBottom: '' });
-    const SB = document.getElementById(Id);
-    if (SB) document.head.removeChild(SB);
-    Object.assign(document.documentElement.style, { scrollbarWidth: '' });
-  }
-});
-
 async function image_info_parser() {
   window.EnCrypt = '';
   window.PWSha = '';
@@ -40,28 +16,6 @@ async function image_info_parser() {
   const imgInfoImage = document.getElementById("imgInfoImage");
 
   let img = imgInfoImage.querySelector('img');
-
-  let closeButton;
-  let isThatForge = gradioApp().querySelector('.gradio-container-4-40-0') !== null;
-
-  if (isThatForge) {
-    closeButton = imgInfoImage.querySelector('.image-container > .svelte-s6ybro > button');
-  } else {
-    closeButton = imgInfoImage.querySelector('button.svelte-1030q2h[aria-label="Clear"]');
-  }
-
-  if (closeButton) {
-    closeButton.style.cssText += `
-      transform: scale(2) !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      gap: 0 !important;
-      border-radius: 50% !important;
-      box-sizing: border-box;
-      border: 0 !important;
-      color: var(--primary-400) !important;
-    `;
-  }
 
   if (img) {
     img.style.opacity = "0";

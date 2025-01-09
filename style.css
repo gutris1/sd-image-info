@@ -18,7 +18,7 @@
 }
 
 #imgInfoImage {
-  cursor: wait;
+  cursor: crosshair;
   background: var(--input-background-fill);
   border-radius: 0.5rem !important;
 }

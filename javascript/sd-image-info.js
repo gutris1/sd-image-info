@@ -189,6 +189,21 @@ function imgInfoCopyButtonEvent(e) {
       imgInfoCopy(seedText, e.target);
     }
   }
+
+  var ADModel = OutputRaw.includes("ADetailer model");
+
+  function imgInfoClickSendButton(tab) {
+    if (e.target && e.target.id === `${tab}_tab` && e.target.parentElement &&
+        e.target.parentElement.id === "imgInfoSendButton" && ADModel
+    ) {
+      let Id = `script_${tab}_adetailer_ad_main_accordion-visible-checkbox`;
+      let checkbox = gradioApp().getElementById(Id);
+      if (checkbox && !checkbox.checked) checkbox.click();
+    }
+  }
+
+  imgInfoClickSendButton("txt2img");
+  imgInfoClickSendButton("img2img");
 }
 
 async function FetchingModelOutput(i) {

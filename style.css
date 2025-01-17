@@ -166,29 +166,28 @@
 }
 
 #imgInfoSendButton button.svelte-cmf5ev {
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-  padding: 0.3rem;
-}
-
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(1) {
-  border-top-left-radius: 0.5rem;
-}
-
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(2) {
-  border-top-right-radius: 0.5rem;
-}
-
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(3) {
-  border-bottom-left-radius: 0.5rem;
-}
-
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(4) {
-  border-bottom-right-radius: 0.5rem;
+  transition: 0.2s ease;
+  padding: 0.4rem;
 }
 
 #imgInfoSendButton button.svelte-cmf5ev:hover {
-  border-color: var(--primary-400);
+  box-shadow: 0 0 5px 0.2em var(--primary-400);
+}
+
+#imgInfoSendButton button.svelte-cmf5ev:nth-child(1) {
+  border-top-left-radius: 0.5rem;;
+}
+
+#imgInfoSendButton button.svelte-cmf5ev:nth-child(2) {
+  border-top-right-radius: 0.5rem;;
+}
+
+#imgInfoSendButton button.svelte-cmf5ev:nth-child(3) {
+  border-bottom-left-radius: 0.5rem;;
+}
+
+#imgInfoSendButton button.svelte-cmf5ev:nth-child(4) {
+  border-bottom-right-radius: 0.5rem;;
 }
 
 .imgInfoButtons {

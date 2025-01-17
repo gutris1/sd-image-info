@@ -21,7 +21,7 @@ async function image_info_parser() {
     img.style.opacity = "0";
     img.style.transition = 'opacity 1s ease';
 
-    imgInfoimgViewer(img);
+    imgInfoimageViewer(img);
 
     img.onload = function() {
       img.style.opacity = "1";
@@ -110,8 +110,16 @@ async function image_info_parser() {
         ", Size: " + nai["width"] + "x" + nai["height"] +
         ", Clip skip: 2, ENSD: 31337";
 
+    } else if (tags.prompt && tags.workflow && tags.prompt.description) {
+      if (tags.prompt.description.includes('"filename_prefix": "ComfyUI"')) {
+        output = 'ComfyUI<br>Nothing To Read Here';
+      }
+
+    } else if (tags.invokeai_graph && tags.invokeai_graph.description) {
+      output = 'InvokeAI<br>Nothing To Read Here';
+
     } else {
-      output = "Nothing To See Here";
+      output = 'Nothing To See Here';
     }
 
     if (output) {

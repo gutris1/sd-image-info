@@ -1,11 +1,10 @@
-function imgInfoimgViewer(img) {
+function imgInfoimageViewer(img) {
   img.addEventListener('click', () => {
-    const imgBox = document.createElement('div');
-    imgBox.id = 'imgInfoZoom';
-    imgBox.setAttribute('tabindex', '0');
-    document.body.style.overflow = 'hidden';
+    const LightBox = document.createElement('div');
+    LightBox.id = 'imgInfoZoom';
+    LightBox.setAttribute('tabindex', '0');
 
-    Object.assign(imgBox.style, {
+    Object.assign(LightBox.style, {
       position: 'fixed',
       top: '0',
       left: '0',
@@ -16,8 +15,10 @@ function imgInfoimgViewer(img) {
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: '9999',
+      opacity: '0',
       overflow: 'hidden',
-      backdropFilter: 'blur(10px)'
+      backdropFilter: 'blur(10px)',
+      transition: 'opacity 0.4s ease'
     });
 
     const imgEL = img.cloneNode();
@@ -29,100 +30,109 @@ function imgInfoimgViewer(img) {
       maxHeight: '100%',
       objectFit: 'contain',
       cursor: 'auto',
-      opacity: '0',
-      transition: 'transform 0.3s ease, opacity 0.6s ease',
+      transition: 'transform 0.3s ease',
       transform: 'translate(0px, 0px) scale(0)'
     });
 
-    imgBox.appendChild(imgEL);
-    document.body.appendChild(imgBox);
-    imgBox.focus();
+    LightBox.appendChild(imgEL);
+    document.body.appendChild(LightBox);
+    LightBox.focus();
 
-    let scale = 1;
-    let offsetX = 0;
-    let offsetY = 0;
-    let lastX = 0;
-    let lastY = 0;
-    let lastLen = 1;
-    let GropinTime = null;
-    let Groped = false;
-    let velocityX = 0;
-    let velocityY = 0;
-    let LastTouch = 0;
-    let ZoomMomentum = 0;
-    let LastZoom = 0;
-    let MultiGrope = false;
-    let SnapMeter = 20;
+    const imgState = {
+      scale: 1,
+      offsetX: 0,
+      offsetY: 0,
+      lastX: 0,
+      lastY: 0,
+      lastLen: 1,
+      LastTouch: 0,
+      ZoomMomentum: 0,
+      LastZoom: 0,
+      SnapMouse: 20,
+      SnapTouch: 10,
 
-    imgEL.onload = function() {
-      imgEL.style.opacity = '1';
+      TouchGrass: {
+        touchScale: false,
+        last1X: 0,
+        last1Y: 0,
+        last2X: 0,
+        last2Y: 0,
+        delta1X: 0,
+        delta1Y: 0,
+        delta2X: 0,
+        delta2Y: 0,
+        scale: 1
+      },
+
+      imgInfoImageViewerSnapBack: function (imgEL, LightBox) {
+        if (this.scale <= 1) return;
+
+        const imgELW = imgEL.offsetWidth * this.scale;
+        const imgELH = imgEL.offsetHeight * this.scale;
+        const LightBoxW = LightBox.offsetWidth;
+        const LightBoxH = LightBox.offsetHeight;
+
+        if (imgELW <= LightBoxW) {
+          const EdgeY = (imgELH - LightBoxH) / 2;
+          if (this.offsetY > EdgeY) this.offsetY = EdgeY;
+          else if (this.offsetY < -EdgeY) this.offsetY = -EdgeY;
+
+          imgEL.style.transition = 'transform 0.3s ease';
+          imgEL.style.transform = `translateY(${this.offsetY}px) scale(${this.scale})`;
+
+        } else if (imgELH <= LightBoxH) {
+          const EdgeX = (imgELW - LightBoxW) / 2;
+          if (this.offsetX > EdgeX) this.offsetX = EdgeX;
+          else if (this.offsetX < -EdgeX) this.offsetX = -EdgeX;
+
+          imgEL.style.transition = 'transform 0.3s ease';
+          imgEL.style.transform = `translateX(${this.offsetX}px) scale(${this.scale})`;
+
+        } else {
+          const EdgeX = (imgELW - LightBoxW) / 2;
+          if (this.offsetX > EdgeX) this.offsetX = EdgeX;
+          else if (this.offsetX < -EdgeX) this.offsetX = -EdgeX;
+
+          const EdgeY = (imgELH - LightBoxH) / 2;
+          if (this.offsetY > EdgeY) this.offsetY = EdgeY;
+          else if (this.offsetY < -EdgeY) this.offsetY = -EdgeY;
+
+          imgEL.style.transition = 'transform 0.3s ease';
+          imgEL.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px) scale(${this.scale})`;
+        }
+      },
+
+      imgInfoImageViewerCloseZoom: function () {
+        LightBox.style.opacity = '0';
+
+        setTimeout(() => {
+          LightBox.remove();
+          imgEL.style.transform = 'translate(0px, 0px) scale(0)';
+          document.removeEventListener('mouseleave', imgInfoMouseLeave);
+          document.removeEventListener('mouseup', imgInfoMouseUp);
+        }, 200);
+      }
+    };
+
+    imgEL.onload = function () {
+      LightBox.style.opacity = '1';
       imgEL.style.transform = 'translate(0px, 0px) scale(1)';
     };
 
-    imgEL.addEventListener('wheel', (e) => {
+    imgEL.ondrag = imgEL.ondragend = imgEL.ondragstart = (e) => {
       e.stopPropagation();
       e.preventDefault();
+    };
 
-      const currentTime = Date.now();
-      const timeDelta = currentTime - LastZoom;
-      LastZoom = currentTime;
-      const centerX = imgBox.offsetWidth / 2;
-      const centerY = imgBox.offsetHeight / 2;
-      const delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
-      const zoomStep = 0.15;
-      const zoom = 1 + delta * zoomStep;
-      const lastScale = scale;
-      scale *= zoom;
-      scale = Math.max(1, Math.min(scale, 10));
-      ZoomMomentum = delta / (timeDelta * 0.5 || 1);
-      ZoomMomentum = Math.min(Math.max(ZoomMomentum, -1.5), 1.5);
-
-      const imgELW = imgEL.offsetWidth * scale;
-      const imgELH = imgEL.offsetHeight * scale;
-      const imgBoxW = imgBox.offsetWidth;
-      const imgBoxH = imgBox.offsetHeight;
-
-      if (scale <= 1) {
-        offsetX = 0;
-        offsetY = 0;
-      } else if (imgELW <= imgBoxW) {
-        const imgCenterY = offsetY + centerY;
-        offsetX = 0;
-        offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * scale - centerY;
-
-        const EdgeY = (imgELH - imgBoxH) / 2;
-        if (offsetY > EdgeY) {
-          offsetY = EdgeY;
-        } else if (offsetY < -EdgeY) {
-          offsetY = -EdgeY;
-        }
-      } else {
-        const imgCenterX = offsetX + centerX;
-        const imgCenterY = offsetY + centerY;
-        offsetX = e.clientX - ((e.clientX - imgCenterX) / lastScale) * scale - centerX;
-        offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * scale - centerY;
-
-        const EdgeX = (imgELW - imgBoxW) / 2;
-        if (offsetX > EdgeX) {
-          offsetX = EdgeX;
-        } else if (offsetX < -EdgeX) {
-          offsetX = -EdgeX;
-        }
-
-        const EdgeY = (imgELH - imgBoxH) / 2;
-        if (offsetY > EdgeY) {
-          offsetY = EdgeY;
-        } else if (offsetY < -EdgeY) {
-          offsetY = -EdgeY;
-        }
+    LightBox.onkeydown = (e) => {
+      if (window.getComputedStyle(LightBox).display === 'flex' && e.key === 'Escape') {
+        e.preventDefault();
+        imgState.imgInfoImageViewerCloseZoom();
       }
+    };
 
-      const momentumFactor = Math.abs(ZoomMomentum);
-      const ZoomTransition = `transform ${0.4 * (1 + momentumFactor)}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
-      imgEL.style.transition = ZoomTransition;
-      imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-      ZoomMomentum *= 0.5;
-    }, { passive: false });
+    let GropinTime = null;
+    let Groped = false;
 
     imgEL.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
@@ -131,224 +141,302 @@ function imgInfoimgViewer(img) {
         Groped = true;
         imgEL.style.transition = 'transform 0s ease';
         imgEL.style.cursor = 'grab';
-        lastX = e.clientX - offsetX;
-        lastY = e.clientY - offsetY;
+        imgState.lastX = e.clientX - imgState.offsetX;
+        imgState.lastY = e.clientY - imgState.offsetY;
       }, 100);
     });
 
     imgEL.addEventListener('mousemove', (e) => {
       if (!Groped) return;
+
       e.preventDefault();
       imgEL.onclick = (e) => e.stopPropagation();
-      imgBox.onclick = (e) => e.stopPropagation();
+      LightBox.onclick = (e) => e.stopPropagation();
 
-      const imgELW = imgEL.offsetWidth * scale;
-      const imgELH = imgEL.offsetHeight * scale;
-      const imgBoxW = imgBox.offsetWidth;
-      const imgBoxH = imgBox.offsetHeight;
-      const deltaX = e.clientX - lastX;
-      const deltaY = e.clientY - lastY;
+      const imgELW = imgEL.offsetWidth * imgState.scale;
+      const imgELH = imgEL.offsetHeight * imgState.scale;
+      const LightBoxW = LightBox.offsetWidth;
+      const LightBoxH = LightBox.offsetHeight;
+
+      const deltaX = e.clientX - imgState.lastX;
+      const deltaY = e.clientY - imgState.lastY;
 
       imgEL.style.transition = 'transform 60ms ease';
 
-      if (scale <= 1) {
-        offsetX = 0;
-        offsetY = 0;
-        imgEL.style.transform = `translateX(0px) scale(${scale})`;
-      } else if (imgELW <= imgBoxW) { 
-        offsetY = deltaY;
-        const EdgeY = (imgELH - imgBoxH) / 2;
-        if (deltaY > EdgeY + SnapMeter) {
-          offsetY = EdgeY + SnapMeter;
-        } else if (deltaY < -EdgeY - SnapMeter) {
-          offsetY = -EdgeY - SnapMeter;
-        }
+      if (imgState.scale <= 1) {
+        imgState.offsetX = 0;
+        imgState.offsetY = 0;
+        imgEL.style.transform = `translateX(0px) scale(${imgState.scale})`;
 
-        imgEL.style.transform = `translateY(${offsetY}px) scale(${scale})`;
-      } else { 
-        offsetX = deltaX;
-        offsetY = deltaY;
+      } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
+        imgState.offsetY = deltaY;
+        const EdgeY = (imgELH - LightBoxH) / 2;
+        imgState.offsetY = Math.max(Math.min(imgState.offsetY, EdgeY + imgState.SnapMouse), -EdgeY - imgState.SnapMouse);
+        imgEL.style.transform = `translateY(${imgState.offsetY}px) scale(${imgState.scale})`;
 
-        const EdgeX = (imgELW - imgBoxW) / 2;
-        if (deltaX > EdgeX + SnapMeter) {
-          offsetX = EdgeX + SnapMeter;
-        } else if (deltaX < -EdgeX - SnapMeter) {
-          offsetX = -EdgeX - SnapMeter;
-        }
+      } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
+        imgState.offsetX = deltaX;
+        const EdgeX = (imgELW - LightBoxW) / 2;
+        imgState.offsetX = Math.max(Math.min(imgState.offsetX, EdgeX + imgState.SnapMouse), -EdgeX - imgState.SnapMouse);
+        imgEL.style.transform = `translateX(${imgState.offsetX}px) scale(${imgState.scale})`;
 
-        const EdgeY = (imgELH - imgBoxH) / 2;
-        if (deltaY > EdgeY + SnapMeter) {
-          offsetY = EdgeY + SnapMeter;
-        } else if (deltaY < -EdgeY - SnapMeter) {
-          offsetY = -EdgeY - SnapMeter;
-        }
+      } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
+        imgState.offsetX = deltaX;
+        imgState.offsetY = deltaY;
 
-        imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        const EdgeX = (imgELW - LightBoxW) / 2;
+        imgState.offsetX = Math.max(Math.min(imgState.offsetX, EdgeX + imgState.SnapMouse), -EdgeX - imgState.SnapMouse);
+
+        const EdgeY = (imgELH - LightBoxH) / 2;
+        imgState.offsetY = Math.max(Math.min(imgState.offsetY, EdgeY + imgState.SnapMouse), -EdgeY - imgState.SnapMouse);
+
+        imgEL.style.transform = `translate(${imgState.offsetX}px, ${imgState.offsetY}px) scale(${imgState.scale})`;
       }
     });
 
     const imgInfoMouseUp = (e) => {
       clearTimeout(GropinTime);
       if (!Groped && e.button === 0) {
-        imgEL.onclick = closeZoom;
-        imgBox.onclick = closeZoom;
+        imgEL.onclick = (e) => (e.preventDefault(), imgState.imgInfoImageViewerCloseZoom());
+        LightBox.onclick = (e) => (e.preventDefault(), imgState.imgInfoImageViewerCloseZoom());
         return;
       }
-      SnapBack(imgEL, imgBox);
+
+      imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
       Groped = false;
       imgEL.style.cursor = 'auto';
-      setTimeout(() => {
-        imgEL.style.transition = 'transform 0s ease';
-      }, 100);
+      setTimeout(() => (imgEL.style.transition = 'transform 0s ease'), 100);
     };
 
     const imgInfoMouseLeave = (e) => {
-      if (e.target !== imgEL && Groped) {
-        SnapBack(imgEL, imgBox);
+      if (e.target !== LightBox && Groped) {
+        imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
         Groped = false;
         imgEL.style.cursor = 'auto';
       }
     };
 
-    imgBox.onkeydown = (e) => {
-      if (!Groped && e.target === imgBox && e.key === 'Escape') {
-        closeZoom();
+    imgEL.addEventListener('wheel', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      const currentTime = Date.now();
+      const timeDelta = currentTime - imgState.LastZoom;
+      imgState.LastZoom = currentTime;
+      const centerX = LightBox.offsetWidth / 2;
+      const centerY = LightBox.offsetHeight / 2;
+      const delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
+      const zoomStep = 0.15;
+      const zoom = 1 + delta * zoomStep;
+      const lastScale = imgState.scale;
+      imgState.scale *= zoom;
+      imgState.scale = Math.max(1, Math.min(imgState.scale, 10));
+      imgState.ZoomMomentum = delta / (timeDelta * 0.5 || 1);
+      imgState.ZoomMomentum = Math.min(Math.max(imgState.ZoomMomentum, -1.5), 1.5);
+
+      const imgELW = imgEL.offsetWidth * imgState.scale;
+      const imgELH = imgEL.offsetHeight * imgState.scale;
+      const LightBoxW = LightBox.offsetWidth;
+      const LightBoxH = LightBox.offsetHeight;
+
+      const momentumFactor = Math.abs(imgState.ZoomMomentum);
+      const ZoomTransition = `transform ${0.4 * (1 + momentumFactor)}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+      imgEL.style.transition = ZoomTransition;
+
+      if (imgState.scale <= 1) {
+        imgState.offsetX = 0;
+        imgState.offsetY = 0;
+        imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
+
+      } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
+        const imgCenterY = imgState.offsetY + centerY;
+        imgState.offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * imgState.scale - centerY;
+
+        const EdgeY = (imgELH - LightBoxH) / 2;
+        if (imgState.offsetY > EdgeY) imgState.offsetY = EdgeY;
+        else if (imgState.offsetY < -EdgeY) imgState.offsetY = -EdgeY;
+
+        imgEL.style.transform = `translateY(${imgState.offsetY}px) scale(${imgState.scale})`;
+
+      } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
+        const imgCenterX = imgState.offsetX + centerX;
+        imgState.offsetX = e.clientX - ((e.clientX - imgCenterX) / lastScale) * imgState.scale - centerX;
+
+        const EdgeX = (imgELW - LightBoxW) / 2;
+        if (imgState.offsetX > EdgeX) imgState.offsetX = EdgeX;
+        else if (imgState.offsetX < -EdgeX) imgState.offsetX = -EdgeX;
+
+        imgEL.style.transform = `translateX(${imgState.offsetX}px) scale(${imgState.scale})`;
+
+      } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
+        const imgCenterX = imgState.offsetX + centerX;
+        const imgCenterY = imgState.offsetY + centerY;
+        imgState.offsetX = e.clientX - ((e.clientX - imgCenterX) / lastScale) * imgState.scale - centerX;
+        imgState.offsetY = e.clientY - ((e.clientY - imgCenterY) / lastScale) * imgState.scale - centerY;
+
+        const EdgeX = (imgELW - LightBoxW) / 2;
+        if (imgState.offsetX > EdgeX) imgState.offsetX = EdgeX;
+        else if (imgState.offsetX < -EdgeX) imgState.offsetX = -EdgeX;
+
+        const EdgeY = (imgELH - LightBoxH) / 2;
+        if (imgState.offsetY > EdgeY) imgState.offsetY = EdgeY;
+        else if (imgState.offsetY < -EdgeY) imgState.offsetY = -EdgeY;
+
+        imgEL.style.transform = `translate(${imgState.offsetX}px, ${imgState.offsetY}px) scale(${imgState.scale})`;
+      }
+
+      imgState.ZoomMomentum *= 0.5;
+    }, { passive: false });
+
+    LightBox.onkeydown = (e) => {
+      if (window.getComputedStyle(LightBox).display === 'flex' && e.key === 'Escape') {
+        e.preventDefault();
+        imgState.imgInfoImageViewerCloseZoom();
       }
     };
 
-    function SnapBack(imgEL, imgBox) {
-      if (scale <= 1) return;
+    let MultiGrope = false;
+    let DragSpeed = 1.5;
+    let lastDistance = 0;
+    let lastScale = 1;
 
-      const imgELW = imgEL.offsetWidth * scale;
-      const imgELH = imgEL.offsetHeight * scale;
-      const imgBoxW = imgBox.offsetWidth;
-      const imgBoxH = imgBox.offsetHeight;
-
-      if (imgELW <= imgBoxW) {
-        const EdgeY = (imgELH - imgBoxH) / 2;
-        if (offsetY > EdgeY) {
-          offsetY = EdgeY;
-        } else if (offsetY < -EdgeY) {
-          offsetY = -EdgeY;
-        }
-
-        imgEL.style.transition = 'transform 0.3s ease';
-        imgEL.style.transform = `translateY(${offsetY}px) scale(${scale})`;
-
-      } else {
-        const EdgeX = (imgELW - imgBoxW) / 2;
-        if (offsetX > EdgeX) {
-          offsetX = EdgeX;
-        } else if (offsetX < -EdgeX) {
-          offsetX = -EdgeX;
-        }
-
-        const EdgeY = (imgELH - imgBoxH) / 2;
-        if (offsetY > EdgeY) {
-          offsetY = EdgeY;
-        } else if (offsetY < -EdgeY) {
-          offsetY = -EdgeY;
-        }
-
-        imgEL.style.transition = 'transform 0.3s ease';
-        imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-      }
+    function imgDistance(touch1, touch2) {
+      return Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
     }
 
-    const TouchGrass = {
-      touchScale: false,
-      last1X: 0,
-      last1Y: 0,
-      last2X: 0,
-      last2Y: 0,
-      delta1X: 0,
-      delta1Y: 0,
-      delta2X: 0,
-      delta2Y: 0,
-      scale: 1
-    };
+    LightBox.addEventListener('touchmove', (e) => {
+      if (e.target !== imgEL) e.stopPropagation(), e.preventDefault();
+    });
 
     imgEL.addEventListener('touchstart', (e) => {
       e.stopPropagation();
       imgEL.style.transition = 'none';
-      velocityX = 0; 
-      velocityY = 0;
-
       if (e.targetTouches[1]) {
         MultiGrope = true;
-        TouchGrass.touchScale = true;
-        TouchGrass.last1X = e.targetTouches[0].clientX;
-        TouchGrass.last1Y = e.targetTouches[0].clientY;
-        TouchGrass.last2X = e.targetTouches[1].clientX;
-        TouchGrass.last2Y = e.targetTouches[1].clientY;
-        TouchGrass.scale = scale;
-        lastLen = Math.sqrt(
-          Math.pow(TouchGrass.last2X - TouchGrass.last1X, 2) +
-          Math.pow(TouchGrass.last2Y - TouchGrass.last1Y, 2)
-        );
+        imgState.TouchGrass.touchScale = true;
+        lastDistance = imgDistance(e.targetTouches[0], e.targetTouches[1]);
+        lastScale = imgState.scale;
       } else {
         MultiGrope = false;
-        
-        if (!TouchGrass.touchScale) {
-          lastX = e.targetTouches[0].clientX;
-          lastY = e.targetTouches[0].clientY;
-          LastTouch = Date.now();
+        if (!imgState.TouchGrass.touchScale) {
+          imgState.lastX = e.targetTouches[0].clientX;
+          imgState.lastY = e.targetTouches[0].clientY;
         }
       }
-    });
-
-    imgBox.addEventListener('touchmove', (e) => {
-      if (e.target !== imgEL) e.stopPropagation(), e.preventDefault();
     });
 
     imgEL.addEventListener('touchmove', (e) => {
       e.stopPropagation();
       e.preventDefault();
       imgEL.onclick = (e) => e.stopPropagation();
-      imgEL.style.transition = 'none';
 
       if (e.targetTouches[1]) {
-        TouchGrass.delta1X = e.targetTouches[0].clientX;
-        TouchGrass.delta1Y = e.targetTouches[0].clientY;
-        TouchGrass.delta2X = e.targetTouches[1].clientX;
-        TouchGrass.delta2Y = e.targetTouches[1].clientY;
-        let centerX = imgBox.offsetWidth / 2;
-        let centerY = imgBox.offsetHeight / 2;
-        let deltaLen = Math.sqrt(
-          Math.pow(TouchGrass.delta2X - TouchGrass.delta1X, 2) +
-          Math.pow(TouchGrass.delta2Y - TouchGrass.delta1Y, 2)
-        );
+        const currentDistance = imgDistance(e.targetTouches[0], e.targetTouches[1]);
+        const zoom = currentDistance / lastDistance;
+        const centerX = LightBox.offsetWidth / 2;
+        const centerY = LightBox.offsetHeight / 2;
+        const pinchCenterX = (e.targetTouches[0].clientX + e.targetTouches[1].clientX) / 2;
+        const pinchCenterY = (e.targetTouches[0].clientY + e.targetTouches[1].clientY) / 2;
+        const prevScale = imgState.scale;
 
-        let zoom = deltaLen / lastLen;
-        let lastScale = scale;
-        scale = TouchGrass.scale * zoom;
-        scale = Math.max(0.1, scale);
-        scale = Math.min(scale, 10);
-        let deltaCenterX = TouchGrass.delta1X + (TouchGrass.delta2X - TouchGrass.delta1X) / 2;
-        let deltaCenterY = TouchGrass.delta1Y + (TouchGrass.delta2Y - TouchGrass.delta1Y) / 2;
-        let imgCenterX = offsetX + centerX;
-        let imgCenterY = offsetY + centerY;
-        offsetX = deltaCenterX - ((deltaCenterX - imgCenterX) / lastScale) * scale - centerX;
-        offsetY = deltaCenterY - ((deltaCenterY - imgCenterY) / lastScale) * scale - centerY;
-        imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        imgState.scale = lastScale * zoom;
+        imgState.scale = Math.max(1, Math.min(imgState.scale, 10));
 
-      } else if (!TouchGrass.touchScale) {
-        let now = Date.now();
-        let currentX = e.targetTouches[0].clientX;
-        let currentY = e.targetTouches[0].clientY;
-        let deltaX = currentX - lastX;
-        let deltaY = currentY - lastY;
-        let timeDelta = now - LastTouch;
+        const imgELW = imgEL.offsetWidth * imgState.scale;
+        const imgELH = imgEL.offsetHeight * imgState.scale;
+        const LightBoxW = LightBox.offsetWidth;
+        const LightBoxH = LightBox.offsetHeight;
 
-        velocityX = deltaX / timeDelta;
-        velocityY = deltaY / timeDelta;
-        offsetX += deltaX;
-        offsetY += deltaY;
-        lastX = currentX;
-        lastY = currentY;
-        LastTouch = now;
+        if (imgState.scale <= 1) {
+          imgState.offsetX = 0;
+          imgState.offsetY = 0;
+          imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
 
-        imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
+          const imgCenterY = imgState.offsetY + centerY;
+          imgState.offsetY = pinchCenterY - ((pinchCenterY - imgCenterY) / prevScale) * imgState.scale - centerY;
+
+          const EdgeY = (imgELH - LightBoxH) / 2;
+          if (imgState.offsetY > EdgeY) imgState.offsetY = EdgeY;
+          else if (imgState.offsetY < -EdgeY) imgState.offsetY = -EdgeY;
+
+          imgEL.style.transform = `translateY(${imgState.offsetY}px) scale(${imgState.scale})`;
+
+        } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
+          const imgCenterX = imgState.offsetX + centerX;
+          imgState.offsetX = pinchCenterX - ((pinchCenterX - imgCenterX) / prevScale) * imgState.scale - centerX;
+
+          const EdgeX = (imgELW - LightBoxW) / 2;
+          if (imgState.offsetX > EdgeX) imgState.offsetX = EdgeX;
+          else if (imgState.offsetX < -EdgeX) imgState.offsetX = -EdgeX;
+
+          imgEL.style.transform = `translateX(${imgState.offsetX}px) scale(${imgState.scale})`;
+
+        } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
+          const imgCenterX = imgState.offsetX + centerX;
+          const imgCenterY = imgState.offsetY + centerY;
+
+          imgState.offsetX = pinchCenterX - ((pinchCenterX - imgCenterX) / prevScale) * imgState.scale - centerX;
+          imgState.offsetY = pinchCenterY - ((pinchCenterY - imgCenterY) / prevScale) * imgState.scale - centerY;
+
+          const EdgeX = (imgELW - LightBoxW) / 2;
+          const EdgeY = (imgELH - LightBoxH) / 2;
+
+          if (imgState.offsetX > EdgeX) imgState.offsetX = EdgeX;
+          else if (imgState.offsetX < -EdgeX) imgState.offsetX = -EdgeX;
+
+          if (imgState.offsetY > EdgeY) imgState.offsetY = EdgeY;
+          else if (imgState.offsetY < -EdgeY) imgState.offsetY = -EdgeY;
+
+          imgEL.style.transform = `translate(${imgState.offsetX}px, ${imgState.offsetY}px) scale(${imgState.scale})`;
+        }
+      } else if (!imgState.TouchGrass.touchScale) {
+        imgEL.style.transition = 'transform 60ms ease';
+
+        const currentX = e.targetTouches[0].clientX;
+        const currentY = e.targetTouches[0].clientY;
+        const deltaX = (currentX - imgState.lastX) * DragSpeed;
+        const deltaY = (currentY - imgState.lastY) * DragSpeed;
+
+        const imgELW = imgEL.offsetWidth * imgState.scale;
+        const imgELH = imgEL.offsetHeight * imgState.scale;
+        const LightBoxW = LightBox.offsetWidth;
+        const LightBoxH = LightBox.offsetHeight;
+
+        if (imgState.scale <= 1) {
+          imgState.offsetX = 0;
+          imgState.offsetY = 0;
+          imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
+
+        } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
+          imgState.offsetY += deltaY;
+          const EdgeY = (imgELH - LightBoxH) / 2;
+          imgState.offsetY = Math.max(Math.min(imgState.offsetY, EdgeY + imgState.SnapTouch), -EdgeY - imgState.SnapTouch);
+          imgEL.style.transform = `translateY(${imgState.offsetY}px) scale(${imgState.scale})`;
+
+        } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
+          imgState.offsetX += deltaX;
+          const EdgeX = (imgELW - LightBoxW) / 2;
+          imgState.offsetX = Math.max(Math.min(imgState.offsetX, EdgeX + imgState.SnapTouch), -EdgeX - imgState.SnapTouch);
+          imgEL.style.transform = `translateX(${imgState.offsetX}px) scale(${imgState.scale})`;
+
+        } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
+          imgState.offsetX += deltaX;
+          imgState.offsetY += deltaY;
+
+          const EdgeX = (imgELW - LightBoxW) / 2;
+          const EdgeY = (imgELH - LightBoxH) / 2;
+
+          imgState.offsetX = Math.max(Math.min(imgState.offsetX, EdgeX + imgState.SnapTouch), -EdgeX - imgState.SnapTouch);
+          imgState.offsetY = Math.max(Math.min(imgState.offsetY, EdgeY + imgState.SnapTouch), -EdgeY - imgState.SnapTouch);
+          imgEL.style.transform = `translate(${imgState.offsetX}px, ${imgState.offsetY}px) scale(${imgState.scale})`;
+        }
+
+        imgState.lastX = currentX;
+        imgState.lastY = currentY;
       }
     });
 
@@ -356,63 +444,24 @@ function imgInfoimgViewer(img) {
       e.stopPropagation();
       e.preventDefault();
       imgEL.onclick = undefined;
-      imgEL.style.transition = 'none';
-      imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
       MultiGrope = false;
-      TouchGrass.touchScale = false;
+      imgState.TouchGrass.touchScale = false;
+      imgEL.style.transform = `translate(${imgState.offsetX}px, ${imgState.offsetY}px) scale(${imgState.scale})`;
+      imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
     });
 
     imgEL.addEventListener('touchend', (e) => {
       e.stopPropagation();
       imgEL.onclick = undefined;
       imgEL.style.transition = 'none';
-
       if (e.targetTouches.length === 0) {
-        if (MultiGrope) {
-          MultiGrope = false;
-          TouchGrass.touchScale = false;
-        } else {
-          if (!TouchGrass.touchScale && (Math.abs(velocityX) > 0.05 || Math.abs(velocityY) > 0.05)) {
-            function TouchMomentum() {
-              let momentumDecay = 0.95;
-              let momentumMultiplier = 15;
-              let momentumThreshold = 0.05;
-              
-              if (Math.abs(velocityX) > momentumThreshold || Math.abs(velocityY) > momentumThreshold) {
-                offsetX += velocityX * momentumMultiplier;
-                offsetY += velocityY * momentumMultiplier;
-                velocityX *= momentumDecay;
-                velocityY *= momentumDecay;
-                imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-                requestAnimationFrame(TouchMomentum);
-              } else {
-                velocityX = 0; 
-                velocityY = 0; 
-              }
-            }
-
-            TouchMomentum();
-          }
-        }
-
+        if (MultiGrope) MultiGrope = false; imgState.TouchGrass.touchScale = false;
+        imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
         setTimeout(() => {
-          TouchGrass.touchScale = false;
+          imgState.TouchGrass.touchScale = false;
         }, 10);
       }
     });
-
-    function closeZoom() {
-      imgEL.style.transition = 'transform 0.8s ease, opacity 0.4s ease';
-      imgEL.style.opacity = '0';
-      imgEL.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0)`;
-
-      setTimeout(() => {
-        imgBox.remove();
-        document.body.style.overflow = 'auto';
-        document.removeEventListener('mouseleave', imgInfoMouseLeave);
-        document.removeEventListener('mouseup', imgInfoMouseUp);
-      }, 200);
-    }
 
     document.addEventListener('mouseleave', imgInfoMouseLeave);
     document.addEventListener('mouseup', imgInfoMouseUp);

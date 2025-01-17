@@ -73,7 +73,7 @@ async function imgInfoPlainTextToHTML(inputs) {
     imgInfoOutputPanel.style.transition = '';
     imgInfoOutputPanel.style.opacity = '1';
 
-    if (inputs.trim().includes("Nothing To See Here")) {
+    if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
       titlePrompt = '';
       imgInfoSendButton.style.display = 'none';
       outputHTML = imgInfoOutput('', inputs);

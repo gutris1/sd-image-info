@@ -21,7 +21,7 @@ async function image_info_parser() {
     img.style.opacity = "0";
     img.style.transition = 'opacity 1s ease';
 
-    imgInfoimgViewer(img);
+    imgInfoimageViewer(img);
 
     img.onload = function() {
       img.style.opacity = "1";

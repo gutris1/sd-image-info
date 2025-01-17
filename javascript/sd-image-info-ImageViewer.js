@@ -354,6 +354,7 @@ function imgInfoimageViewer(img) {
           imgState.offsetX = 0;
           imgState.offsetY = 0;
           imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
+
         } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
           const imgCenterY = imgState.offsetY + centerY;
           imgState.offsetY = pinchCenterY - ((pinchCenterY - imgCenterY) / prevScale) * imgState.scale - centerY;
@@ -363,6 +364,7 @@ function imgInfoimageViewer(img) {
           else if (imgState.offsetY < -EdgeY) imgState.offsetY = -EdgeY;
 
           imgEL.style.transform = `translateY(${imgState.offsetY}px) scale(${imgState.scale})`;
+
         } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
           const imgCenterX = imgState.offsetX + centerX;
           imgState.offsetX = pinchCenterX - ((pinchCenterX - imgCenterX) / prevScale) * imgState.scale - centerX;
@@ -372,6 +374,7 @@ function imgInfoimageViewer(img) {
           else if (imgState.offsetX < -EdgeX) imgState.offsetX = -EdgeX;
 
           imgEL.style.transform = `translateX(${imgState.offsetX}px) scale(${imgState.scale})`;
+
         } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
           const imgCenterX = imgState.offsetX + centerX;
           const imgCenterY = imgState.offsetY + centerY;
@@ -407,16 +410,19 @@ function imgInfoimageViewer(img) {
           imgState.offsetX = 0;
           imgState.offsetY = 0;
           imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
+
         } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
           imgState.offsetY += deltaY;
           const EdgeY = (imgELH - LightBoxH) / 2;
           imgState.offsetY = Math.max(Math.min(imgState.offsetY, EdgeY + imgState.SnapTouch), -EdgeY - imgState.SnapTouch);
           imgEL.style.transform = `translateY(${imgState.offsetY}px) scale(${imgState.scale})`;
+
         } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
           imgState.offsetX += deltaX;
           const EdgeX = (imgELW - LightBoxW) / 2;
           imgState.offsetX = Math.max(Math.min(imgState.offsetX, EdgeX + imgState.SnapTouch), -EdgeX - imgState.SnapTouch);
           imgEL.style.transform = `translateX(${imgState.offsetX}px) scale(${imgState.scale})`;
+
         } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
           imgState.offsetX += deltaX;
           imgState.offsetY += deltaY;
@@ -449,8 +455,7 @@ function imgInfoimageViewer(img) {
       imgEL.onclick = undefined;
       imgEL.style.transition = 'none';
       if (e.targetTouches.length === 0) {
-        if (MultiGrope) MultiGrope = false;
-        imgState.TouchGrass.touchScale = false;
+        if (MultiGrope) MultiGrope = false; imgState.TouchGrass.touchScale = false;
         imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
         setTimeout(() => {
           imgState.TouchGrass.touchScale = false;

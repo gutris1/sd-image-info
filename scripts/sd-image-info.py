@@ -7,13 +7,7 @@ def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as sd_image_info:
         with FormRow(equal_height=False):
             with FormColumn(variant="compact", scale=3):
-                image = gr.Image(
-                    elem_id="imgInfoImage",
-                    source="upload",
-                    interactive=True,
-                    type="pil",
-                    show_label=False
-                )
+                image = gr.HTML(elem_id="imgInfoImageContainer")
 
                 with FormRow(variant="compact", elem_id="imgInfoSendButton"):
                     buttons = tempe.create_buttons(["txt2img", "img2img", "inpaint", "extras"])
@@ -35,13 +29,6 @@ def on_ui_tabs():
                         source_image_component=image
                     )
                 )
-
-        image.change(
-            fn=None, 
-            inputs=[], 
-            outputs=[], 
-            _js="() => {image_info_parser();}"
-        )
 
     return [(sd_image_info, "Image Info", "sd_image_info")]
 

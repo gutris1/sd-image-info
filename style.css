@@ -18,7 +18,6 @@
 }
 
 #imgInfoImage {
-  cursor: crosshair;
   background: var(--input-background-fill);
   border-radius: 0.5rem !important;
   height: 275.05px;

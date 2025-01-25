@@ -9,6 +9,7 @@ def onSDImageInfoTab():
             image = gr.Image(
                 elem_id="imgInfoImage",
                 type="pil",
+                source="upload",
                 show_label=False
             )
 

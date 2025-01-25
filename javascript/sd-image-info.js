@@ -1,138 +1,12 @@
 onUiLoaded(function () {
-  const imgInfoTAB = gradioApp().getElementById('tab_sd_image_info')
-  if (imgInfoTAB) {
-    document.addEventListener("click", imgInfoCopyButtonEvent);
+  let imgInfoImage = document.getElementById("imgInfoImage");
+  if (imgInfoImage) {
+    imgInfoImage.style.removeProperty('height')
+    document.addEventListener("click", SDImageInfoCopyButtonEvent);
   }
 });
 
-async function image_info_parser() {
-  window.EnCrypt = '';
-  window.PWSha = '';
-  window.sourceNAI = '';
-  window.softWare = '';
-
-  const imgInfoRawOutput = gradioApp().querySelector("#imgInfoGenInfo > label > textarea");
-  const imgInfoHTML = gradioApp().querySelector("#imgInfoHTML");
-  const imgInfoImage = document.getElementById("imgInfoImage");
-
-  let img = imgInfoImage.querySelector('img');
-
-  if (img) {
-    img.style.opacity = "0";
-    img.style.transition = 'opacity 1s ease';
-
-    imgInfoimageViewer(img);
-
-    img.onload = function() {
-      img.style.opacity = "1";
-      const imgAspectRatio = img.naturalWidth / img.naturalHeight;
-      const containerWidth = imgInfoImage.clientWidth;
-      const newHeight = containerWidth / imgAspectRatio;
-      const fullSizeHeight = getComputedStyle(imgInfoImage).getPropertyValue('var(--size-full)').trim();
-      const fullSizeHeightValue = parseFloat(fullSizeHeight);
-
-      if (newHeight > fullSizeHeightValue) {
-        imgInfoImage.style.height = `${newHeight}px`;
-      } else {
-        imgInfoImage.style.height = fullSizeHeight;
-      }
-    };
-  } else {
-    const fullSizeHeight = getComputedStyle(imgInfoImage).getPropertyValue('var(--size-full)').trim();
-    imgInfoImage.style.height = fullSizeHeight;
-    imgInfoHTML.innerHTML = await imgInfoPlainTextToHTML('');
-    return;
-  }
-
-  let response = await fetch(img.src);
-  let img_blob = await response.blob();
-  let blobUrl = URL.createObjectURL(img_blob);
-  img.src = blobUrl;
-
-  const openInNewTab = document.createElement('a');
-  openInNewTab.href = blobUrl;
-  openInNewTab.target = '_blank';
-  openInNewTab.textContent = 'Open Image in New Tab';
-
-  openInNewTab.addEventListener('click', () => {
-    setTimeout(() => {
-      URL.revokeObjectURL(blobUrl);
-    }, 1000);
-  });
-
-  let arrayBuffer = await img_blob.arrayBuffer();
-  let tags = ExifReader.load(arrayBuffer);
-  let output = "";
-
-  if (tags) {
-    window.EnCrypt = tags.Encrypt ? tags.Encrypt.description : '';
-    window.PWSha = tags.EncryptPwdSha ? tags.EncryptPwdSha.description : '';
-
-    if (tags.parameters && tags.parameters.description) {
-      if (tags.parameters.description.includes("sui_image_params")) {
-        const parSing = JSON.parse(tags.parameters.description);
-        const Sui = parSing["sui_image_params"];
-        output = imgInfoSwarmUI(Sui, {});
-      } else {
-        output = tags.parameters.description;
-      }
-
-    } else if (tags.UserComment && tags.UserComment.value) {
-      const array = tags.UserComment.value;
-      const UserComments = imgInfoUserComment(array);
-      if (UserComments.includes("sui_image_params")) {
-        const rippin = UserComments.trim().replace(/[\x00-\x1F\x7F]/g, '');
-        const parSing = JSON.parse(rippin);
-        if (parSing["sui_image_params"]) {
-          const Sui = parSing["sui_image_params"];
-          const SuiExtra = parSing["sui_extra_data"] || {};
-          output = imgInfoSwarmUI(Sui, SuiExtra);
-        }
-      } else {
-        output = UserComments;
-      }
-
-    } else if (tags["Software"] && tags["Software"].description === "NovelAI" &&
-               tags.Comment && tags.Comment.description) {
-
-      window.softWare = tags["Software"] ? tags["Software"].description : '';
-      window.sourceNAI = tags["Source"] ? tags["Source"].description : '';
-
-      const nai = JSON.parse(tags.Comment.description);
-      nai.sampler = "Euler";
-
-      output = imgInfoNovelAI(nai["prompt"]) +
-        "\nNegative prompt: " + imgInfoNovelAI(nai["uc"]) +
-        "\nSteps: " + nai["steps"] +
-        ", Sampler: " + nai["sampler"] +
-        ", CFG scale: " + parseFloat(nai["scale"]).toFixed(1) +
-        ", Seed: " + nai["seed"] +
-        ", Size: " + nai["width"] + "x" + nai["height"] +
-        ", Clip skip: 2, ENSD: 31337";
-
-    } else if (tags.prompt && tags.workflow && tags.prompt.description) {
-      if (tags.prompt.description.includes('"filename_prefix": "ComfyUI"')) {
-        output = 'ComfyUI<br>Nothing To Read Here';
-      }
-
-    } else if (tags.invokeai_graph && tags.invokeai_graph.description) {
-      output = 'InvokeAI<br>Nothing To Read Here';
-
-    } else {
-      output = 'Nothing To See Here';
-    }
-
-    if (output) {
-      imgInfoRawOutput.value = output;
-      updateInput(imgInfoRawOutput);
-      imgInfoHTML.classList.add('prose');
-      imgInfoHTML.innerHTML = await imgInfoPlainTextToHTML(output);
-    }
-  }
-  return tags;
-}
-
-function imgInfoCopyButtonEvent(e) {
+function SDImageInfoCopyButtonEvent(e) {
   let OutputRaw = '';
 
   const imgInfoRawOutput = gradioApp().querySelector("#imgInfoGenInfo > label > textarea");
@@ -140,21 +14,15 @@ function imgInfoCopyButtonEvent(e) {
     OutputRaw = imgInfoRawOutput.value;
   }
 
-  function pulseBorderSection(button) {
+  function SDImageInfoPulseBorderSection(button) {
     var section = button.closest('.imgInfoOutputSection');
     section.classList.add('imgInfoBorderPulse');
-    setTimeout(() => {
-      section.classList.remove('imgInfoBorderPulse');
-      section.classList.add('fadeOutBorder');
-      setTimeout(() => {
-        section.classList.remove('fadeOutBorder');
-      }, 1000);
-    }, 1500);
+    setTimeout(() => section.classList.remove('imgInfoBorderPulse'), 2000);
   }
 
-  function imgInfoCopy(CopyCopy, whichBorder) {
+  function SDImageInfoCopy(CopyCopy, whichBorder) {
     navigator.clipboard.writeText(CopyCopy);
-    pulseBorderSection(whichBorder);
+    SDImageInfoPulseBorderSection(whichBorder);
   }
 
   if (e.target && e.target.id === "promptButton") {
@@ -170,7 +38,7 @@ function imgInfoCopyButtonEvent(e) {
         promptText = OutputRaw.trim();
       }
     }
-    imgInfoCopy(promptText, e.target);
+    SDImageInfoCopy(promptText, e.target);
   }
 
   if (e.target && e.target.id === "negativePromptButton") {
@@ -178,7 +46,7 @@ function imgInfoCopyButtonEvent(e) {
     const stepsStart = OutputRaw.indexOf("Steps:");
     if (negativePromptStart !== -1 && stepsStart !== -1 && stepsStart > negativePromptStart) {
       const negativePromptText = OutputRaw.slice(negativePromptStart + "Negative prompt:".length, stepsStart).trim();
-      imgInfoCopy(negativePromptText, e.target);
+      SDImageInfoCopy(negativePromptText, e.target);
     }
   }
 
@@ -186,7 +54,7 @@ function imgInfoCopyButtonEvent(e) {
     const stepsStart = OutputRaw.indexOf("Steps:");
     if (stepsStart !== -1) {
       const paramsText = OutputRaw.slice(stepsStart).trim();
-      imgInfoCopy(paramsText, e.target);
+      SDImageInfoCopy(paramsText, e.target);
     }
   }
 
@@ -194,27 +62,27 @@ function imgInfoCopyButtonEvent(e) {
     const seedMatch = OutputRaw.match(/Seed:\s?(\d+),/i);
     if (seedMatch && seedMatch[1]) {
       const seedText = seedMatch[1].trim();
-      imgInfoCopy(seedText, e.target);
+      SDImageInfoCopy(seedText, e.target);
     }
   }
 
   var ADModel = OutputRaw.includes("ADetailer model");
 
-  function imgInfoClickSendButton(tab) {
-    if (e.target && e.target.id === `${tab}_tab` && e.target.parentElement &&
+  function SDImageInfoSendButton(tabname) {
+    if (e.target && e.target.id === `${tabname}_tab` && e.target.parentElement &&
         e.target.parentElement.id === "imgInfoSendButton" && ADModel
     ) {
-      let Id = `script_${tab}_adetailer_ad_main_accordion-visible-checkbox`;
+      let Id = `script_${tabname}_adetailer_ad_main_accordion-visible-checkbox`;
       let checkbox = gradioApp().getElementById(Id);
       if (checkbox && !checkbox.checked) checkbox.click();
     }
   }
 
-  imgInfoClickSendButton("txt2img");
-  imgInfoClickSendButton("img2img");
+  SDImageInfoSendButton("txt2img");
+  SDImageInfoSendButton("img2img");
 }
 
-async function FetchingModelOutput(i) {
+async function SDImageInfoFetchModelOutput(i) {
   let FetchedModels = '';
   const Cat = {
     checkpoint: [], vae: [], lora: [], embed: [],
@@ -247,7 +115,7 @@ async function FetchingModelOutput(i) {
         const n = k.replace("embed:", "");
         HashesDict[n] = h;
 
-        const fetchedHash = await FetchingModels(n, h, false);
+        const fetchedHash = await SDImageInfoFetchingModels(n, h, false);
         Cat.embed.push(fetchedHash);
       }
     }
@@ -260,7 +128,7 @@ async function FetchingModelOutput(i) {
       if (h && !HashesDict[n]) {
         TIHashDict[n] = h;
 
-        const fetchedHash = await TIHashesSearchLink(n, h);
+        const fetchedHash = await SDImageInfoTIHashesSearchLink(n, h);
         Cat.embed.push(fetchedHash);
       }
     }
@@ -310,12 +178,12 @@ async function FetchingModelOutput(i) {
         models = items.map(item => item);
       } else if (category === 'lora') {
         models = await Promise.all(items.map(async ({ n, h }) => {
-          return await FetchingModels(n, h, false);
+          return await SDImageInfoFetchingModels(n, h, false);
         }));
       } else {
         const isTHat = category === 'checkpoint' || category === 'vae';
         models = await Promise.all(items.map(async ({ n, h }) => {
-          return await FetchingModels(n, h, isTHat);
+          return await SDImageInfoFetchingModels(n, h, isTHat);
         }));
       }
 
@@ -326,7 +194,7 @@ async function FetchingModelOutput(i) {
   return `${FetchedModels}`;
 }
 
-async function FetchingModels(n, h, isTHat = false) {
+async function SDImageInfoFetchingModels(n, h, isTHat = false) {
   const nonLink = isTHat 
     ? `<span class="imgInfoModelOutputNonLink">${n}</span>` 
     : `<span class="imgInfoModelOutputNonLink">${n}: ${h}</span>`;
@@ -350,7 +218,7 @@ async function FetchingModels(n, h, isTHat = false) {
   return nonLink;
 }
 
-async function TIHashesSearchLink(n, h) {
+async function SDImageInfoTIHashesSearchLink(n, h) {
   const nonLink = `<span class="imgInfoModelOutputNonLink">${n}: ${h}</span>`;
 
   if (h) {
@@ -360,3 +228,27 @@ async function TIHashesSearchLink(n, h) {
 
   return nonLink;
 }
+
+onUiUpdate(function() {
+  var Id = 'imgInfoHidingScrollBar';
+  let BS = gradioApp().querySelector('#tabs > .tab-nav > button.selected');
+
+  if (BS && BS.textContent.trim() === 'Image Info') {
+    const tabNav = document.querySelector('.tab-nav.scroll-hide');
+    Object.assign(tabNav.style, { borderBottom: '0' });
+    if (!document.getElementById(Id)) {
+      const SB = document.createElement('style');
+      SB.id = Id;
+      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
+      document.head.appendChild(SB);
+    }
+    Object.assign(document.documentElement.style, { scrollbarWidth: 'none' });
+
+  } else if (BS && BS.textContent.trim() !== 'Image Info') {
+    const tabNav = document.querySelector('.tab-nav.scroll-hide');
+    Object.assign(tabNav.style, { borderBottom: '' });
+    const SB = document.getElementById(Id);
+    if (SB) document.head.removeChild(SB);
+    Object.assign(document.documentElement.style, { scrollbarWidth: '' });
+  }
+});

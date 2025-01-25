@@ -1,4 +1,4 @@
-function imgInfoimageViewer(img) {
+function SDImageInfoImageViewer(img) {
   img.addEventListener('click', () => {
     const LightBox = document.createElement('div');
     LightBox.id = 'imgInfoZoom';
@@ -64,15 +64,20 @@ function imgInfoimageViewer(img) {
         scale: 1
       },
 
-      imgInfoImageViewerSnapBack: function (imgEL, LightBox) {
-        if (this.scale <= 1) return;
-
+      SDImageInfoImageViewerSnapBack: function (imgEL, LightBox) {
         const imgELW = imgEL.offsetWidth * this.scale;
         const imgELH = imgEL.offsetHeight * this.scale;
         const LightBoxW = LightBox.offsetWidth;
         const LightBoxH = LightBox.offsetHeight;
 
-        if (imgELW <= LightBoxW) {
+        if (this.scale <= 1) {
+          this.offsetX = 0;
+          this.offsetY = 0;
+          this.lastX = 0;
+          this.lastY = 0;
+          return;
+
+        } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
           const EdgeY = (imgELH - LightBoxH) / 2;
           if (this.offsetY > EdgeY) this.offsetY = EdgeY;
           else if (this.offsetY < -EdgeY) this.offsetY = -EdgeY;
@@ -80,7 +85,7 @@ function imgInfoimageViewer(img) {
           imgEL.style.transition = 'transform 0.3s ease';
           imgEL.style.transform = `translateY(${this.offsetY}px) scale(${this.scale})`;
 
-        } else if (imgELH <= LightBoxH) {
+        } else if (imgELH <= LightBoxH && imgELW >= LightBoxW) {
           const EdgeX = (imgELW - LightBoxW) / 2;
           if (this.offsetX > EdgeX) this.offsetX = EdgeX;
           else if (this.offsetX < -EdgeX) this.offsetX = -EdgeX;
@@ -88,7 +93,7 @@ function imgInfoimageViewer(img) {
           imgEL.style.transition = 'transform 0.3s ease';
           imgEL.style.transform = `translateX(${this.offsetX}px) scale(${this.scale})`;
 
-        } else {
+        } else if (imgELW >= LightBoxW && imgELH >= LightBoxH) {
           const EdgeX = (imgELW - LightBoxW) / 2;
           if (this.offsetX > EdgeX) this.offsetX = EdgeX;
           else if (this.offsetX < -EdgeX) this.offsetX = -EdgeX;
@@ -102,14 +107,14 @@ function imgInfoimageViewer(img) {
         }
       },
 
-      imgInfoImageViewerCloseZoom: function () {
+      SDImageInfoImageViewerCloseZoom: function () {
         LightBox.style.opacity = '0';
 
         setTimeout(() => {
           LightBox.remove();
           imgEL.style.transform = 'translate(0px, 0px) scale(0)';
-          document.removeEventListener('mouseleave', imgInfoMouseLeave);
-          document.removeEventListener('mouseup', imgInfoMouseUp);
+          document.removeEventListener('mouseleave', MouseLeave);
+          document.removeEventListener('mouseup', MouseUp);
         }, 200);
       }
     };
@@ -127,7 +132,7 @@ function imgInfoimageViewer(img) {
     LightBox.onkeydown = (e) => {
       if (window.getComputedStyle(LightBox).display === 'flex' && e.key === 'Escape') {
         e.preventDefault();
-        imgState.imgInfoImageViewerCloseZoom();
+        imgState.SDImageInfoImageViewerCloseZoom();
       }
     };
 
@@ -164,9 +169,7 @@ function imgInfoimageViewer(img) {
       imgEL.style.transition = 'transform 60ms ease';
 
       if (imgState.scale <= 1) {
-        imgState.offsetX = 0;
-        imgState.offsetY = 0;
-        imgEL.style.transform = `translateX(0px) scale(${imgState.scale})`;
+        imgEL.style.transform = 'translate(0px, 0px) scale(1)';
 
       } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
         imgState.offsetY = deltaY;
@@ -194,23 +197,23 @@ function imgInfoimageViewer(img) {
       }
     });
 
-    const imgInfoMouseUp = (e) => {
+    const MouseUp = (e) => {
       clearTimeout(GropinTime);
       if (!Groped && e.button === 0) {
-        imgEL.onclick = (e) => (e.preventDefault(), imgState.imgInfoImageViewerCloseZoom());
-        LightBox.onclick = (e) => (e.preventDefault(), imgState.imgInfoImageViewerCloseZoom());
+        imgEL.onclick = (e) => (e.preventDefault(), imgState.SDImageInfoImageViewerCloseZoom());
+        LightBox.onclick = (e) => (e.preventDefault(), imgState.SDImageInfoImageViewerCloseZoom());
         return;
       }
 
-      imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
+      imgState.SDImageInfoImageViewerSnapBack(imgEL, LightBox);
       Groped = false;
       imgEL.style.cursor = 'auto';
       setTimeout(() => (imgEL.style.transition = 'transform 0s ease'), 100);
     };
 
-    const imgInfoMouseLeave = (e) => {
+    const MouseLeave = (e) => {
       if (e.target !== LightBox && Groped) {
-        imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
+        imgState.SDImageInfoImageViewerSnapBack(imgEL, LightBox);
         Groped = false;
         imgEL.style.cursor = 'auto';
       }
@@ -244,9 +247,7 @@ function imgInfoimageViewer(img) {
       imgEL.style.transition = ZoomTransition;
 
       if (imgState.scale <= 1) {
-        imgState.offsetX = 0;
-        imgState.offsetY = 0;
-        imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
+        imgEL.style.transform = 'translate(0px, 0px) scale(1)';
 
       } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
         const imgCenterY = imgState.offsetY + centerY;
@@ -291,7 +292,7 @@ function imgInfoimageViewer(img) {
     LightBox.onkeydown = (e) => {
       if (window.getComputedStyle(LightBox).display === 'flex' && e.key === 'Escape') {
         e.preventDefault();
-        imgState.imgInfoImageViewerCloseZoom();
+        imgState.SDImageInfoImageViewerCloseZoom();
       }
     };
 
@@ -300,7 +301,7 @@ function imgInfoimageViewer(img) {
     let lastDistance = 0;
     let lastScale = 1;
 
-    function imgDistance(touch1, touch2) {
+    function SDImageInfoImageViewerTouchDistance(touch1, touch2) {
       return Math.hypot(
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
@@ -317,7 +318,7 @@ function imgInfoimageViewer(img) {
       if (e.targetTouches[1]) {
         MultiGrope = true;
         imgState.TouchGrass.touchScale = true;
-        lastDistance = imgDistance(e.targetTouches[0], e.targetTouches[1]);
+        lastDistance = SDImageInfoImageViewerTouchDistance(e.targetTouches[0], e.targetTouches[1]);
         lastScale = imgState.scale;
       } else {
         MultiGrope = false;
@@ -334,7 +335,7 @@ function imgInfoimageViewer(img) {
       imgEL.onclick = (e) => e.stopPropagation();
 
       if (e.targetTouches[1]) {
-        const currentDistance = imgDistance(e.targetTouches[0], e.targetTouches[1]);
+        const currentDistance = SDImageInfoImageViewerTouchDistance(e.targetTouches[0], e.targetTouches[1]);
         const zoom = currentDistance / lastDistance;
         const centerX = LightBox.offsetWidth / 2;
         const centerY = LightBox.offsetHeight / 2;
@@ -447,7 +448,7 @@ function imgInfoimageViewer(img) {
       MultiGrope = false;
       imgState.TouchGrass.touchScale = false;
       imgEL.style.transform = `translate(${imgState.offsetX}px, ${imgState.offsetY}px) scale(${imgState.scale})`;
-      imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
+      imgState.SDImageInfoImageViewerSnapBack(imgEL, LightBox);
     });
 
     imgEL.addEventListener('touchend', (e) => {
@@ -456,14 +457,14 @@ function imgInfoimageViewer(img) {
       imgEL.style.transition = 'none';
       if (e.targetTouches.length === 0) {
         if (MultiGrope) MultiGrope = false; imgState.TouchGrass.touchScale = false;
-        imgState.imgInfoImageViewerSnapBack(imgEL, LightBox);
+        imgState.SDImageInfoImageViewerSnapBack(imgEL, LightBox);
         setTimeout(() => {
           imgState.TouchGrass.touchScale = false;
         }, 10);
       }
     });
 
-    document.addEventListener('mouseleave', imgInfoMouseLeave);
-    document.addEventListener('mouseup', imgInfoMouseUp);
+    document.addEventListener('mouseleave', MouseLeave);
+    document.addEventListener('mouseup', MouseUp);
   });
 }

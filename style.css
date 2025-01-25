@@ -4,6 +4,63 @@
   border: 0px;
 }
 
+#imgInfoImage {
+  background: transparent;
+  border-radius: 0.8rem !important;
+  transition: 0.5s ease;
+  box-shadow: inset 0 0 10px 0.2em var(--primary-400) !important;
+}
+
+#imgInfoImage img {
+  cursor: auto;
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease;
+  border-top-right-radius: 1rem;
+}
+
+#imgInfoImage button[aria-label="Remove Image"],
+#imgInfoImage button[aria-label="Clear"] {
+  transform: scale(2);
+  margin: 0;
+  padding: 2px;
+  gap: 0;
+  border-radius: 0;
+  border-bottom-left-radius: 7px;
+  box-sizing: border-box;
+  border: 0;
+  color: var(--primary-400) !important;
+  background: var(--input-background-fill);
+  box-shadow: 0 0 5px 1px #000;
+  transition: 0.3s ease;
+}
+
+#imgInfoImage button[aria-label="Remove Image"] > div,
+#imgInfoImage button[aria-label="Clear"] > div {
+  position: relative;
+  padding: 1px;
+  border: 0;
+}
+
+#imgInfoImage button[aria-label="Remove Image"] path,
+#imgInfoImage button[aria-label="Clear"] path {
+  stroke-width: 5px !important;
+}
+
+#imgInfoImage button[aria-label="Remove Image"]:hover,
+#imgInfoImage button[aria-label="Clear"]:hover {
+  color: var(--primary-500) !important;
+}
+
+#imgInfoHTML {
+  margin-left: 0.1rem !important;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  margin-bottom: -0.5rem !important;
+}
+
 #imgInfoOutputPanel {
   opacity: 0;
 }
@@ -17,36 +74,27 @@
   margin-left: -10px;
 }
 
-#imgInfoImage {
-  cursor: crosshair;
-  background: var(--input-background-fill);
-  border-radius: 0.5rem !important;
-}
-
-#imgInfoImage button.svelte-rk35yg[aria-label="Remove Image"],
-#imgInfoImage button.svelte-1030q2h[aria-label="Clear"] {
-  transform: scale(2);
-  margin: 0;
-  padding: 0;
-  gap: 0;
-  border-radius: 50%;
-  box-sizing: border-box;
-  border: 0;
-  color: var(--primary-400) !important;
-}
-
-#imgInfoHTML {
-  margin-left: 0.1rem !important;
-  overflow-wrap: break-word;
-  max-width: 100%;
-  margin-bottom: -0.5rem !important;
-}
-
 #imgInfoModelOutput {
   width: auto;
   height: auto;
   background-color: transparent;
   transition: all 0.3s ease;
+}
+
+.imgInfoOutputSection {
+  padding-top: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 0px;
+  background: var(--input-background-fill);
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.imgInfoOutputSection:hover {
+  background: var(--input-background-fill-hover);
 }
 
 .imgInfoOutputSection.modelBox {
@@ -67,11 +115,10 @@
 }
 
 #imgInfoModelOutput .output-line {
-  border: 2px solid var(--primary-400);
-  border-radius: 0.5rem;
   display: flex;
   padding: 0px;
   margin-bottom: 5px;
+  border-radius: 5em;
 }
 
 #imgInfoModelOutput .label, #imgInfoModelOutput .hashes {
@@ -80,27 +127,27 @@
   word-wrap: break-word;
   white-space: normal;
   box-sizing: border-box;
+  box-shadow: inset 0 0 5px 1px var(--primary-400);
 }
 
 #imgInfoModelOutput .label {
-  width: 9rem;
-  font-size: 15px;
-  border: 1px solid transparent;
-  border-top-left-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
+  width: 17%;
   background-color: var(--input-background-fill);
+  font-size: 15px;
+  border-top-left-radius: 5em;
+  border-bottom-left-radius: 5em;
   align-items: center;
   justify-content: center;
 }
 
 #imgInfoModelOutput .hashes {
-  width: 41rem;
+  width: 83%;
   overflow-wrap: break-word;
   column-gap: 7px;
   row-gap: 0px;
-  border-left: 2px solid var(--primary-400);
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
+  border-left: 5px solid transparent;
+  border-top-right-radius: 5em;
+  border-bottom-right-radius: 5em;
   padding-left: 10px;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -141,20 +188,26 @@
   font-weight: normal;
 }
 
-.imgInfoOutputSection {
-  padding-top: 5px;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-bottom: 0px;
-  background: var(--input-background-fill);
-  border-radius: 0.5rem;
-  border: 2px solid transparent;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
+.imgInfoBorderPulse {
+  animation: pulseBorder 2s infinite alternate forwards;
 }
 
-.imgInfoOutputSection:hover {
-  background: var(--input-background-fill-hover);
+@keyframes pulseBorder {
+  0% {
+    box-shadow: inset 0 0 0px 0em transparent;
+  }
+  25% {
+    box-shadow: inset 0 0 10px 0.2em var(--primary-400);
+  }
+  50% {
+    box-shadow: inset 0 0 5px 0.1em var(--primary-400);
+  }
+  75% {
+    box-shadow: inset 0 0 10px 0.2em var(--primary-400);
+  }
+  100% {
+    box-shadow: inset 0 0 0px 0em transparent;
+  }
 }
 
 #imgInfoSendButton {
@@ -171,23 +224,23 @@
 }
 
 #imgInfoSendButton button.svelte-cmf5ev:hover {
-  box-shadow: 0 0 5px 0.2em var(--primary-400);
+  box-shadow: inset 0 0 5px 0.1em var(--primary-400);
 }
 
 #imgInfoSendButton button.svelte-cmf5ev:nth-child(1) {
-  border-top-left-radius: 0.5rem;;
+  border-top-left-radius: 0.8rem;
 }
 
 #imgInfoSendButton button.svelte-cmf5ev:nth-child(2) {
-  border-top-right-radius: 0.5rem;;
+  border-top-right-radius: 0.8rem;
 }
 
 #imgInfoSendButton button.svelte-cmf5ev:nth-child(3) {
-  border-bottom-left-radius: 0.5rem;;
+  border-bottom-left-radius: 0.8rem;
 }
 
 #imgInfoSendButton button.svelte-cmf5ev:nth-child(4) {
-  border-bottom-right-radius: 0.5rem;;
+  border-bottom-right-radius: 0.8rem;
 }
 
 .imgInfoButtons {
@@ -196,25 +249,6 @@
 
 .imgInfoButtons:hover {
   color: var(--primary-600) !important;
-}
-
-.imgInfoBorderPulse {
-  animation: pulseBorder 1s infinite alternate forwards;
-}
-
-@keyframes pulseBorder {
-  0% {border-color: transparent;}
-  50% {border-color: var(--primary-400);}
-  100% {border-color: transparent;}
-}
-
-.fadeOutBorder {
-  animation: fadeOutBorderColor 1s alternate forwards;
-}
-
-@keyframes fadeOutBorderColor {
-  0% {border-color: var(--primary-400);}
-  100% {border-color: transparent;}
 }
 
 #refresh-spinner {
@@ -234,7 +268,7 @@
 @keyframes undressBox {
   0% {
     opacity: 0;
-    filter: blur(10px);
+    filter: blur(2px);
   }
   100% {
     opacity: 1;

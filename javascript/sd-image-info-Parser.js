@@ -43,6 +43,7 @@ async function SDImageInfoParser() {
   let output = "";
 
   if (tags) {
+    console.log(tags);
     window.imgInfoEncrypt = tags.Encrypt ? tags.Encrypt.description : '';
     window.imgInfoSha256 = tags.EncryptPwdSha ? tags.EncryptPwdSha.description : '';
 
@@ -363,6 +364,20 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       titlePrompt = '';
       imgInfoSendButton.style.display = 'none';
       outputHTML = SDImageInfoHTMLOutput('', inputs);
+
+    } else if (inputs.trim().startsWith('OPPAI:')) {
+      const sections = [
+        { title: titleEncrypt, content: EncryptInfo },
+        { title: titleSha, content: Sha256Info }
+      ];
+
+      sections.forEach(section => {
+        if (section.content && section.content.trim() !== '') {
+          outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
+        }
+      });
+
+      outputHTML += SDImageInfoHTMLOutput('', inputs);
 
     } else {
       imgInfoSendButton.style.display = 'grid';

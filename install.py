@@ -1,16 +1,12 @@
-import urllib.request, shutil
 from pathlib import Path
+import urllib.request
 
-req1 = Path(__file__).parent / "javascript/exif-reader.js"
-req2 = Path(__file__).parent / "javascript/exif-reader-LICENSE"
+r = {
+    'javascript/exif-reader.js': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/dist/exif-reader.js',
+    'javascript/exif-reader-LICENSE': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/LICENSE'
+}
 
-url1 = "https://raw.githubusercontent.com/mattiasw/ExifReader/main/dist/exif-reader.js"
-url2 = "https://raw.githubusercontent.com/mattiasw/ExifReader/main/LICENSE"
-
-if not req1.exists():
-    with urllib.request.urlopen(url1) as r, open(req1, 'wb') as o:
-        shutil.copyfileobj(r, o)
-
-if not req2.exists():
-    with urllib.request.urlopen(url2) as r, open(req2, 'wb') as o:
-        shutil.copyfileobj(r, o)
+for f, u in r.items():
+    fp = Path(__file__).parent / f
+    if not fp.exists():
+        fp.write_bytes(urllib.request.urlopen(u).read())

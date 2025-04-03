@@ -4,25 +4,28 @@
   border: 0px;
 }
 
-#imgInfoImage {
+#SDImageInfo-Image {
+  height: unset !important;
+  min-height: min(160px, 100%) !important;
   background: transparent;
   border-radius: 0.8rem !important;
   transition: 0.5s ease;
   box-shadow: inset 0 0 10px 0.2em var(--primary-400) !important;
 }
 
-#imgInfoImage img {
+#SDImageInfo-Image img {
   cursor: auto;
   object-fit: contain;
   max-width: 100%;
   max-height: 100%;
   opacity: 0;
-  transition: opacity 1s ease;
+  user-select: none;
+  -webkit-user-select: none;
   border-top-right-radius: 1rem;
+  transition: opacity 1s ease;
 }
 
-#imgInfoImage button[aria-label="Remove Image"],
-#imgInfoImage button[aria-label="Clear"] {
+#SDImageInfo-ClearImage-Button {
   transform: scale(2);
   margin: 0;
   padding: 2px;
@@ -37,51 +40,53 @@
   transition: 0.3s ease;
 }
 
-#imgInfoImage button[aria-label="Remove Image"] > div,
-#imgInfoImage button[aria-label="Clear"] > div {
+#SDImageInfo-ClearImage-Button > div {
   position: relative;
   padding: 1px;
   border: 0;
+  transition: 0.3s ease;
 }
 
-#imgInfoImage button[aria-label="Remove Image"] path,
-#imgInfoImage button[aria-label="Clear"] path {
+#SDImageInfo-ClearImage-Button path {
   stroke-width: 5px !important;
 }
 
-#imgInfoImage button[aria-label="Remove Image"]:hover,
-#imgInfoImage button[aria-label="Clear"]:hover {
+#SDImageInfo-ClearImage-Button:hover {
   color: var(--primary-500) !important;
 }
 
-#imgInfoHTML {
+#SDImageInfo-ClearImage-Button:hover > div {
+  filter: drop-shadow(0 0 2px var(--primary-500));
+}
+
+#SDImageInfo-HTML {
   margin-left: 0.1rem !important;
   overflow-wrap: break-word;
   max-width: 100%;
   margin-bottom: -0.5rem !important;
 }
 
-#imgInfoOutputPanel {
+#SDImageInfo-OutputPanel {
   opacity: 0;
 }
 
-#imgInfoOutputPanel.show {
+#SDImageInfo-OutputPanel.show {
   opacity: 1;
   transition: opacity 0.2s ease;
 }
 
-.gradio-container-4-40-0 #imgInfoOutputPanel {
+.gradio-container-4-40-0 #SDImageInfo-OutputPanel {
   margin-left: -10px;
 }
 
-#imgInfoModelOutput {
+#SDImageInfo-ModelOutput {
   width: auto;
   height: auto;
   background-color: transparent;
   transition: all 0.3s ease;
 }
 
-.imgInfoOutputSection {
+.sdimageinfo-outputsection {
   padding-top: 5px;
   padding-left: 8px;
   padding-right: 8px;
@@ -90,14 +95,15 @@
   border-radius: 0.5rem;
   border: 1px solid transparent;
   margin-bottom: 8px;
+  cursor: default;
   transition: all 0.3s ease;
 }
 
-.imgInfoOutputSection:hover {
+.sdimageinfo-outputsection:hover {
   background: var(--input-background-fill-hover);
 }
 
-.imgInfoOutputSection.modelBox {
+.sdimageinfo-outputsection.sdimageinfo-modelbox {
   border: 0;
   padding-top: 0;
   padding-left: 0;
@@ -106,31 +112,33 @@
   transition: none;
 }
 
-.imgInfoOutputSection.modelBox:hover {
+.sdimageinfo-outputsection.sdimageinfo-modelbox:hover {
   background-color: transparent;
 }
 
-.imgInfoModelOutputReveal {
+.sdimageinfo-display-model-output {
   animation: undressBox 1s forwards ease-out;
 }
 
-#imgInfoModelOutput .output-line {
+#SDImageInfo-ModelOutput .sdimageinfo-modeloutput-line {
   display: flex;
   padding: 0px;
   margin-bottom: 5px;
   border-radius: 5em;
 }
 
-#imgInfoModelOutput .label, #imgInfoModelOutput .hashes {
+#SDImageInfo-ModelOutput .sdimageinfo-modeloutput-label,
+#SDImageInfo-ModelOutput .sdimageinfo-modeloutput-hashes {
   display: flex;
   flex-wrap: wrap;
   word-wrap: break-word;
   white-space: normal;
   box-sizing: border-box;
-  box-shadow: inset 0 0 5px 1px var(--primary-400);
+  filter: drop-shadow(0 0 1px var(--primary-400));
+  box-shadow: inset 0 0 2px 1px var(--primary-400);
 }
 
-#imgInfoModelOutput .label {
+#SDImageInfo-ModelOutput .sdimageinfo-modeloutput-label {
   width: 17%;
   background-color: var(--input-background-fill);
   font-size: 15px;
@@ -140,7 +148,7 @@
   justify-content: center;
 }
 
-#imgInfoModelOutput .hashes {
+#SDImageInfo-ModelOutput .sdimageinfo-modeloutput-hashes {
   width: 83%;
   overflow-wrap: break-word;
   column-gap: 7px;
@@ -154,7 +162,7 @@
   align-items: flex-start;
 }
 
-.imgInfoModelOutputNonLink {
+.sdimageinfo-nonlink {
   font-size: 14px;
   border: 1px solid transparent;
   padding: 2px 3px;
@@ -164,7 +172,7 @@
   overflow: hidden;
 }
 
-.imgInfoModelOutputLink {
+.sdimageinfo-link {
   font-size: 13px;
   text-decoration: none;
   border: 1px solid var(--primary-600);
@@ -178,39 +186,85 @@
   max-width: 50ch;
 }
 
-.imgInfoModelOutputLink:hover {
+.sdimageinfo-link:hover {
   color: var(--primary-400) !important;
   border: 1px solid var(--link-text-color-hover);
 }
 
-#imgInfoModelOutput a {
+#SDImageInfo-ModelOutput a {
   white-space: nowrap;
   font-weight: normal;
 }
 
-.imgInfoBorderPulse {
+#tab_sd_image_info .sdimageinfo-copybutton {
+  display: block;
+  color: var(--primary-400);
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+#SDImageInfo-Prompt-Button {
+  margin-bottom: 2px;
+}
+
+#SDImageInfo-Seed-Button {
+  color: var(--primary-400);
+  margin-bottom: -5px;
+  transition: color 0.3s ease;
+}
+
+#tab_sd_image_info .sdimageinfo-copybutton:hover,
+#SDImageInfo-Seed-Button:hover {
+  color: var(--primary-600) !important;
+}
+
+#SDImageInfo-Encrypt-Title,
+#SDImageInfo-Sha256-Title,
+#SDImageInfo-Software-Title,
+#SDImageInfo-Source-Title {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--primary-400);
+}
+
+.sdimageinfo-borderpulse {
   animation: pulseBorder 2s infinite alternate forwards;
 }
 
 @keyframes pulseBorder {
   0% {
-    box-shadow: inset 0 0 0px 0em transparent;
+    border-color: transparent;
+    filter: drop-shadow(0 0 0 var(--primary-400));
+    box-shadow: inset 0 0 0 0 transparent;
   }
   25% {
-    box-shadow: inset 0 0 10px 0.2em var(--primary-400);
+    border-color: var(--primary-400);
+    filter: drop-shadow(0 0 2px var(--primary-400));
+    box-shadow: inset 0 0 10px 0 var(--primary-400);
   }
   50% {
-    box-shadow: inset 0 0 5px 0.1em var(--primary-400);
+    border-color: var(--primary-400);
+    filter: drop-shadow(0 0 5px var(--primary-400));
+    box-shadow: inset 0 0 5px 0 var(--primary-400);
   }
   75% {
-    box-shadow: inset 0 0 10px 0.2em var(--primary-400);
+    border-color: var(--primary-400);
+    filter: drop-shadow(0 0 2px var(--primary-400));
+    box-shadow: inset 0 0 10px 0 var(--primary-400);
   }
   100% {
-    box-shadow: inset 0 0 0px 0em transparent;
+    border-color: transparent;
+    filter: drop-shadow(0 0 0 var(--primary-400));
+    box-shadow: inset 0 0 0 0 transparent;
   }
 }
 
-#imgInfoSendButton {
+#SDImageInfo-SendButton {
   display: none;
   margin-top: 0.2rem !important;
   grid-template-columns: 1fr 1fr !important;
@@ -218,40 +272,35 @@
   align-items: center;
 }
 
-#imgInfoSendButton button.svelte-cmf5ev {
-  transition: 0.2s ease;
+#SDImageInfo-SendButton button {
   padding: 0.4rem;
+  transition: 0.3s ease;
 }
 
-#imgInfoSendButton button.svelte-cmf5ev:hover {
-  box-shadow: inset 0 0 5px 0.1em var(--primary-400);
+#SDImageInfo-SendButton button:hover {
+  z-index: 5;
+  box-shadow: 0 0 5px 1px var(--primary-400);
+  filter: drop-shadow(0 0 9px var(--primary-400));
 }
 
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(1) {
+#SDImageInfo-SendButton button:nth-child(1) {
   border-top-left-radius: 0.8rem;
 }
 
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(2) {
+#SDImageInfo-SendButton button:nth-child(2) {
   border-top-right-radius: 0.8rem;
 }
 
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(3) {
+#SDImageInfo-SendButton button:nth-child(3) {
   border-bottom-left-radius: 0.8rem;
 }
 
-#imgInfoSendButton button.svelte-cmf5ev:nth-child(4) {
+#SDImageInfo-SendButton button:nth-child(4) {
   border-bottom-right-radius: 0.8rem;
 }
 
-.imgInfoButtons {
-  transition: color 0.3s ease;
-}
-
-.imgInfoButtons:hover {
-  color: var(--primary-600) !important;
-}
-
 #refresh-spinner {
+  color: var(--primary-400);
   margin: 0 auto;
   animation: spinner 1s linear infinite;
 }
@@ -274,4 +323,41 @@
     opacity: 1;
     filter: blur(0px);
   }
+}
+
+#SDImageInfo-Image-Viewer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: opacity 0.4s ease;
+}
+
+#SDImageInfo-Image-Viewer-Wrapper {
+  display: flex;
+  height: 100%;
+  position: relative;
+  transition: transform 0.3s ease;
+  transform: translate(0px, 0px) scale(0);
+}
+
+#SDImageInfo-Image-Viewer-img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.1s ease;
 }

@@ -1,12 +1,19 @@
+from modules.paths_internal import extensions_dir
 from pathlib import Path
 import urllib.request
 
-r = {
-    'javascript/exif-reader.js': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/dist/exif-reader.js',
-    'javascript/exif-reader-LICENSE': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/LICENSE'
-}
+def ExifReader():
+    exif = Path(extensions_dir) / 'Exif-Reader/javascript'
+    exif.mkdir(parents=True, exist_ok=True)
 
-for f, u in r.items():
-    fp = Path(__file__).parent / f
-    if not fp.exists():
-        fp.write_bytes(urllib.request.urlopen(u).read())
+    req = {
+        'exif-reader.js': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/dist/exif-reader.js',
+        'exif-reader-LICENSE': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/LICENSE'
+    }
+
+    for f, u in req.items():
+        fp = exif / f
+        if not fp.exists():
+            fp.write_bytes(urllib.request.urlopen(u).read())
+
+ExifReader()

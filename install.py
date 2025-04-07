@@ -1,19 +1,11 @@
 from modules.paths_internal import extensions_dir
 from pathlib import Path
-import urllib.request
+import subprocess
 
-def ExifReader():
-    exif = Path(extensions_dir) / 'Exif-Reader/javascript'
-    exif.mkdir(parents=True, exist_ok=True)
+def _Req():
+    parser = Path(extensions_dir) / 'sd-image-parser'
 
-    req = {
-        'exif-reader.js': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/dist/exif-reader.js',
-        'exif-reader-LICENSE': 'https://raw.githubusercontent.com/mattiasw/ExifReader/main/LICENSE'
-    }
+    if not parser.exists():
+        subprocess.run(['git', 'clone', '-q', 'https://github.com/gutris1/sd-image-parser', str(parser)], check=True)
 
-    for f, u in req.items():
-        fp = exif / f
-        if not fp.exists():
-            fp.write_bytes(urllib.request.urlopen(u).read())
-
-ExifReader()
+_Req()

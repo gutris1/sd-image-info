@@ -114,7 +114,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   let modelBox = '';
 
   function SDImageInfoHTMLOutput(title, content) {
-    return `<div class='sdimageinfo-outputsection'><p>${title}${content}</p></div>`;
+    return `<div class='sdimageinfo-outputsection'><p class='sdimageinfo-p'>${title}${content}</p></div>`;
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {

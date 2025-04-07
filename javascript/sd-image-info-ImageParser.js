@@ -115,33 +115,18 @@ function SDImageInfoDecodeUserComment(array) {
     for (let i = pos; i < array.length; i+=2) {
       const inDEX = array[i];
       const nEXT = array[i + 1];
-      if (inDEX === 0 && nEXT === 32) {
-        result.push(32);
-        continue;
-      }
+      if (inDEX === 0 && nEXT === 32) { result.push(32); continue; }
       const vaLUE = inDEX * 256 + nEXT;
       result.push(vaLUE);
     }
   } else {
     for (let i = pos; i < array.length; i++) {
-      if (i === 7 && array[i] === 0) {
-        continue;
-      }
-      if (array[i] === 0) {
-        if (i + 1 < array.length && array[i + 1] === 0) {
-          i++;
-          continue;
-        }
-      }
+      if (i === 7 && array[i] === 0) continue;
+      if (array[i] === 0) if (i + 1 < array.length && array[i + 1] === 0) { i++; continue; }
       if (i + 1 < array.length) {
         const inDEX = array[i];
         const nEXT = array[i + 1];
-
-        if (inDEX === 0 && nEXT === 32) {
-          result.push(32);
-          i++;
-          continue;
-        }
+        if (inDEX === 0 && nEXT === 32) { result.push(32); i++; continue; }
         const vaLUE = inDEX * 256 + nEXT;
         result.push(vaLUE);
         i++;
@@ -149,13 +134,13 @@ function SDImageInfoDecodeUserComment(array) {
     }
   }
 
-  const output = new TextDecoder('utf-16').decode(new Uint16Array(result)).trim();
-  return output.replace(/^UNICODE[\x00-\x20]*/, '');
+  const output = new TextDecoder("utf-16").decode(new Uint16Array(result)).trim();
+  return output.replace(/^UNICODE[\x00-\x20]*/, "");
 }
 
 function SDImageInfoConvertNovelAI(input) {
-  const NAIMultiplyRange = (start, multiplier) => res.slice(start).forEach(row => row[1] = NAIround(row[1] * multiplier));
   const NAIround = v => Math.round(v * 10000) / 10000;
+  const NAIMultiplyRange = (start, multiplier) => res.slice(start).forEach(row => row[1] = NAIround(row[1] * multiplier));
   const re_attention = /\{|\[|\}|\]|[^\{\}\[\]]+/gmu;
   let text = input.replaceAll('(', '\\(').replaceAll(')', '\\)').replace(/\\{2,}(\(|\))/gim, '\$1');
   let res = [];
@@ -178,24 +163,10 @@ function SDImageInfoConvertNovelAI(input) {
   if (res.length === 0) res = [['', 1.0]];
 
   let i = 0;
-  while (i + 1 < res.length) {
-    if (res[i][1] === res[i + 1][1]) {
-      res[i][0] += res[i + 1][0];
-      res.splice(i + 1, 1);
-    } else {
-      i++;
-    }
-  }
+  while (i + 1 < res.length) { if (res[i][1] === res[i + 1][1]) { res[i][0] += res[i + 1][0]; res.splice(i + 1, 1); } else { i++; }}
 
   let result = '';
-  for (let i = 0; i < res.length; i++) {
-    if (res[i][1] === 1.0) {
-      result += res[i][0];
-    } else {
-      result += `(${res[i][0]}:${res[i][1]})`;
-    }
-  }
-
+  for (let i = 0; i < res.length; i++) { if (res[i][1] === 1.0) { result += res[i][0]; } else { result += `(${res[i][0]}:${res[i][1]})`; }}
   return result;
 }
 
@@ -206,9 +177,7 @@ function SDImageInfoConvertSwarmUI(Sui, extraData = {}) {
   if (Sui.negativeprompt) output += `Negative prompt: ${Sui.negativeprompt}\n`;
   if (Sui.steps) output += `Steps: ${Sui.steps}, `;
   if (Sui.sampler) {
-    Sui.sampler = Sui.sampler.replace(/\beuler\b|\beuler(-\w+)?/gi, (match) => {
-      return match.replace(/euler/i, 'Euler');
-    });
+    Sui.sampler = Sui.sampler.replace(/\beuler\b|\beuler(-\w+)?/gi, (match) => { return match.replace(/euler/i, 'Euler'); });
     output += `Sampler: ${Sui.sampler}, `;
   }
   if (Sui.scheduler) output += `Schedule type: ${Sui.scheduler}, `;
@@ -216,10 +185,7 @@ function SDImageInfoConvertSwarmUI(Sui, extraData = {}) {
   if (Sui.seed) output += `Seed: ${Sui.seed}, `;
   if (Sui.width && Sui.height) output += `Size: ${Sui.width}x${Sui.height}, `;
   if (Sui.model) output += `Model: ${Sui.model}, `;
-  if (Sui.vae) {
-    const vaeParts = Sui.vae.split('/');
-    output += `VAE: ${vaeParts[vaeParts.length - 1]}, `;
-  }
+  if (Sui.vae) { const vaeParts = Sui.vae.split('/'); output += `VAE: ${vaeParts[vaeParts.length - 1]}, `; }
 
   window.SDImageInfoSoftwareInfo = Sui?.swarm_version ? `SwarmUI ${Sui.swarm_version}` : '';
   output = output.trim().replace(/,$/, '');
@@ -248,17 +214,15 @@ function SDImageInfoConvertSwarmUI(Sui, extraData = {}) {
 }
 
 async function SDImageInfoFetchModelOutput(i) {
-  let FetchedModels = '';
-  const Cat = {
-    checkpoint: [], vae: [], lora: [], embed: [],
-  };
-
   let modelEX;
-  if (i.includes('Model: "')) {
-    modelEX = i.match(/Model:\s*"?([^"]+)"/);
-  } else {
-    modelEX = i.match(/Model:\s*([^,]+)/);
-  }
+  let FetchedModels = '';
+  let HashesDict = {};
+  let TIHashDict = {};
+
+  const Cat = { checkpoint: [], vae: [], lora: [], embed: [], };
+  
+  if (i.includes('Model: "')) modelEX = i.match(/Model:\s*"?([^"]+)"/);
+  else modelEX = i.match(/Model:\s*([^,]+)/);
 
   const modelHashEX = i.match(/Model hash:\s*([^,]+)/);
   const vaeEX = i.match(/VAE:\s*([^,]+)/);
@@ -266,12 +230,7 @@ async function SDImageInfoFetchModelOutput(i) {
   const loraHashEX = i.match(/Lora hashes:\s*"([^"]+)"/);
   const tiHashEX = i.match(/TI hashes:\s*"([^"]+)"/);
   const hashesIndex = i.indexOf('Hashes:');
-  const hashesEX = hashesIndex !== -1
-    ? i.slice(hashesIndex).match(/Hashes:\s*(\{.*?\})(,\s*)?/)
-    : null;
-
-  let HashesDict = {};
-  let TIHashDict = {};
+  const hashesEX = hashesIndex !== -1 ? i.slice(hashesIndex).match(/Hashes:\s*(\{.*?\})(,\s*)?/) : null;
 
   if (hashesEX && hashesEX[1]) {
     const s = JSON.parse(hashesEX[1].trim());
@@ -279,7 +238,6 @@ async function SDImageInfoFetchModelOutput(i) {
       if (k.startsWith('embed:')) {
         const n = k.replace('embed:', '');
         HashesDict[n] = h;
-
         const fetchedHash = await SDImageInfoFetchingModels(n, h, false);
         Cat.embed.push(fetchedHash);
       }
@@ -292,7 +250,6 @@ async function SDImageInfoFetchModelOutput(i) {
       const [n, h] = pair.split(':').map(item => item.trim());
       if (h && !HashesDict[n]) {
         TIHashDict[n] = h;
-
         const fetchedHash = await SDImageInfoTIHashesSearchLink(n, h);
         Cat.embed.push(fetchedHash);
       }
@@ -304,25 +261,18 @@ async function SDImageInfoFetchModelOutput(i) {
     const modelHash = modelHashEX ? modelHashEX[1] : null;
     const vaeValue = vaeEX ? vaeEX[1] : null;
     const vaeHash = vaeHashEX ? vaeHashEX[1] : null;
-
-    if (modelHash || vaeValue || vaeHash) {
-      Cat.checkpoint.push({ n: modelValue, h: modelHash });
-    }
+    if (modelHash || vaeValue || vaeHash) Cat.checkpoint.push({ n: modelValue, h: modelHash });
   }
 
   const vaeValue = vaeEX ? vaeEX[1] : null;
   const vaeHash = vaeHashEX ? vaeHashEX[1] : null;
-  if (vaeValue || vaeHash) {
-    Cat.vae.push({ n: vaeValue, h: vaeHash });
-  }
+  if (vaeValue || vaeHash) Cat.vae.push({ n: vaeValue, h: vaeHash });
 
   if (loraHashEX) {
     const loraPairs = loraHashEX[1].split(',').map(pair => pair.trim());
     for (const pair of loraPairs) {
       const [n, h] = pair.split(':').map(item => item.trim());
-      if (h) {
-        Cat.lora.push({ n, h });
-      }
+      if (h) Cat.lora.push({ n, h });
     }
   }
 
@@ -342,14 +292,10 @@ async function SDImageInfoFetchModelOutput(i) {
       if (category === 'embed') {
         models = items.map(item => item);
       } else if (category === 'lora') {
-        models = await Promise.all(items.map(async ({ n, h }) => {
-          return await SDImageInfoFetchingModels(n, h, false);
-        }));
+        models = await Promise.all(items.map(async ({ n, h }) => { return await SDImageInfoFetchingModels(n, h, false); }));
       } else {
         const isTHat = category === 'checkpoint' || category === 'vae';
-        models = await Promise.all(items.map(async ({ n, h }) => {
-          return await SDImageInfoFetchingModels(n, h, isTHat);
-        }));
+        models = await Promise.all(items.map(async ({ n, h }) => { return await SDImageInfoFetchingModels(n, h, isTHat); }));
       }
 
       FetchedModels += FetchResult(category, models);
@@ -443,15 +389,9 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       outputHTML = SDImageInfoHTMLOutput('', inputs);
 
     } else if (inputs.trim().startsWith('OPPAI:')) {
-      const sections = [
-        { title: titleEncrypt, content: EncryptInfo },
-        { title: titleSha, content: Sha256Info }
-      ];
-
+      const sections = [ { title: titleEncrypt, content: EncryptInfo }, { title: titleSha, content: Sha256Info } ];
       sections.forEach(section => {
-        if (section.content && section.content.trim() !== '') {
-          outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
-        }
+        if (section.content && section.content.trim() !== '') outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
       });
 
       outputHTML += SDImageInfoHTMLOutput('', inputs);
@@ -508,16 +448,10 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         }, 0);
 
         setTimeout(async () => {
-          const fetchTimeout = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Timeout')), 60000)
-          );
+          const fetchTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 60000));
 
           try {
-            const ModelOutputFetched = await Promise.race([
-              SDImageInfoFetchModelOutput(paramsRAW),
-              fetchTimeout
-            ]);
-
+            const ModelOutputFetched = await Promise.race([SDImageInfoFetchModelOutput(paramsRAW), fetchTimeout]);
             const modelOutput = document.getElementById('SDImageInfo-ModelOutput');
             if (modelOutput) {
               modelOutput.classList.add('sdimageinfo-display-model-output');
@@ -548,9 +482,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       ];
 
       sections.forEach(section => {
-        if (section.content && section.content.trim() !== '') {
-          outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
-        }
+        if (section.content && section.content.trim() !== '') outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
       });
     }
   }

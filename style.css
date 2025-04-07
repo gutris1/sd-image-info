@@ -87,16 +87,18 @@
 }
 
 .sdimageinfo-outputsection {
-  padding-top: 5px;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-bottom: 0px;
+  padding: 5px 8px;
   background: var(--input-background-fill);
   border-radius: 0.5rem;
   border: 1px solid transparent;
   margin-bottom: 8px;
   cursor: default;
   transition: all 0.3s ease;
+}
+
+#SDImageInfo-HTML .sdimageinfo-p {
+  line-height: 1.7;
+  margin: 0;
 }
 
 .sdimageinfo-outputsection:hover {

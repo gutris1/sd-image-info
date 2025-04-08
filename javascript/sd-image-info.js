@@ -51,10 +51,13 @@ async function SDImageInfoParser() {
 
   if (!img) {
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
+    ImagePanel.classList.remove('img-enter');
+    ImagePanel.style.flex = '';
     ImagePanel.style.boxShadow = '';
     return;
   }
 
+  ImagePanel.style.flex = 'unset';
   ImagePanel.style.cssText += 'box-shadow: inset 0 0 0 0 !important;';
   img.onload = SDImageInfoClearButton;
   img.onclick = () => SDImageInfoImageViewer(img);
@@ -65,6 +68,7 @@ async function SDImageInfoParser() {
   window.SDImageInfoRawOutput = output;
   HTMLPanel.classList.add('prose');
   HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
+  ImagePanel.classList.add('img-enter');
 }
 
 async function SDImageInfoPlainTextToHTML(inputs) {
@@ -76,35 +80,40 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   const SendButton = document.getElementById('SDImageInfo-SendButton');
   const OutputPanel = document.getElementById('SDImageInfo-OutputPanel');
 
-  let titlePrompt = `
-    <button id='SDImageInfo-Prompt-Button'
-      class='sdimageinfo-copybutton'
-      title='Copy Prompt'
-      onclick='SDImageInfoCopyButtonEvent(event)'>
-      Prompt
-    </button>`;
+  const titleEL = [
+    { id: 'Prompt', label: 'Prompt', title: 'Copy Prompt' },
+    { id: 'NegativePrompt', label: 'Negative Prompt', title: 'Copy Negative Prompt' },
+    { id: 'Params', label: 'Params', title: 'Copy Parameter Settings' },
+    { id: 'Encrypt', label: 'Encrypt' },
+    { id: 'Sha256', label: 'EncryptPwdSha' },
+    { id: 'Software', label: 'Software' },
+    { id: 'Source', label: 'Source' }
+  ];
 
-  let titleNegativePrompt = `
-    <button id='SDImageInfo-NegativePrompt-Button'
-      class='sdimageinfo-copybutton'
-      title='Copy Negative Prompt'
-      onclick='SDImageInfoCopyButtonEvent(event)'>
-      Negative Prompt
-    </button>`;
+  const titles = {};
 
-  let titleParams = `
-    <button id='SDImageInfo-Params-Button'
-      class='sdimageinfo-copybutton'
-      title='Copy Parameter Settings'
-      onclick='SDImageInfoCopyButtonEvent(event)'>
-      Params
-    </button>`;
+  titleEL.forEach(({ id, label, title }) => {
+    const content = title
+      ? `<span id='SDImageInfo-${id}-Button'
+          class='sdimageinfo-copybutton'
+          title='${title}'
+          onclick='SDImageInfoCopyButtonEvent(event)'>
+          ${label}
+        </span>`
+      : `<span id='SDImageInfo-${id}-Title'>${label}</span>`;
+
+    titles[`title${id}`] = `<div id='SDImageInfo-Output-Title'>${content}</div>`;
+  });
+
+  let titlePrompt = titles.titlePrompt;
+  let titleNegativePrompt = titles.titleNegativePrompt;
+  let titleParams = titles.titleParams;
+  let titleEncrypt = titles.titleEncrypt;
+  let titleSha = titles.titleSha256;
+  let titleSoftware = titles.titleSoftware;
+  let titleSource = titles.titleSource;
 
   let titleModels = '';
-  let titleEncrypt = `<b id='SDImageInfo-Encrypt-Title'>Encrypt</b>`;
-  let titleSha = `<b id='SDImageInfo-Sha256-Title'>EncryptPwdSha</b>`;
-  let titleSoftware = `<b id='SDImageInfo-Software-Title'>Software</b>`;
-  let titleSource = `<b id='SDImageInfo-Source-Title'>Source</b>`;
   let br = /\n/g;
 
   let outputHTML = '';
@@ -114,7 +123,9 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   let modelBox = '';
 
   function SDImageInfoHTMLOutput(title, content) {
-    return `<div class='sdimageinfo-outputsection'><p class='sdimageinfo-p'>${title}${content}</p></div>`;
+    const con = title === titleModels;
+    const tent = con ? content : `<div id='SDImageInfo-Output-Wrapper'><div id='SDImageInfo-Output-Content'>${content}</div></div>`;
+    return `<div id='SDImageInfo-Output-Section'>${title}${tent}</div>`;
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
@@ -146,11 +157,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       inputs = inputs.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(br, '<br>');
       inputs = inputs.replace(/Seed:\s?(\d+),/gi, function(match, seedNumber) {
         return `
-          <a id='SDImageInfo-Seed-Button'
-            title='Copy Seed Value'
-            onclick='SDImageInfoCopyButtonEvent(event)'>
-            Seed
-          </a>: ${seedNumber},`;
+          <span id='SDImageInfo-Seed-Button' title='Copy Seed Value' onclick='SDImageInfoCopyButtonEvent(event)'>Seed</span>: ${seedNumber},`;
       });
 
       const negativePromptIndex = inputs.indexOf('Negative prompt:');
@@ -186,7 +193,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         setTimeout(() => {
           const modelOutput = document.getElementById('SDImageInfo-ModelOutput');
           if (modelOutput) {
-            const imgInfoModelBox = modelOutput.closest('.sdimageinfo-outputsection');
+            const imgInfoModelBox = modelOutput.closest('#SDImageInfo-Output-Section');
             if (imgInfoModelBox) imgInfoModelBox.classList.add('sdimageinfo-modelbox');
             modelOutput.innerHTML = modelBox;
           }
@@ -227,7 +234,9 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       ];
 
       sections.forEach(section => {
-        if (section.content && section.content.trim() !== '') outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
+        if (section.content && section.content.trim() !== '') {
+          outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
+        }
       });
     }
   }
@@ -246,9 +255,9 @@ function SDImageInfoCopyButtonEvent(e) {
   let OutputRaw = window.SDImageInfoRawOutput;
 
   const CopyText = (text, target) => {
-    const section = target.closest('.sdimageinfo-outputsection');
-    section.classList.add('sdimageinfo-borderpulse');
-    setTimeout(() => section.classList.remove('sdimageinfo-borderpulse'), 2000);
+    const content = target.closest('#SDImageInfo-Output-Section')?.querySelector('#SDImageInfo-Output-Content');
+    content?.classList.add('sdimageinfo-borderpulse');
+    setTimeout(() => content?.classList.remove('sdimageinfo-borderpulse'), 2000);
     navigator.clipboard.writeText(text);
   };
 

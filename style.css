@@ -2,20 +2,57 @@
   padding-right: 0px;
   padding-left: 0px;
   border: 0px;
+  overflow: hidden;
+}
+
+#SDImageInfo-Geninfo {
+  display: none;
+}
+
+#SDImageInfo-imageRow {
+  gap: 0;
 }
 
 #SDImageInfo-Image {
   height: unset !important;
-  min-height: min(160px, 100%) !important;
+  display: flex;
+  flex-grow: 3 !important;
+  position: relative;
+  justify-content: flex-start;
+  width: 100%;
+  max-height: 100%;
   background: transparent;
   border-radius: 0.8rem !important;
   transition: 0.5s ease;
   box-shadow: inset 0 0 10px 0.2em var(--primary-400) !important;
+  overflow: hidden !important;
+}
+
+#SDImageInfo-Image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: transparent;
+  box-shadow: none;
+  filter: drop-shadow(0 0 1px #000);
+}
+
+#SDImageInfo-Image.img-enter {
+  position: absolute;
+}
+
+#SDImageInfo-Image.img-enter::after {
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,0.8) 100%);
+  box-shadow: inset 0 0 4px 1px #000;
 }
 
 #SDImageInfo-Image img {
+  display: block;
+  flex: 1 0 auto;
   cursor: auto;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: top;
   max-width: 100%;
   max-height: 100%;
   opacity: 0;
@@ -26,22 +63,27 @@
 }
 
 #SDImageInfo-ClearImage-Button {
-  transform: scale(2);
+  transform: scale(3);
+  position: relative;
+  top: 4px;
+  right: 4px;
   margin: 0;
   padding: 2px;
   gap: 0;
   border-radius: 0;
-  border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 6px;
   box-sizing: border-box;
   border: 0;
   color: var(--primary-400) !important;
   background: var(--input-background-fill);
-  box-shadow: 0 0 5px 1px #000;
+  box-shadow: 0 0 4px 1px #000;
   transition: 0.3s ease;
 }
 
 #SDImageInfo-ClearImage-Button > div {
   position: relative;
+  right: 1px;
+  top: 1px;
   padding: 1px;
   border: 0;
   transition: 0.3s ease;
@@ -60,7 +102,6 @@
 }
 
 #SDImageInfo-HTML {
-  margin-left: 0.1rem !important;
   overflow-wrap: break-word;
   max-width: 100%;
   margin-bottom: -0.5rem !important;
@@ -73,6 +114,7 @@
 #SDImageInfo-OutputPanel.show {
   opacity: 1;
   transition: opacity 0.2s ease;
+  margin-top: 30%;
 }
 
 .gradio-container-4-40-0 #SDImageInfo-OutputPanel {
@@ -86,33 +128,44 @@
   transition: all 0.3s ease;
 }
 
-.sdimageinfo-outputsection {
-  padding: 5px 8px;
-  background: var(--input-background-fill);
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
+#SDImageInfo-Output-Section {
+  background: transparent;
+  border: 0;
   margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+#SDImageInfo-Output-Wrapper {
+  box-shadow: 0 0 4px 1px #000;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 0;
+}
+
+#SDImageInfo-Output-Content {
+  line-height: 1.7;
+  margin: 0;
+  background: var(--input-background-fill);
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
   cursor: default;
   transition: all 0.3s ease;
 }
 
-#SDImageInfo-HTML .sdimageinfo-p {
-  line-height: 1.7;
-  margin: 0;
-}
-
-.sdimageinfo-outputsection:hover {
+#SDImageInfo-Output-Content:hover {
   background: var(--input-background-fill-hover);
 }
 
-.sdimageinfo-outputsection.sdimageinfo-modelbox {
+#SDImageInfo-Output-Section.sdimageinfo-modelbox {
   border: 0;
   padding: 0;
   background: 0;
   transition: none;
+  box-shadow: none;
 }
 
-.sdimageinfo-outputsection.sdimageinfo-modelbox:hover {
+#SDImageInfo-Output-Section.sdimageinfo-modelbox:hover {
   background-color: transparent;
 }
 
@@ -146,6 +199,13 @@
 #tab_sd_image_info .sdimageinfo-copybutton:hover,
 #SDImageInfo-Seed-Button:hover {
   color: var(--primary-600) !important;
+}
+
+#SDImageInfo-Output-Title {
+  display: flex;
+  cursor: default;
+  justify-content: center;
+  margin-bottom: 5px;
 }
 
 #SDImageInfo-Encrypt-Title,
@@ -190,20 +250,24 @@
 }
 
 #SDImageInfo-SendButton {
+  position: relative;
+  padding: 3px !important;
+  z-index: 2;
   display: none;
-  margin-top: 0.2rem !important;
-  grid-template-columns: 1fr 1fr !important;
-  justify-content: center;
+  /* grid-template-columns: 1fr !important; */
+  justify-content: stretch;
   align-items: center;
+  grid-template-columns: repeat(4, auto);
 }
 
 #SDImageInfo-SendButton button {
   padding: 0.4rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 0 2px 1px #000;
   transition: 0.3s ease;
 }
 
 #SDImageInfo-SendButton button:hover {
-  z-index: 5;
   box-shadow: 0 0 5px 1px var(--primary-400);
   filter: drop-shadow(0 0 9px var(--primary-400));
 }

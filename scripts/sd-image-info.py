@@ -4,15 +4,14 @@ from modules.script_callbacks import on_ui_tabs
 import gradio as gr
 
 def onSDImageInfoTab():
-    with gr.Blocks(analytics_enabled=False) as sd_image_info, FormRow(equal_height=False):
-        with FormColumn(variant='compact', scale=3):
-            image = gr.Image(elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
+    with gr.Blocks(analytics_enabled=False) as sd_image_info:
+        with FormRow(equal_height=False, elem_id='SDImageInfo-imageRow'):
+            image = gr.Image(scale=3, elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
+            geninfo = gr.Textbox(scale=7, elem_id='SDImageInfo-Geninfo')
 
+        with FormColumn(variant='compact', elem_id='SDImageInfo-OutputPanel'):
             with FormRow(variant='compact', elem_id='SDImageInfo-SendButton'):
                 buttons = tempe.create_buttons(['txt2img', 'img2img', 'inpaint', 'extras'])
-
-        with FormColumn(variant='compact', scale=7, elem_id='SDImageInfo-OutputPanel'):
-            geninfo = gr.Textbox(elem_id='SDImageInfo-Geninfo', visible=False)
             gr.HTML(elem_id='SDImageInfo-HTML')
 
         for tabname, button in buttons.items():

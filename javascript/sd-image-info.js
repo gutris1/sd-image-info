@@ -17,32 +17,6 @@ onUiLoaded(function () {
   onUiUpdate(SDImageInfoTabChange);
 });
 
-function SDImageInfoTabChange() {
-  var Id = 'SDImageInfo-HideScrollBar';
-  let BS = gradioApp()?.querySelector('#tabs > .tab-nav > button.selected');
-
-  if (BS?.textContent.trim() === 'Image Info') {
-    const tabNav = document.querySelector('.tab-nav.scroll-hide');
-    if (tabNav) Object.assign(tabNav.style, { borderBottom: '0' });
-
-    if (!document.getElementById(Id)) {
-      const SB = document.createElement('style');
-      SB.id = Id;
-      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
-      document.head.appendChild(SB);
-    }
-    Object.assign(document.documentElement.style, { scrollbarWidth: 'none' });
-
-  } else {
-    const tabNav = document.querySelector('.tab-nav.scroll-hide');
-    if (tabNav) Object.assign(tabNav.style, { borderBottom: '' });
-
-    const SB = document.getElementById(Id);
-    if (SB) document.head.removeChild(SB);
-    Object.assign(document.documentElement.style, { scrollbarWidth: '' });
-  }
-}
-
 async function SDImageInfoParser() {
   const RawOutput = gradioApp().querySelector('#SDImageInfo-Geninfo textarea');
   const HTMLPanel = gradioApp().getElementById('SDImageInfo-HTML');
@@ -53,12 +27,10 @@ async function SDImageInfoParser() {
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
     ImagePanel.classList.remove('img-enter');
     ImagePanel.style.flex = '';
-    ImagePanel.style.boxShadow = '';
     return;
   }
 
   ImagePanel.style.flex = 'unset';
-  ImagePanel.style.cssText += 'box-shadow: inset 0 0 0 0 !important;';
   img.onload = SDImageInfoClearButton;
   img.onclick = () => SDImageInfoImageViewer(img);
 
@@ -69,6 +41,16 @@ async function SDImageInfoParser() {
   HTMLPanel.classList.add('prose');
   HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
   ImagePanel.classList.add('img-enter');
+
+  document.querySelectorAll('.sdimageinfo-output-section').forEach(s => {
+    const t = s.querySelector('.sdimageinfo-output-title');
+    const w = s.querySelector('.sdimageinfo-output-wrapper');
+    if (!t || !w) return;
+    [t, w].forEach(e => {
+      e.onmouseenter = () => [t, w].forEach(x => x.style.background = 'var(--input-background-fill-hover)');
+      e.onmouseleave = () => [t, w].forEach(x => x.style.background = '');
+    });
+  });
 }
 
 async function SDImageInfoPlainTextToHTML(inputs) {
@@ -102,7 +84,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         </span>`
       : `<span id='SDImageInfo-${id}-Title'>${label}</span>`;
 
-    titles[`title${id}`] = `<div id='SDImageInfo-Output-Title'>${content}</div>`;
+    titles[`title${id}`] = `<div class='sdimageinfo-output-title'>${content}</div>`;
   });
 
   let titlePrompt = titles.titlePrompt;
@@ -124,8 +106,8 @@ async function SDImageInfoPlainTextToHTML(inputs) {
 
   function SDImageInfoHTMLOutput(title, content) {
     const con = title === titleModels;
-    const tent = con ? content : `<div id='SDImageInfo-Output-Wrapper'><div id='SDImageInfo-Output-Content'>${content}</div></div>`;
-    return `<div id='SDImageInfo-Output-Section'>${title}${tent}</div>`;
+    const tent = con ? content : `<div class='sdimageinfo-output-wrapper'><div class='sdimageinfo-output-content'>${content}</div></div>`;
+    return `<div class='sdimageinfo-output-section'>${title}${tent}</div>`;
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
@@ -156,8 +138,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       SendButton.style.display = 'grid';
       inputs = inputs.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(br, '<br>');
       inputs = inputs.replace(/Seed:\s?(\d+),/gi, function(match, seedNumber) {
-        return `
-          <span id='SDImageInfo-Seed-Button' title='Copy Seed Value' onclick='SDImageInfoCopyButtonEvent(event)'>Seed</span>: ${seedNumber},`;
+        return `<span id='SDImageInfo-Seed-Button' title='Copy Seed Value' onclick='SDImageInfoCopyButtonEvent(event)'>Seed</span>: ${seedNumber},`;
       });
 
       const negativePromptIndex = inputs.indexOf('Negative prompt:');
@@ -193,7 +174,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         setTimeout(() => {
           const modelOutput = document.getElementById('SDImageInfo-ModelOutput');
           if (modelOutput) {
-            const imgInfoModelBox = modelOutput.closest('#SDImageInfo-Output-Section');
+            const imgInfoModelBox = modelOutput.closest('.sdimageinfo-output-section');
             if (imgInfoModelBox) imgInfoModelBox.classList.add('sdimageinfo-modelbox');
             modelOutput.innerHTML = modelBox;
           }
@@ -255,7 +236,7 @@ function SDImageInfoCopyButtonEvent(e) {
   let OutputRaw = window.SDImageInfoRawOutput;
 
   const CopyText = (text, target) => {
-    const content = target.closest('#SDImageInfo-Output-Section')?.querySelector('#SDImageInfo-Output-Content');
+    const content = target.closest('.sdimageinfo-output-section')?.querySelector('.sdimageinfo-output-content');
     content?.classList.add('sdimageinfo-borderpulse');
     setTimeout(() => content?.classList.remove('sdimageinfo-borderpulse'), 2000);
     navigator.clipboard.writeText(text);
@@ -298,5 +279,31 @@ function SDImageInfoClearButton() {
     window.SDImageInfoClearImage = clearImage;
 
     btn.onclick = (e) => (e.stopPropagation(), clearImage());
+  }
+}
+
+function SDImageInfoTabChange() {
+  var Id = 'SDImageInfo-HideScrollBar';
+  let BS = gradioApp()?.querySelector('#tabs > .tab-nav > button.selected');
+
+  if (BS?.textContent.trim() === 'Image Info') {
+    const tabNav = document.querySelector('.tab-nav.scroll-hide');
+    if (tabNav) Object.assign(tabNav.style, { borderBottom: '0' });
+
+    if (!document.getElementById(Id)) {
+      const SB = document.createElement('style');
+      SB.id = Id;
+      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
+      document.head.appendChild(SB);
+    }
+    Object.assign(document.documentElement.style, { scrollbarWidth: 'none' });
+
+  } else {
+    const tabNav = document.querySelector('.tab-nav.scroll-hide');
+    if (tabNav) Object.assign(tabNav.style, { borderBottom: '' });
+
+    const SB = document.getElementById(Id);
+    if (SB) document.head.removeChild(SB);
+    Object.assign(document.documentElement.style, { scrollbarWidth: '' });
   }
 }

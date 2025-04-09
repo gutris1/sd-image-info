@@ -14,7 +14,7 @@
 }
 
 #SDImageInfo-Image {
-  height: unset !important;
+  height: 100% !important;
   display: flex;
   flex-grow: 3 !important;
   position: relative;
@@ -39,17 +39,17 @@
 }
 
 #SDImageInfo-Image.img-enter {
+  box-shadow: inset 0 0 0 0 !important;
   position: absolute;
 }
 
 #SDImageInfo-Image.img-enter::after {
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,0.8) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 100%);
   box-shadow: inset 0 0 4px 1px #000;
 }
 
 #SDImageInfo-Image img {
   display: block;
-  flex: 1 0 auto;
   cursor: auto;
   object-fit: cover;
   object-position: top;
@@ -59,7 +59,7 @@
   user-select: none;
   -webkit-user-select: none;
   border-top-right-radius: 1rem;
-  transition: opacity 1s ease;
+  transition: 1s ease;
 }
 
 #SDImageInfo-ClearImage-Button {
@@ -105,6 +105,8 @@
   overflow-wrap: break-word;
   max-width: 100%;
   margin-bottom: -0.5rem !important;
+  padding: 10px !important;
+  border-radius: 0.8rem !important;
 }
 
 #SDImageInfo-OutputPanel {
@@ -114,7 +116,7 @@
 #SDImageInfo-OutputPanel.show {
   opacity: 1;
   transition: opacity 0.2s ease;
-  margin-top: 30%;
+  margin-top: 20%;
 }
 
 .gradio-container-4-40-0 #SDImageInfo-OutputPanel {
@@ -125,39 +127,70 @@
   width: auto;
   height: auto;
   background-color: transparent;
-  transition: all 0.3s ease;
-}
-
-#SDImageInfo-Output-Section {
-  background: transparent;
-  border: 0;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
-}
-
-#SDImageInfo-Output-Wrapper {
-  box-shadow: 0 0 4px 1px #000;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  border: 0;
-}
-
-#SDImageInfo-Output-Content {
-  line-height: 1.7;
-  margin: 0;
-  background: var(--input-background-fill);
-  padding: 5px 8px;
-  border: 1px solid transparent;
-  border-radius: 0.5rem;
   cursor: default;
   transition: all 0.3s ease;
 }
 
-#SDImageInfo-Output-Content:hover {
-  background: var(--input-background-fill-hover);
+.sdimageinfo-output-section {
+  background: transparent;
+  border: 0;
+  margin-bottom: 8px;
+  transition: 0.3s ease;
 }
 
-#SDImageInfo-Output-Section.sdimageinfo-modelbox {
+.sdimageinfo-output-title {
+  display: flex;
+  font-weight: bold;
+  cursor: default;
+  width: max-content;
+  font-size: 15px;
+  text-align: center;
+  justify-content: flex-start;
+  margin: 0;
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 4px 8px 1px 8px;
+  background: var(--input-background-fill);
+  transition: 0.3s ease;
+}
+
+#SDImageInfo-OutputPanel .sdimageinfo-output-title span {
+  transition: 0.3s ease;
+  color: var(--primary-400);
+}
+
+#SDImageInfo-OutputPanel .sdimageinfo-copybutton {
+  cursor: pointer;
+}
+
+#SDImageInfo-OutputPanel .sdimageinfo-copybutton:hover,
+#SDImageInfo-Seed-Button:hover {
+  color: var(--primary-600) !important;
+}
+
+#SDImageInfo-Seed-Button {
+  color: var(--primary-400);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+#SDImageInfo-OutputPanel .sdimageinfo-output-wrapper {
+  border: 0;
+  border-radius: 0 0.5rem 0.5rem 0.5rem;
+  background: var(--input-background-fill);
+  transition: 0.3s ease;
+}
+
+#SDImageInfo-OutputPanel .sdimageinfo-output-content {
+  line-height: 1.7;
+  margin: 0;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  cursor: default;
+  border-radius: 0 0.5rem 0.5rem 0.5rem;
+  transition: 0.3s ease;
+}
+
+#SDImageInfo-OutputPanel .sdimageinfo-output-section.sdimageinfo-modelbox {
   border: 0;
   padding: 0;
   background: 0;
@@ -165,56 +198,12 @@
   box-shadow: none;
 }
 
-#SDImageInfo-Output-Section.sdimageinfo-modelbox:hover {
+#SDImageInfo-OutputPanel .sdimageinfo-output-section.sdimageinfo-modelbox:hover {
   background-color: transparent;
 }
 
-.sdimageinfo-display-model-output {
+#SDImageInfo-OutputPanel .sdimageinfo-display-model-output {
   animation: undressBox 1s forwards ease-out;
-}
-
-#SDImageInfo-ModelOutput a {
-  white-space: nowrap;
-  font-weight: normal;
-}
-
-#tab_sd_image_info .sdimageinfo-copybutton {
-  display: block;
-  color: var(--primary-400);
-  font-size: 15px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 2px;
-  background-color: transparent;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-#SDImageInfo-Seed-Button {
-  color: var(--primary-400);
-  margin-bottom: -5px;
-  transition: color 0.3s ease;
-}
-
-#tab_sd_image_info .sdimageinfo-copybutton:hover,
-#SDImageInfo-Seed-Button:hover {
-  color: var(--primary-600) !important;
-}
-
-#SDImageInfo-Output-Title {
-  display: flex;
-  cursor: default;
-  justify-content: center;
-  margin-bottom: 5px;
-}
-
-#SDImageInfo-Encrypt-Title,
-#SDImageInfo-Sha256-Title,
-#SDImageInfo-Software-Title,
-#SDImageInfo-Source-Title {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--primary-400);
 }
 
 .sdimageinfo-borderpulse {

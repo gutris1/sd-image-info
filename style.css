@@ -1,3 +1,11 @@
+:root {
+  --output-text-color: #fff;
+}
+
+.dark {
+  --output-text-color: var(--body-text-color);
+}
+
 #tab_sd_image_info {
   padding-right: 0px;
   padding-left: 0px;
@@ -21,11 +29,16 @@
   justify-content: flex-start;
   width: 100%;
   max-height: 100%;
-  background: transparent;
+  border: 1px solid #000 !important;
+  background: var(--input-background-fill);
   border-radius: 0.8rem !important;
-  transition: 0.5s ease;
-  box-shadow: inset 0 0 10px 0.2em var(--primary-400) !important;
   overflow: hidden !important;
+}
+
+@media (max-width: 600px) {
+  #SDImageInfo-Image {
+    flex: unset;
+  }
 }
 
 #SDImageInfo-Image::after {
@@ -39,7 +52,6 @@
 }
 
 #SDImageInfo-Image.img-enter {
-  box-shadow: inset 0 0 0 0 !important;
   position: absolute;
 }
 
@@ -59,7 +71,11 @@
   user-select: none;
   -webkit-user-select: none;
   border-top-right-radius: 1rem;
-  transition: 1s ease;
+  transition: opacity 1s ease;
+}
+
+#SDImageInfo-Image.img-enter img {
+  opacity: 1;
 }
 
 #SDImageInfo-ClearImage-Button {
@@ -101,22 +117,24 @@
   filter: drop-shadow(0 0 2px var(--primary-500));
 }
 
+#SDImageInfo-OutputPanel {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+#SDImageInfo-OutputPanel.display-output-panel {
+  opacity: 1;
+}
+
 #SDImageInfo-HTML {
   overflow-wrap: break-word;
   max-width: 100%;
   margin-bottom: -0.5rem !important;
   padding: 10px !important;
   border-radius: 0.8rem !important;
-}
-
-#SDImageInfo-OutputPanel {
-  opacity: 0;
-}
-
-#SDImageInfo-OutputPanel.show {
-  opacity: 1;
-  transition: opacity 0.2s ease;
-  margin-top: 20%;
+  pointer-events: auto;
+  position: relative;
 }
 
 .gradio-container-4-40-0 #SDImageInfo-OutputPanel {
@@ -131,38 +149,49 @@
   transition: all 0.3s ease;
 }
 
-.sdimageinfo-output-section {
-  background: transparent;
+#SDImageInfo-OutputPanel .sdimageinfo-output-section {
+  color: var(--output-text-color);
   border: 0;
   margin-bottom: 8px;
+  background: transparent;
+  filter: drop-shadow(0px 0px 4px #000);
+  cursor: default;
   transition: 0.3s ease;
 }
 
-.sdimageinfo-output-title {
+#SDImageInfo-OutputPanel .sdimageinfo-output-title {
   display: flex;
+  position: relative;
+  z-index: 2;
+  top: 2px;
   font-weight: bold;
   cursor: default;
   width: max-content;
   font-size: 15px;
   text-align: center;
+  color: var(--primary-400);
   justify-content: flex-start;
   margin: 0;
+  border: 2px solid #000;
+  border-bottom: 0;
   border-radius: 0.5rem 0.5rem 0 0;
-  padding: 4px 8px 1px 8px;
+  padding: 4px 8px;
   background: var(--input-background-fill);
   transition: 0.3s ease;
 }
 
-#SDImageInfo-OutputPanel .sdimageinfo-output-title span {
-  transition: 0.3s ease;
-  color: var(--primary-400);
-}
-
 #SDImageInfo-OutputPanel .sdimageinfo-copybutton {
   cursor: pointer;
+  transition: 0.3s ease;
 }
 
-#SDImageInfo-OutputPanel .sdimageinfo-copybutton:hover,
+#SDImageInfo-OutputPanel .sdimageinfo-copybutton:hover {
+  color: var(--background-fill-primary);
+  background: var(--primary-400);
+  box-shadow: 0 0 5px 1px var(--primary-400);
+  filter: drop-shadow(0 0 9px var(--primary-400));
+}
+
 #SDImageInfo-Seed-Button:hover {
   color: var(--primary-600) !important;
 }
@@ -174,7 +203,9 @@
 }
 
 #SDImageInfo-OutputPanel .sdimageinfo-output-wrapper {
-  border: 0;
+  position: relative;
+  z-index: 1;
+  border: 2px solid #000;
   border-radius: 0 0.5rem 0.5rem 0.5rem;
   background: var(--input-background-fill);
   transition: 0.3s ease;
@@ -239,42 +270,35 @@
 }
 
 #SDImageInfo-SendButton {
-  position: relative;
-  padding: 3px !important;
-  z-index: 2;
   display: none;
-  /* grid-template-columns: 1fr !important; */
-  justify-content: stretch;
+  position: relative;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  margin-left: 8px;
+  padding: 3px !important;
+  width: max-content;
+  pointer-events: auto;
+  grid-template-columns: 1fr !important;
+  justify-content: center;
   align-items: center;
-  grid-template-columns: repeat(4, auto);
 }
 
 #SDImageInfo-SendButton button {
-  padding: 0.4rem;
-  border-radius: 0.8rem;
-  box-shadow: 0 0 2px 1px #000;
-  transition: 0.3s ease;
+  border: 1px solid #000;
+  position: relative;
+  padding: 6px 20px;
+  border-radius: 1rem;
+  box-shadow: 0 0 5px 1px #000;
+  transition: 0.2s ease;
 }
 
 #SDImageInfo-SendButton button:hover {
   box-shadow: 0 0 5px 1px var(--primary-400);
   filter: drop-shadow(0 0 9px var(--primary-400));
-}
-
-#SDImageInfo-SendButton button:nth-child(1) {
-  border-top-left-radius: 0.8rem;
-}
-
-#SDImageInfo-SendButton button:nth-child(2) {
-  border-top-right-radius: 0.8rem;
-}
-
-#SDImageInfo-SendButton button:nth-child(3) {
-  border-bottom-left-radius: 0.8rem;
-}
-
-#SDImageInfo-SendButton button:nth-child(4) {
-  border-bottom-right-radius: 0.8rem;
+  border-color: var(--background-fill-primary);
+  color: var(--background-fill-primary);
+  background: var(--button-primary-background-fill);
 }
 
 #refresh-spinner {

@@ -27,10 +27,12 @@ async function SDImageInfoParser() {
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
     ImagePanel.classList.remove('img-enter');
     ImagePanel.style.flex = '';
+    ImagePanel.style.background = '';
     return;
   }
 
   ImagePanel.style.flex = 'unset';
+  ImagePanel.style.background = 'transparent';
   img.onload = SDImageInfoClearButton;
   img.onclick = () => SDImageInfoImageViewer(img);
 
@@ -46,10 +48,8 @@ async function SDImageInfoParser() {
     const t = s.querySelector('.sdimageinfo-output-title');
     const w = s.querySelector('.sdimageinfo-output-wrapper');
     if (!t || !w) return;
-    [t, w].forEach(e => {
-      e.onmouseenter = () => [t, w].forEach(x => x.style.background = 'var(--input-background-fill-hover)');
-      e.onmouseleave = () => [t, w].forEach(x => x.style.background = '');
-    });
+    w.onmouseenter = () => [t, w].forEach(x => x.style.background = 'var(--input-background-fill-hover)');
+    w.onmouseleave = () => [t, w].forEach(x => x.style.background = '');
   });
 }
 
@@ -75,16 +75,15 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   const titles = {};
 
   titleEL.forEach(({ id, label, title }) => {
-    const content = title
-      ? `<span id='SDImageInfo-${id}-Button'
-          class='sdimageinfo-copybutton'
-          title='${title}'
-          onclick='SDImageInfoCopyButtonEvent(event)'>
-          ${label}
-        </span>`
-      : `<span id='SDImageInfo-${id}-Title'>${label}</span>`;
+    const button = !!title;
+    const attrs = [
+      button ? `id='SDImageInfo-${id}-Button'` : '',
+      `class='sdimageinfo-output-title${button ? ' sdimageinfo-copybutton' : ''}'`,
+      button ? `title='${title}'` : '',
+      button ? `onclick='SDImageInfoCopyButtonEvent(event)'` : ''
+    ].filter(Boolean).join(' ');
 
-    titles[`title${id}`] = `<div class='sdimageinfo-output-title'>${content}</div>`;
+    titles[`title${id}`] = `<div ${attrs}>${label}</div>`;
   });
 
   let titlePrompt = titles.titlePrompt;
@@ -111,30 +110,31 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
+    OutputPanel.style.marginTop = '';
     OutputPanel.style.transition = 'none';
-    OutputPanel.style.opacity = '0';
-    OutputPanel.classList.remove('show');
-    SendButton.style.display = 'none';
+    OutputPanel.classList.remove('display-output-panel');
+    SendButton.style.display = '';
 
   } else {
-    OutputPanel.classList.add('show');
     OutputPanel.style.transition = '';
-    OutputPanel.style.opacity = '1';
+    OutputPanel.classList.add('display-output-panel');
 
     if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
+      OutputPanel.style.marginTop = '25%';
       titlePrompt = '';
-      SendButton.style.display = 'none';
+      SendButton.style.display = '';
       outputHTML = SDImageInfoHTMLOutput('', inputs);
 
     } else if (inputs.trim().startsWith('OPPAI:')) {
+      OutputPanel.style.marginTop = '5%';
       const sections = [ { title: titleEncrypt, content: EncryptInfo }, { title: titleSha, content: Sha256Info } ];
       sections.forEach(section => {
         if (section.content && section.content.trim() !== '') outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
       });
-
       outputHTML += SDImageInfoHTMLOutput('', inputs);
 
     } else {
+      OutputPanel.style.marginTop = '5%';
       SendButton.style.display = 'grid';
       inputs = inputs.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(br, '<br>');
       inputs = inputs.replace(/Seed:\s?(\d+),/gi, function(match, seedNumber) {
@@ -260,7 +260,6 @@ function SDImageInfoCopyButtonEvent(e) {
 }
 
 function SDImageInfoClearButton() {
-  let img = document.querySelector('#SDImageInfo-Image img');
   let Cloned = document.getElementById('SDImageInfo-ClearImage-Button');
   let ClearButton = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') || 
                     document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
@@ -273,7 +272,6 @@ function SDImageInfoClearButton() {
     btn.id = 'SDImageInfo-ClearImage-Button';
     btn.style.display = 'flex';
     parent.prepend(btn);
-    img.style.opacity = '1';
 
     const clearImage = () => (ClearButton.click(), window.SDImageInfoRawOutput = '');
     window.SDImageInfoClearImage = clearImage;

@@ -9,9 +9,10 @@ def onSDImageInfoTab():
             image = gr.Image(scale=3, elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
             geninfo = gr.Textbox(scale=7, elem_id='SDImageInfo-Geninfo')
 
+        with FormRow(variant='compact', elem_id='SDImageInfo-SendButton'):
+            buttons = tempe.create_buttons(['txt2img', 'img2img', 'inpaint', 'extras'])
+
         with FormColumn(variant='compact', elem_id='SDImageInfo-OutputPanel'):
-            with FormRow(variant='compact', elem_id='SDImageInfo-SendButton'):
-                buttons = tempe.create_buttons(['txt2img', 'img2img', 'inpaint', 'extras'])
             gr.HTML(elem_id='SDImageInfo-HTML')
 
         for tabname, button in buttons.items():

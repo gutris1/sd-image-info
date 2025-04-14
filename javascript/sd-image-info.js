@@ -18,9 +18,9 @@ onUiLoaded(function () {
 });
 
 async function SDImageInfoParser() {
-  const RawOutput = gradioApp().querySelector('#SDImageInfo-Geninfo textarea');
-  const HTMLPanel = gradioApp().getElementById('SDImageInfo-HTML');
-  const ImagePanel = gradioApp().getElementById('SDImageInfo-Image');
+  const RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea');
+  const HTMLPanel = document.getElementById('SDImageInfo-HTML');
+  const ImagePanel = document.getElementById('SDImageInfo-Image');
   const img = ImagePanel.querySelector('img');
 
   if (!img) {
@@ -228,7 +228,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
 function SDImageInfoSendButton(Id) {
   let OutputRaw = window.SDImageInfoRawOutput;
   let ADmodel = OutputRaw?.includes('ADetailer model');
-  let cb = gradioApp().getElementById(`script_${Id}_adetailer_ad_main_accordion-visible-checkbox`);
+  let cb = document.getElementById(`script_${Id}_adetailer_ad_main_accordion-visible-checkbox`);
   if (ADmodel) cb?.checked === false && cb.click();
 }
 
@@ -282,7 +282,7 @@ function SDImageInfoClearButton() {
 
 function SDImageInfoTabChange() {
   var Id = 'SDImageInfo-HideScrollBar';
-  let BS = gradioApp()?.querySelector('#tabs > .tab-nav > button.selected');
+  let BS = document?.querySelector('#tabs > .tab-nav > button.selected');
 
   if (BS?.textContent.trim() === 'Image Info') {
     const tabNav = document.querySelector('.tab-nav.scroll-hide');

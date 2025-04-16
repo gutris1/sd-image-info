@@ -14,6 +14,9 @@ onUiLoaded(function () {
     }
   });
 
+  const input = document.querySelector('#SDImageInfo-Image input');
+  input.parentNode.insertBefore(Object.assign(document.createElement('div'), { id: 'SDImageInfo-Image-Frame' }), input);
+
   onUiUpdate(SDImageInfoTabChange);
 });
 
@@ -26,13 +29,10 @@ async function SDImageInfoParser() {
   if (!img) {
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
     ImagePanel.classList.remove('img-enter');
-    ImagePanel.style.flex = '';
-    ImagePanel.style.background = '';
     return;
   }
 
-  ImagePanel.style.flex = 'unset';
-  ImagePanel.style.background = 'transparent';
+  ImagePanel.classList.add('img-enter');
   img.onload = SDImageInfoClearButton;
   img.onclick = () => SDImageInfoImageViewer(img);
 
@@ -42,16 +42,28 @@ async function SDImageInfoParser() {
   window.SDImageInfoRawOutput = output;
   HTMLPanel.classList.add('prose');
   HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
-  ImagePanel.classList.add('img-enter');
+  img.style.opacity = '1';
 
   document.querySelectorAll('.sdimageinfo-output-section').forEach(s => {
     const t = s.querySelector('.sdimageinfo-output-title');
     const w = s.querySelector('.sdimageinfo-output-wrapper');
     if (!t || !w) return;
-    w.onmouseenter = () => [t, w].forEach(x => x.style.background = 'var(--input-background-fill-hover)');
+    w.onmouseenter = () => [t, w].forEach(x => x.style.background = 'var(--input-background-fill)');
     w.onmouseleave = () => [t, w].forEach(x => x.style.background = '');
   });
 }
+
+var SDImageInfoSpinnerSVG = `
+  <svg id="SDImageInfo-Spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="100" height="100">
+    <path fill="currentColor" d="M 24.3 17.1 C 24.3 25.9 31.5 33.1 40.3 33.1 C 41.3 33.1 42.3 33 43.3 32.8 L 44 36.7 C 42.8 37 41.6 37.1 40.3 37.1 C 29.2 37.1
+      20.3 28.1 20.3 17.1 C 20.3 12.3 22 7.6 25.1 4 L 28.1 6.6 C 25.8 9.5 24.3 13.1 24.3 17.1 Z" style="transform-origin: 32.15px 20.55px;" transform="matrix(-1, 0, 0, -1, 0.000002, 0)"/>
+    <path fill="currentColor" d="M 23.2 43.8 L 20.1 41.3 C 22.3 38.5 23.7 35 23.7 31.1 C 23.7 22.3 16.5 15.1 7.7 15.1
+      C 6.7 15.1 5.7 15.2 4.7 15.4 L 4 11.6 C 5.3 11.4 6.5 11.3 7.7 11.3 C 18.8 11.3 27.7 20.2 27.7 31.3 C 27.7 35.7 26.1 40.3 23.2 43.8 Z"
+      style="transform-origin: 15.85px 27.55px;" transform="matrix(-1, 0, 0, -1, 0.000003, 0.000001)"/>
+    <polygon fill="currentColor" points="4 19 17 17.3 6.3 7" style="transform-origin: 10.5px 13px;" transform="matrix(-1, 0, 0, -1, -0.000003, 0.000001)"/>
+    <polygon fill="currentColor" points="44 29 31 30.7 41.7 41" style="transform-origin: 37.5px 35px;" transform="matrix(-1, 0, 0, -1, -0.000005, -0.000003)"/>
+  </svg>
+`;
 
 async function SDImageInfoPlainTextToHTML(inputs) {
   const EncryptInfo = window.SDImageParserEncryptInfo;
@@ -101,7 +113,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   let promptText = '';
   let negativePromptText = '';
   let paramsText = '';
-  let modelBox = '';
+  let modelOutput = '';
 
   function SDImageInfoHTMLOutput(title, content) {
     const con = title === titleModels;
@@ -110,23 +122,19 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
-    OutputPanel.style.marginTop = '';
-    OutputPanel.style.transition = 'none';
     OutputPanel.classList.remove('display-output-panel');
     SendButton.style.display = '';
 
   } else {
-    OutputPanel.style.transition = '';
     OutputPanel.classList.add('display-output-panel');
 
     if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
-      OutputPanel.style.marginTop = '25%';
       titlePrompt = '';
       SendButton.style.display = '';
-      outputHTML = SDImageInfoHTMLOutput('', inputs);
+      const nothing = `<div class="sdimageinfo-output-failed">${inputs}</div>`;
+      outputHTML = SDImageInfoHTMLOutput('', nothing);
 
     } else if (inputs.trim().startsWith('OPPAI:')) {
-      OutputPanel.style.marginTop = '5%';
       const sections = [ { title: titleEncrypt, content: EncryptInfo }, { title: titleSha, content: Sha256Info } ];
       sections.forEach(section => {
         if (section.content && section.content.trim() !== '') outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
@@ -134,7 +142,6 @@ async function SDImageInfoPlainTextToHTML(inputs) {
       outputHTML += SDImageInfoHTMLOutput('', inputs);
 
     } else {
-      OutputPanel.style.marginTop = '5%';
       SendButton.style.display = 'grid';
       inputs = inputs.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(br, '<br>');
       inputs = inputs.replace(/Seed:\s?(\d+),/gi, function(match, seedNumber) {
@@ -158,66 +165,49 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         paramsRAW = inputs.slice(stepsIndex).trim();
         paramsText = inputs.slice(stepsIndex).trim().replace(/,\s*(Lora hashes|TI hashes):\s*'[^']+'/g, '').trim();
 
-        modelBox = `
-          <div id='SDImageInfo-ModelOutput' class='sdimageinfo-modelbox'>
-            <svg xmlns='http://www.w3.org/2000/svg'x='0px' y='0px' width='100' height='100' viewBox='0 0 48 48' id='refresh-spinner'>
-              <path fill='var(--primary-400)' d='M8,24c0-8.8,7.2-16,16-16c1,0,2,0.1,3,0.3l0.7-3.9C26.5,4.1,25.3,4,24,4C12.9,4,4,13,4,24
-                c0,4.8,1.7,9.5,4.8,13.1l3-2.6C9.5,31.6,8,28,8,24z'/>
-              <path fill='var(--primary-400)' d='M39.5,11.3l-3.1,2.5C38.6,16.6,40,20.1,40,24c0,8.8-7.2,16-16,16c-1,0-2-0.1-3-0.3l-0.7,3.8
-                c1.3,0.2,2.5,0.3,3.7,0.3c11.1,0,20-8.9,20-20C44,19.4,42.4,14.8,39.5,11.3z'/>
-              <polygon fill='var(--primary-400)' points='31,7 44,8.7 33.3,19'></polygon>
-              <polygon fill='var(--primary-400)' points='17,41 4,39.3 14.7,29'></polygon>
-            </svg>
-          </div>
-        `;
+        let Id = 'SDImageInfo-ModelOutput';
+        let display = 'sdimageinfo-display-model-output';
+        modelOutput = `<div id='${Id}' class='sdimageinfo-modelbox'>${SDImageInfoSpinnerSVG}</div>`;
 
-        setTimeout(() => {
-          const modelOutput = document.getElementById('SDImageInfo-ModelOutput');
-          if (modelOutput) {
-            const imgInfoModelBox = modelOutput.closest('.sdimageinfo-output-section');
-            if (imgInfoModelBox) imgInfoModelBox.classList.add('sdimageinfo-modelbox');
-            modelOutput.innerHTML = modelBox;
-          }
-        }, 0);
+        const modelBox = document.getElementById(Id);
+        if (modelBox) {
+          modelBox.closest('.sdimageinfo-output-section').classList.add('sdimageinfo-modelbox');
+          modelBox.innerHTML = modelOutput;
+        }
 
         setTimeout(async () => {
           const fetchTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 60000));
-
+          const modelBox = document.getElementById(Id);
           try {
-            const ModelOutputFetched = await Promise.race([SDImageParserFetchModelOutput(paramsRAW), fetchTimeout]);
-            const modelOutput = document.getElementById('SDImageInfo-ModelOutput');
-            if (modelOutput) {
-              modelOutput.classList.add('sdimageinfo-display-model-output');
-              modelOutput.innerHTML = ModelOutputFetched;
-              setTimeout(() => modelOutput.classList.remove('sdimageinfo-display-model-output'), 2000);
-            }
+            const fetchHash = await Promise.race([SDImageParserFetchModelOutput(paramsRAW), fetchTimeout]);
+            modelBox.classList.add(display);
+            modelBox.innerHTML = fetchHash;
+            setTimeout(() => modelBox.classList.remove(display), 2000);
           } catch (error) {
-            if (error.message === 'Timeout') {
-              const modelOutput = document.getElementById('SDImageInfo-ModelOutput');
-              if (modelOutput) modelOutput.innerHTML = 'Failed to fetch...';
-            }
+            error.message === 'Timeout' && (modelBox.innerHTML = '<div class="sdimageinfo-output-failed">Failed to fetch...</div>');
           }
         }, 500);
 
         if (hashesEX && hashesEX[1]) paramsText = paramsText.replace(hashesEX[0], '').trim();
         if (paramsText.endsWith(',')) paramsText = paramsText.slice(0, -1).trim();
-      } else paramsText = inputs.trim();
+
+      } else {
+        paramsText = inputs.trim();
+      }
 
       const sections = [
         { title: titlePrompt, content: promptText },
         { title: titleNegativePrompt, content: negativePromptText },
         { title: titleParams, content: paramsText },
         { title: titleSoftware, content: SoftwareInfo },
-        { title: titleModels, content: modelBox },
+        { title: titleModels, content: modelOutput },
         { title: titleEncrypt, content: EncryptInfo },
         { title: titleSha, content: Sha256Info },
         { title: titleSource, content: NaiSourceInfo }
       ];
 
       sections.forEach(section => {
-        if (section.content && section.content.trim() !== '') {
-          outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
-        }
+        if (section.content?.trim() !== '') outputHTML += SDImageInfoHTMLOutput(section.title, section.content);
       });
     }
   }
@@ -305,3 +295,19 @@ function SDImageInfoTabChange() {
     Object.assign(document.documentElement.style, { scrollbarWidth: '' });
   }
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const vars = [
+    { c: '--input-background-fill', to: '--sdimageinfo-output-bg', a: 0.5 },
+  ];
+
+  const css = await (await fetch('/theme.css')).text();
+  const get = s => Object.fromEntries((css.match(new RegExp(`${s}\\s*{([^}]*)}`, 'm'))?.[1] || '')
+    .split(';').map(l => l.trim().split(':').map(s => s.trim())).filter(([k, v]) => k && v));
+  const toRGBA = (hex, a) => hex && /^#/.test(hex) ? `rgba(${hex.slice(1).match(/.{2}/g).map(v => parseInt(v, 16)).join(',')},${a})` : 'rgba(0,0,0,0)';
+  const r = get(':root'), d = get('.dark'), S = document.createElement('style');
+  vars.forEach(({ c, to, a }) => {
+    S.textContent += `:root { ${to}: ${toRGBA(r[c], a)}; }\n.dark { ${to}: ${toRGBA(d[c], a)}; }\n`;
+  });
+  document.head.appendChild(S);
+});

@@ -13,20 +13,22 @@
 }
 
 #SDImageInfo-Column {
-  background: transparent !important;
+  display: flex;
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0 !important;
   margin: 0;
+  min-height: var(--size-60);
   padding: 0 !important;
+  background: transparent !important;
 }
 
 #SDImageInfo-Image {
   display: flex;
   align-self: center;
-  flex-grow: 3 !important;
+  flex: 1 1 0%;
   justify-content: center;
-  position: relative;
+  position: absolute;
   height: unset !important;
   width: 25vw;
   max-width: 100%;
@@ -57,6 +59,7 @@
   border: 0 !important;
   box-shadow: none !important;
   filter: none !important;
+  transition: none;
 }
 
 #SDImageInfo-Image img {
@@ -85,23 +88,58 @@
   max-width: 100%;
   align-self: flex-start;
   position: absolute;
+  z-index: 1;
   border-radius: 1rem !important;
   pointer-events: none;
-  box-shadow: inset 0 0 6px 5px #000;
+  box-shadow: inset 0 0 7px 3px #000;
+  filter: drop-shadow(0 0 1px #000);
 }
 
 #SDImageInfo-Image.img-enter #SDImageInfo-Image-Frame {
   display: flex;
 }
 
+#SDImageInfo-Clear-Button {
+  position: relative;
+  height: 60px;
+  width: 60px;
+  margin: 0;
+  top: 2px;
+  right: 2px;
+  gap: 0;
+  padding: 5px;
+  border-radius: 0 1rem 0 1.5rem;
+  box-sizing: border-box;
+  border: 0;
+  color: var(--primary-400) !important;
+  background: var(--input-background-fill);
+  box-shadow: 0 0 5px 3px #000;
+  transition: 0.2s ease;
+}
+
+#SDImageInfo-Clear-Button > div {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+#SDImageInfo-Clear-Button path {
+  stroke-width: 5px !important;
+}
+
+#SDImageInfo-Clear-Button:hover {
+  color: #fff !important;
+  background: red;
+  filter: drop-shadow(0 0 10px red);
+}
+
 #SDImageInfo-SendButton {
   display: none;
-  position: relative;
-  z-index: 2;
-  top: 0;
+  position: absolute;
+  z-index: 1;
   left: 0;
-  margin: 10px 0 0 10px;
-  padding: 3px !important;
+  padding: 20px 0 0 20px !important;
   width: max-content;
   pointer-events: auto;
   grid-template-columns: 1fr !important;
@@ -115,7 +153,7 @@
   padding: 6px 20px;
   border-radius: 1rem;
   box-shadow: 0 0 5px 1px #000;
-  transition: 0.2s ease;
+  transition: 0.1s ease-out;
 }
 
 #SDImageInfo-SendButton button:hover {
@@ -126,45 +164,9 @@
   background: var(--button-primary-background-fill);
 }
 
-#SDImageInfo-ClearImage-Button {
-  position: relative;
-  height: 47px;
-  width: 47px;
-  margin: 0;
-  gap: 0;
-  padding: 4px;
-  border-radius: 0 1rem 0 1rem;
-  box-sizing: border-box;
-  border: 2px solid #000;
-  color: var(--primary-400) !important;
-  background: var(--input-background-fill);
-  box-shadow: 0 0 4px 1px #000;
-  transition: 0.2s ease;
-}
-
-#SDImageInfo-ClearImage-Button > div {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-#SDImageInfo-ClearImage-Button path {
-  stroke-width: 5px !important;
-}
-
-#SDImageInfo-ClearImage-Button:hover {
-  color: var(--background-fill-primary) !important;
-  background: var(--button-primary-background-fill);
-  border-color: var(--background-fill-primary);
-  filter: drop-shadow(0 0 4px var(--primary-400));
-  box-shadow: 0 0 5px 1px var(--primary-400);
-}
-
 #SDImageInfo-OutputPanel {
   display: flex;
   opacity: 0;
-  padding: 10px;
   height: 0;
   top: 0;
   left: 0;
@@ -180,16 +182,17 @@
 
 #SDImageInfo-OutputPanel.display-output-panel {
   opacity: 1;
-  margin-top: 5%;
   height: 100%;
 }
 
 #SDImageInfo-HTML {
-  overflow-wrap: break-word;
-  max-width: 100%;
-  padding: 0 20px !important;
-  border-radius: 0.8rem !important;
   position: relative;
+  overflow-wrap: break-word;
+  margin-top: 240px;
+  height: 100%;
+  max-width: 100%;
+  padding: 0 20px 10px 20px !important;
+  border-radius: 0.8rem !important;
   pointer-events: none;
 }
 

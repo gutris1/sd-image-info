@@ -116,9 +116,9 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   let modelOutput = '';
 
   function SDImageInfoHTMLOutput(title, content) {
-    const con = title === titleModels;
+    const none = title === 'nothing', con = title === titleModels || none;
     const tent = con ? content : `<div class='sdimageinfo-output-wrapper'><div class='sdimageinfo-output-content'>${content}</div></div>`;
-    return `<div class='sdimageinfo-output-section'>${title}${tent}</div>`;
+    return `<div class='sdimageinfo-output-section'${none ? " style='height: 200px'" : ''}>${none ? '' : title}${tent}</div>`;
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
@@ -131,8 +131,8 @@ async function SDImageInfoPlainTextToHTML(inputs) {
     if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
       titlePrompt = '';
       SendButton.style.display = '';
-      const nothing = `<div class="sdimageinfo-output-failed">${inputs}</div>`;
-      outputHTML = SDImageInfoHTMLOutput('', nothing);
+      const none = `<div class='sdimageinfo-output-failed' style='position: absolute; bottom: 0;'>${inputs}</div>`;
+      outputHTML = SDImageInfoHTMLOutput('nothing', none);
 
     } else if (inputs.trim().startsWith('OPPAI:')) {
       const sections = [ { title: titleEncrypt, content: EncryptInfo }, { title: titleSha, content: Sha256Info } ];
@@ -250,16 +250,17 @@ function SDImageInfoCopyButtonEvent(e) {
 }
 
 function SDImageInfoClearButton() {
-  let Cloned = document.getElementById('SDImageInfo-ClearImage-Button');
+  let Cloned = document.getElementById('SDImageInfo-Clear-Button');
   let ClearButton = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') || 
                     document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
 
   if (ClearButton && !Cloned) {
     let parent = ClearButton.parentElement;
+    Object.assign(parent.style, { position: 'absolute', zIndex: 1, top: 0, right: 0, gap: 0 });
     ClearButton.style.display = 'none';
 
     let btn = ClearButton.cloneNode(true);
-    btn.id = 'SDImageInfo-ClearImage-Button';
+    btn.id = 'SDImageInfo-Clear-Button';
     btn.style.display = 'flex';
     parent.prepend(btn);
 

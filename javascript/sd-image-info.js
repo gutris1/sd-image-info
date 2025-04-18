@@ -14,8 +14,8 @@ onUiLoaded(function () {
     }
   });
 
-  const input = document.querySelector('#SDImageInfo-Image input');
-  input.parentNode.insertBefore(Object.assign(document.createElement('div'), { id: 'SDImageInfo-Image-Frame' }), input);
+  const con = document.querySelector('#SDImageInfo-Image > .image-container');
+  con.append(Object.assign(document.createElement('div'), { id: 'SDImageInfo-Image-Frame' }));
 
   onUiUpdate(SDImageInfoTabChange);
 });
@@ -32,8 +32,8 @@ async function SDImageInfoParser() {
     return;
   }
 
+  SDImageInfoClearButton();
   ImagePanel.classList.add('img-enter');
-  img.onload = SDImageInfoClearButton;
   img.onclick = () => SDImageInfoImageViewer(img);
 
   const output = await SDImageParser(img);

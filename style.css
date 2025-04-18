@@ -8,8 +8,12 @@
 
 #tab_sd_image_info {
   padding: 10px 0 0 0;
-  border: 0px;
+  border: 0;
   overflow: hidden;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  background: var(--background-fill-primary);
 }
 
 #SDImageInfo-Column {
@@ -40,6 +44,10 @@
   filter: drop-shadow(0 0 6px var(--primary-400));
   overflow: hidden !important;
   transition: box-shadow 0.3s ease;
+}
+
+.gradio-container-4-40-0 #SDImageInfo-Image > .image-container {
+  width: 100%;
 }
 
 @media (max-width: 600px) {
@@ -174,10 +182,6 @@
   pointer-events: none;
   background: transparent;
   transition: opacity 1s ease;
-}
-
-.gradio-container-4-40-0 #SDImageInfo-OutputPanel {
-  margin-left: -10px;
 }
 
 #SDImageInfo-OutputPanel.display-output-panel {

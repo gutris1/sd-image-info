@@ -7,10 +7,11 @@
 }
 
 #tab_sd_image_info {
-  padding: 10px 0 0 0;
+  padding: 0;
+  margin: 10px 0 0 0;
   border: 0;
   overflow: hidden;
-  position: absolute;
+  position: relative;
   z-index: 1;
   width: 100%;
   background: var(--background-fill-primary);
@@ -96,6 +97,7 @@
   max-width: 100%;
   align-self: flex-start;
   position: absolute;
+  top: 0;
   z-index: 1;
   border-radius: 1rem !important;
   pointer-events: none;
@@ -379,8 +381,7 @@
 #SDImageInfo-Image-Viewer {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.8);
@@ -390,7 +391,7 @@
   opacity: 0;
   overflow: hidden;
   backdrop-filter: blur(10px);
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
 #SDImageInfo-Image-Viewer-Wrapper {

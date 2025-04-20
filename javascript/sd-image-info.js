@@ -4,21 +4,46 @@ onUiLoaded(function () {
     btn.onclick = () => SDImageInfoSendButton(btn.id.replace('_tab', ''));
   });
 
-  document.addEventListener('keydown', (e) => {
-    let Tab = document.getElementById('tab_sd_image_info');
-    let img = document.querySelector('#SDImageInfo-Image img');
-    if (e.key === 'Escape' && img && Tab?.style.display === 'block') {
-      let LightBox = document.getElementById('SDImageInfo-Image-Viewer');
-      if (LightBox?.style.display === 'flex') return;
-      else (e.stopPropagation(), e.preventDefault(), window.SDImageInfoClearImage());
-    }
-  });
-
   const con = document.querySelector('#SDImageInfo-Image > .image-container');
   con.append(Object.assign(document.createElement('div'), { id: 'SDImageInfo-Image-Frame' }));
 
+  const Panel = document.getElementById('SDImageInfo-OutputPanel');
+  const imgArea = document.createElement('div');
+  imgArea.id = 'SDImageInfo-img-area'
+  imgArea.onclick = () => document.querySelector('#SDImageInfo-Image img')?.click();
+  Panel.prepend(imgArea);
+
+  document.addEventListener('keydown', (e) => {
+    const Tab = document.getElementById('tab_sd_image_info');
+    const LightBox = document.getElementById('SDImageInfo-Image-Viewer');
+
+    if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
+
+    const img = document.querySelector('#SDImageInfo-Image img');
+    if (e.key === 'Escape' && img) { e.preventDefault(); window.SDImageInfoClearImage(); }
+
+    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? Tab.scrollHeight : null;
+    if (Scroll !== null) { e.preventDefault(); Tab.scrollTo({ top: Scroll, behavior: 'smooth' }); }
+  });
+
   onUiUpdate(SDImageInfoTabChange);
+  window.addEventListener('resize', SDImageInfoLayout);
 });
+
+function SDImageInfoLayout() {
+  const Tab = document.getElementById('tab_sd_image_info');
+  const Frame = document.getElementById('SDImageInfo-Image-Frame');
+  const Nav = document.querySelector('.tabs.gradio-tabs');
+
+  if (!Tab || !Frame || !Nav) return;
+
+  const rect = Nav.getBoundingClientRect();
+  const top = +(rect.top + scrollY + rect.height).toFixed(2);
+  const height = +(document.body.clientHeight - top).toFixed(2);
+
+  Object.assign(Tab.style, { top: `${top}px`, height: `${height}px` });
+  Object.assign(Frame.style, { top: `${top}px`, height: `${height}px` });
+}
 
 async function SDImageInfoParser() {
   const RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea');
@@ -35,6 +60,7 @@ async function SDImageInfoParser() {
   SDImageInfoClearButton();
   ImagePanel.classList.add('img-enter');
   img.onclick = () => SDImageInfoImageViewer(img);
+  img.onload = () => img.style.opacity = '1';
 
   const output = await SDImageParser(img);
   RawOutput.value = output;
@@ -42,7 +68,6 @@ async function SDImageInfoParser() {
   window.SDImageInfoRawOutput = output;
   HTMLPanel.classList.add('prose');
   HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
-  img.style.opacity = '1';
 
   document.querySelectorAll('.sdimageinfo-output-section').forEach(s => {
     const t = s.querySelector('.sdimageinfo-output-title');
@@ -165,26 +190,22 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         paramsRAW = inputs.slice(stepsIndex).trim();
         paramsText = inputs.slice(stepsIndex).trim().replace(/,\s*(Lora hashes|TI hashes):\s*'[^']+'/g, '').trim();
 
-        let Id = 'SDImageInfo-ModelOutput';
+        let Id = 'SDImageInfo-Model-Output';
         let display = 'sdimageinfo-display-model-output';
-        modelOutput = `<div id='${Id}' class='sdimageinfo-modelbox'>${SDImageInfoSpinnerSVG}</div>`;
+        modelOutput = `<div id='${Id}'>${SDImageInfoSpinnerSVG}</div>`;
 
         const modelBox = document.getElementById(Id);
-        if (modelBox) {
-          modelBox.closest('.sdimageinfo-output-section').classList.add('sdimageinfo-modelbox');
-          modelBox.innerHTML = modelOutput;
-        }
+        if (modelBox) modelBox.innerHTML = modelOutput;
 
         setTimeout(async () => {
-          const fetchTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 60000));
           const modelBox = document.getElementById(Id);
           try {
-            const fetchHash = await Promise.race([SDImageParserFetchModelOutput(paramsRAW), fetchTimeout]);
+            const links = await SDImageParserFetchModelOutput(paramsRAW);
             modelBox.classList.add(display);
-            modelBox.innerHTML = fetchHash;
+            modelBox.innerHTML = links;
             setTimeout(() => modelBox.classList.remove(display), 2000);
           } catch (error) {
-            error.message === 'Timeout' && (modelBox.innerHTML = '<div class="sdimageinfo-output-failed">Failed to fetch...</div>');
+            modelBox.innerHTML = '<div class="sdimageinfo-output-failed">Failed to fetch...</div>';
           }
         }, 500);
 
@@ -276,6 +297,7 @@ function SDImageInfoTabChange() {
   let BS = document?.querySelector('#tabs > .tab-nav > button.selected');
 
   if (BS?.textContent.trim() === 'Image Info') {
+    SDImageInfoLayout();
     const tabNav = document.querySelector('.tab-nav.scroll-hide');
     if (tabNav) Object.assign(tabNav.style, { borderBottom: '0' });
 

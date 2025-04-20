@@ -1,4 +1,7 @@
 onUiLoaded(function () {
+  let Tab = document.getElementById('tab_sd_image_info');
+  let LightBox = document.getElementById('SDImageInfo-Image-Viewer');
+
   const sendButton = document.getElementById('SDImageInfo-SendButton');
   sendButton?.querySelectorAll('#txt2img_tab, #img2img_tab').forEach(btn => {
     btn.onclick = () => SDImageInfoSendButton(btn.id.replace('_tab', ''));
@@ -13,15 +16,18 @@ onUiLoaded(function () {
   imgArea.onclick = () => document.querySelector('#SDImageInfo-Image img')?.click();
   Panel.prepend(imgArea);
 
+  ['drop', 'dragover'].forEach(t => document.addEventListener(t, e =>
+    Tab?.style.display === 'block' && LightBox?.style.display !== 'flex' &&
+    (e.target.id === 'SDImageInfo-img-area' || e.target.classList?.contains('sdimageinfo-output-content')) &&
+    (e.preventDefault(), t === 'drop' && con.querySelector('.boundedheight')?.dispatchEvent(new DragEvent('drop', {
+      bubbles: true, cancelable: true, dataTransfer: e.dataTransfer })))
+    )
+  );
+
   document.addEventListener('keydown', (e) => {
-    const Tab = document.getElementById('tab_sd_image_info');
-    const LightBox = document.getElementById('SDImageInfo-Image-Viewer');
-
     if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
-
     const img = document.querySelector('#SDImageInfo-Image img');
     if (e.key === 'Escape' && img) { e.preventDefault(); window.SDImageInfoClearImage(); }
-
     const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? Tab.scrollHeight : null;
     if (Scroll !== null) { e.preventDefault(); Tab.scrollTo({ top: Scroll, behavior: 'smooth' }); }
   });

@@ -321,7 +321,7 @@ function SDImageInfoTabChange() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const vars = [
-    { c: '--input-background-fill', to: '--sdimageinfo-output-bg', a: 0.5 },
+    { c: '--input-background-fill', to: '--sdimageinfo-output-bg', a: 0.6 },
   ];
 
   const css = await (await fetch('/theme.css')).text();

@@ -5,7 +5,7 @@ import gradio as gr
 
 def onSDImageInfoTab():
     with gr.Blocks(analytics_enabled=False) as sd_image_info:
-        with FormColumn(variant='compact', elem_id='SDImageInfo-Column'):
+        with gr.Column(variant='compact', elem_id='SDImageInfo-Column'):
             image = gr.Image(elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
             image.change(fn=None, _js='() => { SDImageInfoParser(); }')
 

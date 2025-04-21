@@ -13,10 +13,16 @@
   border: 0;
   position: fixed;
   left: 0;
-  overflow: auto;
   z-index: 1;
   width: 100%;
   background: var(--background-fill-primary);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+#tab_sd_image_info > div {
+  height: 100%;
 }
 
 #SDImageInfo-Column {
@@ -34,8 +40,11 @@
   align-items: flex-start;
   box-sizing: border-box;
   z-index: 1;
-  overscroll-behavior: contain;
-  scroll-behavior: smooth;
+  overflow: hidden;
+}
+
+#SDImageInfo-Column.column-overflow {
+  overflow: auto;
 }
 
 #SDImageInfo-Image {
@@ -120,6 +129,7 @@
 }
 
 #SDImageInfo-Clear-Button {
+  display: flex !important;
   position: fixed;
   height: 60px;
   width: 60px;
@@ -149,7 +159,7 @@
 #SDImageInfo-Clear-Button:hover {
   color: #fff !important;
   background: red;
-  filter: drop-shadow(-4px 4px 4px red);
+  filter: drop-shadow(-1px 1px 4px red);
 }
 
 #SDImageInfo-SendButton {
@@ -184,6 +194,7 @@
 
 #SDImageInfo-OutputPanel {
   display: flex;
+  position: absolute;
   opacity: 0;
   height: 0;
   top: 0;
@@ -191,6 +202,7 @@
   opacity: 0;
   pointer-events: none;
   background: transparent;
+  overflow: visible;
   transition: opacity 1s ease;
 }
 
@@ -206,7 +218,7 @@
 
 #SDImageInfo-OutputPanel.display-output-panel {
   opacity: 1;
-  height: 100%;
+  height: max-content;
 }
 
 #SDImageInfo-HTML {
@@ -215,7 +227,7 @@
   position: relative;
   overflow-wrap: break-word;
   height: 100%;
-  gap: 1.5rem;
+  gap: 1.2rem;
   max-width: 100%;
   margin-top: 240px;
   padding: 0 20px 20px 20px !important;

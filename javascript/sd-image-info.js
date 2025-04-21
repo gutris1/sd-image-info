@@ -1,5 +1,6 @@
-onUiLoaded(function () {
+onUiLoaded(() => {
   let Tab = document.getElementById('tab_sd_image_info');
+  let Column = document.getElementById('SDImageInfo-Column');
   let LightBox = document.getElementById('SDImageInfo-Image-Viewer');
 
   const sendButton = document.getElementById('SDImageInfo-SendButton');
@@ -18,7 +19,7 @@ onUiLoaded(function () {
 
   ['drop', 'dragover'].forEach(t => document.addEventListener(t, e =>
     Tab?.style.display === 'block' && LightBox?.style.display !== 'flex' &&
-    (e.target.id === 'SDImageInfo-img-area' || e.target.classList?.contains('sdimageinfo-output-content')) &&
+    (e.target.id === imgArea.id || e.target.classList?.contains('sdimageinfo-output-content')) &&
     (e.preventDefault(), t === 'drop' && con.querySelector('.boundedheight')?.dispatchEvent(new DragEvent('drop', {
       bubbles: true, cancelable: true, dataTransfer: e.dataTransfer })))
     )
@@ -28,8 +29,8 @@ onUiLoaded(function () {
     if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
     const img = document.querySelector('#SDImageInfo-Image img');
     if (e.key === 'Escape' && img) { e.preventDefault(); window.SDImageInfoClearImage(); }
-    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? Tab.scrollHeight : null;
-    if (Scroll !== null) { e.preventDefault(); Tab.scrollTo({ top: Scroll, behavior: 'smooth' }); }
+    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? Column.scrollHeight : null;
+    if (Scroll !== null) { e.preventDefault(); Column.scrollTo({ top: Scroll, behavior: 'smooth' }); }
   });
 
   onUiUpdate(SDImageInfoTabChange);
@@ -102,8 +103,12 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   const NaiSourceInfo = window.SDImageParserNaiSourceInfo;
   const SoftwareInfo = window.SDImageParserSoftwareInfo;
 
+  const Column = document.getElementById('SDImageInfo-Column');
   const SendButton = document.getElementById('SDImageInfo-SendButton');
   const OutputPanel = document.getElementById('SDImageInfo-OutputPanel');
+
+  const columnOverflow = 'column-overflow';
+  const displayPanel = 'display-output-panel';
 
   const titleEL = [
     { id: 'Prompt', label: 'Prompt', title: 'Copy Prompt' },
@@ -153,11 +158,13 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
-    OutputPanel.classList.remove('display-output-panel');
+    Column.classList.remove(columnOverflow);
+    OutputPanel.classList.remove(displayPanel);
     SendButton.style.display = '';
 
   } else {
-    OutputPanel.classList.add('display-output-panel');
+    Column.classList.add(columnOverflow);
+    OutputPanel.classList.add(displayPanel);
 
     if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
       titlePrompt = '';
@@ -288,7 +295,7 @@ function SDImageInfoClearButton() {
 
     let btn = ClearButton.cloneNode(true);
     btn.id = 'SDImageInfo-Clear-Button';
-    btn.style.display = 'flex';
+    btn.title = 'Exit';
     parent.prepend(btn);
 
     const clearImage = () => (ClearButton.click(), window.SDImageInfoRawOutput = '');

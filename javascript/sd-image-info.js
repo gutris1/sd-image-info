@@ -154,7 +154,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   function SDImageInfoHTMLOutput(title, content) {
     const none = title === 'nothing', con = title === titleModels || none;
     const tent = con ? content : `<div class='sdimageinfo-output-wrapper'><div class='sdimageinfo-output-content'>${content}</div></div>`;
-    return `<div class='sdimageinfo-output-section'${none ? " style='height: 200px'" : ''}>${none ? '' : title}${tent}</div>`;
+    return `<div class='sdimageinfo-output-section'${none ? " style='height: 100%'" : ''}>${none ? '' : title}${tent}</div>`;
   }
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {

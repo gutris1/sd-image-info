@@ -218,7 +218,7 @@
 
 #SDImageInfo-OutputPanel.display-output-panel {
   opacity: 1;
-  height: max-content;
+  height: 100%;
 }
 
 #SDImageInfo-HTML {
@@ -355,7 +355,7 @@
 
 #SDImageInfo-Spinner {
   margin: 0 auto;
-  animation: spinner 1.5s linear infinite;
+  animation: Spin 1.5s linear infinite;
   filter: drop-shadow(0 0 10px rgba(0,0,0,0.7));
 }
 
@@ -364,7 +364,7 @@
   fill: var(--primary-400);
 }
 
-@keyframes spinner {
+@keyframes Spin {
   0% {
     transform: rotate(0deg);
   }
@@ -387,13 +387,14 @@
 #SDImageInfo-Image-Viewer {
   display: none;
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 999999;
   opacity: 0;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -402,20 +403,30 @@
 
 #SDImageInfo-Image-Viewer-Wrapper {
   display: flex;
-  height: 100%;
   position: relative;
-  transition: transform 0.3s ease;
-  transform: translate(0px, 0px) scale(0);
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  gap: 0;
+  transform: translate(0px, 0px) scale(0.5);
+  transition: transform 0.2s ease-out;
 }
 
 #SDImageInfo-Image-Viewer-img {
+  display: flex;
+  position: relative;
+  object-fit: contain;
+  align-self: center;
   width: auto;
   height: auto;
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
   cursor: default;
   user-select: none;
   -webkit-user-select: none;
-  transition: transform 0.1s ease;
+  background-color: #212121;
+  transform: translate(0px, 0px) scale(1);
+  transition: transform 0.2s ease-out;
 }

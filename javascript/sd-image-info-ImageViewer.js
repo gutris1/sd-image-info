@@ -3,6 +3,7 @@ function SDImageInfoImageViewer(img) {
   LightBox.id = 'SDImageInfo-Image-Viewer';
   LightBox.setAttribute('tabindex', '0');
   LightBox.style.display = 'flex';
+  LightBox.focus();
 
   const Wrapper = document.createElement('div');
   Wrapper.id = 'SDImageInfo-Image-Viewer-Wrapper';
@@ -10,36 +11,14 @@ function SDImageInfoImageViewer(img) {
   const imgEL = img.cloneNode();
   imgEL.id = 'SDImageInfo-Image-Viewer-img';
 
-  Wrapper.prepend(imgEL);
-  LightBox.appendChild(Wrapper);
-  document.body.appendChild(LightBox);
-  LightBox.focus();
+  Wrapper.prepend(imgEL), LightBox.append(Wrapper), document.body.append(LightBox);
 
   const imgState = {
-    scale: 1,
-    offsetX: 0,
-    offsetY: 0,
-    lastX: 0,
-    lastY: 0,
-    lastLen: 1,
-    LastTouch: 0,
-    ZoomMomentum: 0,
-    MoveMomentum: 0,
-    LastZoom: 0,
-    SnapMouse: 20,
-    SnapTouch: 10,
+    scale: 1, offsetX: 0, offsetY: 0, lastX: 0, lastY: 0, lastLen: 1, LastTouch: 0, LastZoom: 0,
+    ZoomMomentum: 0, MoveMomentum: 0, SnapMouse: 20, SnapTouch: 10,
 
     TouchGrass: {
-      touchScale: false,
-      last1X: 0,
-      last1Y: 0,
-      last2X: 0,
-      last2Y: 0,
-      delta1X: 0,
-      delta1Y: 0,
-      delta2X: 0,
-      delta2Y: 0,
-      scale: 1
+      touchScale: false, last1X: 0, last1Y: 0, last2X: 0, last2Y: 0, delta1X: 0, delta1Y: 0, delta2X: 0, delta2Y: 0, scale: 1
     },
 
     SDImageInfoImageViewerSnapBack: function (imgEL, LightBox) {
@@ -49,10 +28,7 @@ function SDImageInfoImageViewer(img) {
       const LightBoxH = LightBox.offsetHeight;
 
       if (this.scale <= 1) {
-        this.offsetX = 0;
-        this.offsetY = 0;
-        this.lastX = 0;
-        this.lastY = 0;
+        this.offsetX = this.offsetY = this.lastX = this.lastY = 0;
         return;
 
       } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
@@ -87,24 +63,18 @@ function SDImageInfoImageViewer(img) {
 
     SDImageInfoImageViewerCloseZoom: function () {
       LightBox.style.opacity = '';
-
-      setTimeout(() => {
-        LightBox.remove();
-        Wrapper.style.transform = '';
-        document.removeEventListener('mouseleave', MouseLeave);
-        document.removeEventListener('mouseup', MouseUp);
-      }, 200);
+      setTimeout(() => LightBox.remove(), 200);
     }
   };
 
   requestAnimationFrame(() => {
     LightBox.style.opacity = '1';
+    Wrapper.style.transition = '';
     Wrapper.style.transform = 'translate(0px, 0px) scale(1)';
+    Wrapper.style.opacity = '1';
   });
 
-  imgEL.ondrag = imgEL.ondragend = imgEL.ondragstart = (e) => {
-    e.stopPropagation(); e.preventDefault();
-  };
+  imgEL.ondrag = imgEL.ondragend = imgEL.ondragstart = (e) => { e.stopPropagation(); e.preventDefault(); };
 
   LightBox.onkeydown = (e) => {
     if (LightBox?.style.display === 'flex' && e.key === 'Escape') {
@@ -174,7 +144,11 @@ function SDImageInfoImageViewer(img) {
     }
   });
 
-  const MouseUp = (e) => {
+  window.SDImageInfoMouse = window.SDImageInfoMouse || {};
+  if (window.SDImageInfoMouse.MouseUp) document.removeEventListener('mouseup', window.SDImageInfoMouse.MouseUp);
+  if (window.SDImageInfoMouse.MouseLeave) document.removeEventListener('mouseleave', window.SDImageInfoMouse.MouseLeave);
+
+  window.SDImageInfoMouse.MouseUp = (e) => {
     clearTimeout(GropinTime);
     if (!Groped && e.button === 0) {
       imgEL.onclick = (e) => (e.preventDefault(), imgState.SDImageInfoImageViewerCloseZoom());
@@ -188,13 +162,18 @@ function SDImageInfoImageViewer(img) {
     setTimeout(() => (imgEL.style.transition = 'transform 0s ease'), 100);
   };
 
-  const MouseLeave = (e) => {
+  window.SDImageInfoMouse.MouseLeave = (e) => {
     if (e.target !== LightBox && Groped) {
       imgState.SDImageInfoImageViewerSnapBack(imgEL, LightBox);
       Groped = false;
       imgEL.style.cursor = 'auto';
     }
   };
+
+  setTimeout(() => {
+    document.addEventListener('mouseup', window.SDImageInfoMouse.MouseUp);
+    document.addEventListener('mouseleave', window.SDImageInfoMouse.MouseLeave);
+  }, 100);
 
   imgEL.addEventListener('wheel', (e) => {
     e.stopPropagation();
@@ -301,16 +280,9 @@ function SDImageInfoImageViewer(img) {
   let lastDistance = 0;
   let lastScale = 1;
 
-  function SDImageInfoImageViewerTouchDistance(touch1, touch2) {
-    return Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY
-    );
-  }
+  const SDImageInfoImageViewerTouchDistance = (t1, t2) => Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 
-  LightBox.addEventListener('touchmove', (e) => {
-    if (e.target !== imgEL) e.stopPropagation(), e.preventDefault();
-  });
+  LightBox.ontouchmove = (e) => e.target !== imgEL && (e.stopPropagation(), e.preventDefault());
 
   imgEL.addEventListener('touchstart', (e) => {
     e.stopPropagation();
@@ -352,8 +324,7 @@ function SDImageInfoImageViewer(img) {
       const LightBoxH = LightBox.offsetHeight;
 
       if (imgState.scale <= 1) {
-        imgState.offsetX = 0;
-        imgState.offsetY = 0;
+        imgState.offsetX = imgState.offsetY = 0;
         imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
 
       } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
@@ -408,8 +379,7 @@ function SDImageInfoImageViewer(img) {
       const LightBoxH = LightBox.offsetHeight;
 
       if (imgState.scale <= 1) {
-        imgState.offsetX = 0;
-        imgState.offsetY = 0;
+        imgState.offsetX = imgState.offsetY = 0;
         imgEL.style.transform = `translate(0px, 0px) scale(${imgState.scale})`;
 
       } else if (imgELW <= LightBoxW && imgELH >= LightBoxH) {
@@ -463,7 +433,4 @@ function SDImageInfoImageViewer(img) {
       }, 10);
     }
   });
-
-  document.addEventListener('mouseleave', MouseLeave);
-  document.addEventListener('mouseup', MouseUp);
 }

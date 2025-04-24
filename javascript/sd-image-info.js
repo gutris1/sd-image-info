@@ -37,21 +37,6 @@ onUiLoaded(() => {
   window.addEventListener('resize', SDImageInfoLayout);
 });
 
-function SDImageInfoLayout() {
-  const Tab = document.getElementById('tab_sd_image_info');
-  const Frame = document.getElementById('SDImageInfo-Image-Frame');
-  const Nav = document.querySelector('.tabs.gradio-tabs');
-
-  if (!Tab || !Frame || !Nav) return;
-
-  const rect = Nav.getBoundingClientRect();
-  const top = +(rect.top + scrollY + rect.height).toFixed(2);
-  const height = +(document.body.clientHeight - top).toFixed(2);
-
-  Object.assign(Tab.style, { top: `${top}px`, height: `${height}px` });
-  Object.assign(Frame.style, { top: `${top}px`, height: `${height}px` });
-}
-
 async function SDImageInfoParser() {
   const RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea');
   const HTMLPanel = document.getElementById('SDImageInfo-HTML');
@@ -108,7 +93,6 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   const OutputPanel = document.getElementById('SDImageInfo-OutputPanel');
 
   const columnOverflow = 'column-overflow';
-  const displayPanel = 'display-output-panel';
 
   const titleEL = [
     { id: 'Prompt', label: 'Prompt', title: 'Copy Prompt' },
@@ -159,14 +143,15 @@ async function SDImageInfoPlainTextToHTML(inputs) {
 
   if (inputs === undefined || inputs === null || inputs.trim() === '') {
     Column.classList.remove(columnOverflow);
-    OutputPanel.classList.remove(displayPanel);
+    OutputPanel.classList.remove('display-output-panel', 'display-output-fail');
     SendButton.style.display = '';
 
   } else {
     Column.classList.add(columnOverflow);
-    OutputPanel.classList.add(displayPanel);
+    OutputPanel.classList.add('display-output-panel');
 
     if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
+      OutputPanel.classList.add('display-output-fail');
       titlePrompt = '';
       SendButton.style.display = '';
       const none = `<div class='sdimageinfo-output-failed' style='position: absolute; bottom: 0;'>${inputs}</div>`;
@@ -305,30 +290,42 @@ function SDImageInfoClearButton() {
   }
 }
 
+function SDImageInfoLayout() {
+  const Tab = document.getElementById('tab_sd_image_info');
+  const Frame = document.getElementById('SDImageInfo-Image-Frame');
+  const Nav = document.querySelector('.tabs.gradio-tabs');
+
+  if (Tab?.style.display !== 'block') return;
+
+  const rect = Nav.getBoundingClientRect();
+  const top = +(rect.top + scrollY + rect.height).toFixed(2);
+  const height = +(document.body.clientHeight - top).toFixed(2);
+
+  Object.assign(Tab.style, { top: `${top}px`, height: `${height}px` });
+  Object.assign(Frame.style, { top: `${top}px`, height: `${height}px` });
+}
+
 function SDImageInfoTabChange() {
-  var Id = 'SDImageInfo-HideScrollBar';
-  let BS = document?.querySelector('#tabs > .tab-nav > button.selected');
+  const id = 'SDImageInfo-HideScrollBar';
+  const MainTab = document?.querySelector('#tabs > .tab-nav > button.selected')?.textContent.trim();
+  const tabNav = document.querySelector('.tab-nav.scroll-hide');
 
-  if (BS?.textContent.trim() === 'Image Info') {
+  if (MainTab === 'Image Info') {
     SDImageInfoLayout();
-    const tabNav = document.querySelector('.tab-nav.scroll-hide');
-    if (tabNav) Object.assign(tabNav.style, { borderBottom: '0' });
+    if (tabNav) tabNav.style.borderBottom = '0';
+    document.documentElement.style.scrollbarWidth = 'none';
 
-    if (!document.getElementById(Id)) {
-      const SB = document.createElement('style');
-      SB.id = Id;
-      SB.innerHTML = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
-      document.head.appendChild(SB);
+    if (!document.getElementById(id)) {
+      const sb = document.createElement('style');
+      sb.id = id;
+      sb.textContent = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
+      document.head.appendChild(sb);
     }
-    Object.assign(document.documentElement.style, { scrollbarWidth: 'none' });
 
   } else {
-    const tabNav = document.querySelector('.tab-nav.scroll-hide');
-    if (tabNav) Object.assign(tabNav.style, { borderBottom: '' });
-
-    const SB = document.getElementById(Id);
-    if (SB) document.head.removeChild(SB);
-    Object.assign(document.documentElement.style, { scrollbarWidth: '' });
+    if (tabNav) tabNav.style.borderBottom = '';
+    document.documentElement.style.scrollbarWidth = '';
+    document.getElementById(id)?.remove();
   }
 }
 

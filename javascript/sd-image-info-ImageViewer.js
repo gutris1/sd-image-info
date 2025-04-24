@@ -67,12 +67,12 @@ function SDImageInfoImageViewer(img) {
     }
   };
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(() => setTimeout(() => {
     LightBox.style.opacity = '1';
     Wrapper.style.transition = '';
     Wrapper.style.transform = 'translate(0px, 0px) scale(1)';
     Wrapper.style.opacity = '1';
-  });
+  }, 50));
 
   imgEL.ondrag = imgEL.ondragend = imgEL.ondragstart = (e) => { e.stopPropagation(); e.preventDefault(); };
 

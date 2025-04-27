@@ -17,8 +17,6 @@
   width: 100%;
   background: var(--background-fill-primary);
   overflow: auto;
-  overscroll-behavior: contain;
-  scroll-behavior: smooth;
 }
 
 #tab_sd_image_info > div {
@@ -152,6 +150,13 @@
   border: 0;
 }
 
+#SDImageInfo-Clear-Button svg {
+  filter:
+    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
 #SDImageInfo-Clear-Button path {
   stroke-width: 5px !important;
 }
@@ -159,7 +164,6 @@
 #SDImageInfo-Clear-Button:hover {
   color: #fff !important;
   background: red;
-  filter: drop-shadow(-1px 1px 4px red);
 }
 
 #SDImageInfo-SendButton {

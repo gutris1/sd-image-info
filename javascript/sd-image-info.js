@@ -1,26 +1,89 @@
 onUiLoaded(() => {
+  SDImageInfoCreateSetting();
+  SDImageInfoCreateSomething();
+  onUiUpdate(SDImageInfoTabChange);
+  window.addEventListener('resize', SDImageInfoLayout);
+});
+
+function SDImageInfoCreateSomething() {
   let Tab = document.getElementById('tab_sd_image_info');
-  let Column = document.getElementById('SDImageInfo-Column');
+  let column = document.getElementById('SDImageInfo-Column');
+  let imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
+  let panel = document.getElementById('SDImageInfo-Output-Panel');
   let LightBox = document.getElementById('SDImageInfo-Image-Viewer');
 
-  const sendButton = document.getElementById('SDImageInfo-SendButton');
-  sendButton?.querySelectorAll('#txt2img_tab, #img2img_tab').forEach(btn => {
-    btn.onclick = () => SDImageInfoSendButton(btn.id.replace('_tab', ''));
-  });
+  const customWrap = document.createElement('div');
+  customWrap.id = 'SDImageInfo-Custom-Wrapper';
 
-  const con = document.querySelector('#SDImageInfo-Image > .image-container');
-  con.append(Object.assign(document.createElement('div'), { id: 'SDImageInfo-Image-Frame' }));
+  const frame = document.createElement('div');
+  frame.id = 'SDImageInfo-Frame';
 
-  const Panel = document.getElementById('SDImageInfo-OutputPanel');
+  const imgFrame = document.createElement('div');
+  imgFrame.id = 'SDImageInfo-Image-Frame';
+
+  const gearButton = document.createElement('div');
+  gearButton.id = 'SDImageInfo-Gear-Button';
+  gearButton.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="100%" width="100%" viewBox="0 0 32 32">
+      <path d="M27.758,10.366 l-1-1.732 c-0.552-0.957-1.775-1.284-2.732-0.732 L23.5,8.206 C21.5,9.36,19,7.917,19,5.608 V5 c0-1.105-0.895-2-2-2 h-2 c-1.105,0-2,0.895-2,2 v0.608 c0,2.309-2.5,3.753-4.5,2.598 L7.974,7.902
+      C7.017,7.35,5.794,7.677,5.242,8.634 l-1,1.732 c-0.552,0.957-0.225,2.18,0.732,2.732 L5.5,13.402 c2,1.155,2,4.041,0,5.196 l-0.526,0.304 c-0.957,0.552-1.284,1.775-0.732,2.732 l1,1.732 c0.552,0.957,1.775,1.284,2.732,0.732
+      L8.5,23.794 c2-1.155,4.5,0.289,4.5,2.598 V27 c0,1.105,0.895,2,2,2 h2 c1.105,0,2-0.895,2-2 v-0.608 c0-2.309,2.5-3.753,4.5-2.598 l0.526,0.304 c0.957,0.552,2.18,0.225,2.732-0.732 l1-1.732 c0.552-0.957,0.225-2.18-0.732-2.732
+      L26.5,18.598 c-2-1.155-2-4.041,0-5.196 l0.526-0.304 C27.983,12.546,28.311,11.323,27.758,10.366 z M16,20 a4,4 0 1,1 0,-8 a4,4 0 1,1 0,8 z"
+      fill="currentColor" stroke="" stroke-width="2"
+      />
+    </svg>
+  `;
+
+  gearButton.onclick = () => {
+    const setting = Array.from(document.querySelectorAll('#tab_settings #settings .tab-nav button')).find(button => button.textContent.trim() === 'SD Image Info');
+    const tab = Array.from(document.querySelectorAll('#tabs .tab-nav button')).find(button => button.textContent.trim() === 'Settings');
+    if (setting) (setting.click(), tab.click());
+  };
+
+  const clearButton = document.createElement('div');
+  clearButton.id = 'SDImageInfo-Clear-Button';
+  clearButton.title = 'Exit';
+  clearButton.innerHTML = `
+    <svg width="100%" height="100%" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
+      stroke="currentColor" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round;">
+      <g transform="matrix(1.14096,-0.140958,-0.140958,1.14096,-0.0559523,0.0559523)">
+        <path d="M18,6L6.087,17.913" style="fill: none; fill-rule: nonzero; stroke-width: 5px;"/>
+      </g>
+      <path d="M4.364,4.364L19.636,19.636" style="fill: none; fill-rule: nonzero; stroke-width: 5px;"/>
+    </svg>
+  `;
+
+  window.SDImageInfoClearImage = () => {
+    const clear = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') ||
+                  document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
+    if (clear) (clear.click(), window.SDImageInfoRawOutput = '');
+  };
+
+  clearButton.onclick = () => window.SDImageInfoClearImage();
+
+  customWrap.append(imgFrame, gearButton, clearButton);
+  imgCon.append(customWrap, frame);
+
+  const arrow = document.createElement('div');
+  arrow.id = 'SDImageInfo-Arrow';
+  arrow.innerHTML = `
+    <svg height="100%" width="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
+      <polygon fill="currentColor" points="95.936,214.656 256,378.016 416.064,214.656 366.096,165.856 256,278.208 145.904,165.856"/>
+    </svg>
+  `;
+
+  column.append(arrow);
+  SDImageInfoArrowScroll(arrow);
+
   const imgArea = document.createElement('div');
   imgArea.id = 'SDImageInfo-img-area'
   imgArea.onclick = () => document.querySelector('#SDImageInfo-Image img')?.click();
-  Panel.prepend(imgArea);
+  panel.prepend(imgArea);
 
   ['drop', 'dragover'].forEach(t => document.addEventListener(t, e =>
     Tab?.style.display === 'block' && LightBox?.style.display !== 'flex' &&
     (e.target.id === imgArea.id || e.target.classList?.contains('sdimageinfo-output-content')) &&
-    (e.preventDefault(), t === 'drop' && con.querySelector('.boundedheight')?.dispatchEvent(new DragEvent('drop', {
+    (e.preventDefault(), t === 'drop' && imgCon.querySelector('.boundedheight')?.dispatchEvent(new DragEvent('drop', {
       bubbles: true, cancelable: true, dataTransfer: e.dataTransfer })))
     )
   );
@@ -29,28 +92,71 @@ onUiLoaded(() => {
     if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
     const img = document.querySelector('#SDImageInfo-Image img');
     if (e.key === 'Escape' && img) { e.preventDefault(); window.SDImageInfoClearImage(); }
-    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? Column.scrollHeight : null;
-    if (Scroll !== null) { e.preventDefault(); Column.scrollTo({ top: Scroll, behavior: 'smooth' }); }
+    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? column.scrollHeight : null;
+    if (Scroll !== null) { e.preventDefault(); column.scrollTo({ top: Scroll, behavior: 'smooth' }); }
   });
 
-  onUiUpdate(SDImageInfoTabChange);
-  window.addEventListener('resize', SDImageInfoLayout);
-});
+  const sendButton = document.getElementById('SDImageInfo-SendButton');
+  sendButton?.querySelectorAll('#txt2img_tab, #img2img_tab').forEach(btn => {
+    btn.onclick = () => SDImageInfoSendButton(btn.id.replace('_tab', ''));
+  });
+}
+
+function SDImageInfoArrowScroll(arrow) {
+  let clicked = false;
+
+  const whichEL = () => {
+    const column = document.getElementById('SDImageInfo-Column');
+    const panel = document.getElementById('SDImageInfo-Output-Panel');
+    return (panel && panel.scrollHeight > panel.clientHeight) ? panel : column;
+  };
+
+  arrow.onclick = () => {
+    clicked = true;
+    arrow.style.transform = '';
+    const el = whichEL();
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    setTimeout(() => clicked = false, 500);
+  };
+
+  window.SDImageInfoArrowScrolling = () => {
+    if (clicked) return;
+    const column = document.getElementById('SDImageInfo-Column');
+    const el = whichEL();
+    if (!el) return;
+    if (!column.classList.contains('sdimageinfo-column-overflow')) return arrow.style.transform = '';
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const overflow = scrollHeight > clientHeight + 1;
+    const bottom = scrollTop + clientHeight >= scrollHeight - 5;
+    arrow.style.transform = overflow && !bottom ? 'scale(1)' : '';
+  };
+
+  ['SDImageInfo-Column', 'SDImageInfo-Output-Panel'].forEach(id =>
+    document.getElementById(id)?.addEventListener('scroll', window.SDImageInfoArrowScrolling)
+  );
+
+  ['scroll', 'resize'].forEach(e => window.addEventListener(e, window.SDImageInfoArrowScrolling));
+}
 
 async function SDImageInfoParser() {
   const RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea');
+  const Column = document.getElementById('SDImageInfo-Column');
   const HTMLPanel = document.getElementById('SDImageInfo-HTML');
   const ImagePanel = document.getElementById('SDImageInfo-Image');
   const img = ImagePanel.querySelector('img');
 
+  let imgEnter = 'sdimageinfo-img-enter';
+
   if (!img) {
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
-    ImagePanel.classList.remove('img-enter');
+    Column.classList.remove(imgEnter);
+    ImagePanel.classList.remove(imgEnter);
+    setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     return;
   }
 
-  SDImageInfoClearButton();
-  ImagePanel.classList.add('img-enter');
+  Column.classList.add(imgEnter);
+  ImagePanel.classList.add(imgEnter);
   img.onclick = () => SDImageInfoImageViewer(img);
   img.onload = () => img.style.opacity = '1';
 
@@ -61,12 +167,18 @@ async function SDImageInfoParser() {
   HTMLPanel.classList.add('prose');
   HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
 
+  setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
+
   document.querySelectorAll('.sdimageinfo-output-section').forEach(s => {
+    const bg = 'var(--input-background-fill)';
     const t = s.querySelector('.sdimageinfo-output-title');
     const w = s.querySelector('.sdimageinfo-output-wrapper');
     if (!t || !w) return;
-    w.onmouseenter = () => [t, w].forEach(x => x.style.background = 'var(--input-background-fill)');
-    w.onmouseleave = () => [t, w].forEach(x => x.style.background = '');
+    const c = t.classList.contains('sdimageinfo-copybutton');
+    w.onmouseenter = () => w.style.background = t.style.background = bg;
+    w.onmouseleave = () => w.style.background = t.style.background = '';
+    t.onmouseenter = () => !c ? (t.style.background = w.style.background = bg) : (w.style.background = bg);
+    t.onmouseleave = () => !c ? (t.style.background = w.style.background = '') : (w.style.background = '');
   });
 }
 
@@ -90,9 +202,9 @@ async function SDImageInfoPlainTextToHTML(inputs) {
 
   const Column = document.getElementById('SDImageInfo-Column');
   const SendButton = document.getElementById('SDImageInfo-SendButton');
-  const OutputPanel = document.getElementById('SDImageInfo-OutputPanel');
+  const OutputPanel = document.getElementById('SDImageInfo-Output-Panel');
 
-  const columnOverflow = 'column-overflow';
+  const columnOverflow = 'sdimageinfo-column-overflow';
 
   const titleEL = [
     { id: 'Prompt', label: 'Prompt', title: 'Copy Prompt' },
@@ -205,6 +317,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
           } catch (error) {
             modelBox.innerHTML = '<div class="sdimageinfo-output-failed">Failed to fetch...</div>';
           }
+          setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
         }, 500);
 
         if (hashesEX && hashesEX[1]) paramsText = paramsText.replace(hashesEX[0], '').trim();
@@ -268,31 +381,10 @@ function SDImageInfoCopyButtonEvent(e) {
   }
 }
 
-function SDImageInfoClearButton() {
-  let Cloned = document.getElementById('SDImageInfo-Clear-Button');
-  let ClearButton = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') || 
-                    document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
-
-  if (ClearButton && !Cloned) {
-    let parent = ClearButton.parentElement;
-    Object.assign(parent.style, { position: 'absolute', zIndex: 1, top: 0, right: 0, gap: 0 });
-    ClearButton.style.display = 'none';
-
-    let btn = ClearButton.cloneNode(true);
-    btn.id = 'SDImageInfo-Clear-Button';
-    btn.title = 'Exit';
-    parent.prepend(btn);
-
-    const clearImage = () => (ClearButton.click(), window.SDImageInfoRawOutput = '');
-    window.SDImageInfoClearImage = clearImage;
-
-    btn.onclick = (e) => (e.stopPropagation(), clearImage());
-  }
-}
-
 function SDImageInfoLayout() {
   const Tab = document.getElementById('tab_sd_image_info');
-  const Frame = document.getElementById('SDImageInfo-Image-Frame');
+  const Frame = document.getElementById('SDImageInfo-Frame');
+  const imgFrame = document.getElementById('SDImageInfo-Image-Frame');
   const Nav = document.querySelector('.tabs.gradio-tabs');
 
   if (Tab?.style.display !== 'block') return;
@@ -303,6 +395,7 @@ function SDImageInfoLayout() {
 
   Object.assign(Tab.style, { top: `${top}px`, height: `${height}px` });
   Object.assign(Frame.style, { top: `${top}px`, height: `${height}px` });
+  Object.assign(imgFrame.style, { top: `${top}px`, height: `${height}px` });
 }
 
 function SDImageInfoTabChange() {
@@ -336,9 +429,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const css = await (await fetch('/theme.css')).text();
   const get = s => Object.fromEntries((css.match(new RegExp(`${s}\\s*{([^}]*)}`, 'm'))?.[1] || '').split(';').map(l => l.trim().split(':').map(s => s.trim())).filter(([k, v]) => k && v));
-  const toRGBA = (hex, a) => hex && /^#/.test(hex) ? `rgba(${hex.slice(1).match(/.{2}/g).map(v => parseInt(v, 16)).join(',')},${a})` : 'rgba(0,0,0,0)';
+  const aHex = (hex, a) => {
+    if (!hex || !/^#([0-9a-f]{6})$/i.test(hex)) return hex;
+    const alpha = Math.round(a * 255).toString(16).padStart(2, '0');
+    return hex + alpha;
+  };
   const r = get(':root'), d = get('.dark'), S = document.createElement('style');
-  vars.forEach(({ c, to, a }) => { S.textContent += `:root { ${to}: ${toRGBA(r[c], a)}; }\n.dark { ${to}: ${toRGBA(d[c], a)}; }\n`; });
+  vars.forEach(({ c, to, a }) => { S.textContent += `:root { ${to}: ${aHex(r[c], a)}; }\n`; S.textContent += `.dark { ${to}: ${aHex(d[c], a)}; }\n`; });
   document.head.append(S);
 
   if (/firefox/i.test(navigator.userAgent)) {

@@ -28,14 +28,10 @@ def onSDImageInfoTab():
                 )
             )
 
-    return [(sd_image_info, 'Image Info', 'sd_image_info')]
+    return [(sd_image_info, 'Image Info', 'SDImageInfo-Tab')]
 
 shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', 'SD Image Info'), {
-    'sd_image_info_layout': shared.OptionInfo(
-        'fullwidth',
-        'SD Image Info Layout',
-        gr.Radio, lambda: {'choices': ['fullwidth', 'side by side']}
-    ),
+    'sd_image_info_layout': shared.OptionInfo('fullwidth', '', gr.Radio, lambda: {'choices': ['fullwidth', 'side by side']}),
 }))
 
 on_ui_tabs(onSDImageInfoTab)

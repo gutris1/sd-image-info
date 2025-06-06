@@ -1,18 +1,4 @@
 async function SDImageInfoCreateSetting() {
-  function SDImageInfoLoadSetting(Opts) {
-    const id = 'SDImageInfo-SideBySide';
-    const style = Opts ?? document.querySelector('#setting_sd_image_info_layout label.selected input')?.value;
-    const el = document.getElementById(id);
-
-    if (style) {
-      style === 'side by side'
-        ? el || document.body.appendChild(Object.assign(document.createElement('style'), { id, textContent: SDImageInfosideBysideCSS }))
-        : el?.remove();
-    }
-
-    !Opts && document.querySelector('#tab_settings #settings_submit')?.click();
-  }
-
   const settingColumn = document.getElementById('column_settings_SDImageInfo-Setting');
 
   if (settingColumn) {
@@ -28,8 +14,8 @@ async function SDImageInfoCreateSetting() {
     let get = await waitForOpts();
     SDImageInfoLoadSetting(get.sd_image_info_layout);
 
-    const settingWrap = document.createElement('div');
-    settingWrap.id = 'SDImageInfo-Setting-Button-Wrapper';
+    const applyWrap = document.createElement('div');
+    applyWrap.id = 'SDImageInfo-Setting-Button-Wrapper';
 
     const applyButton = document.createElement('button');
     applyButton.id = 'SDImageInfo-Setting-Apply-Button';
@@ -38,9 +24,68 @@ async function SDImageInfoCreateSetting() {
     applyButton.title = 'apply the style immediately';
     applyButton.onclick = () => SDImageInfoLoadSetting();
 
-    settingWrap.append(applyButton);
-    settingColumn.append(settingWrap);
+    applyWrap.append(applyButton);
+
+    const previewWrap = document.createElement('div');
+    previewWrap.id = 'SDImageInfo-Setting-Preview-Wrapper';
+
+    const preview1 = document.createElement('img');
+    preview1.id = 'SDImageInfo-Setting-Preview-1';
+    preview1.className = 'sdimageinfo-setting-preview';
+
+    const preview2 = document.createElement('img');
+    preview2.id = 'SDImageInfo-Setting-Preview-2';
+    preview2.className = 'sdimageinfo-setting-preview';
+
+    previewWrap.append(preview1, preview2);
+
+    settingColumn.parentNode?.prepend(previewWrap);
+    settingColumn.append(applyWrap);
+
+    const img1 = `${window.SDImageInfoFilePath}example/fullwidth.jpg?ts=${Date.now()}`;
+    const img2 = `${window.SDImageInfoFilePath}example/sidebyside.jpg?ts=${Date.now()}`;
+
+    try {
+      const [res1, res2] = await Promise.all([
+        fetch(img1),
+        fetch(img2),
+      ]);
+
+      if (res1.ok && res2.ok) {
+        preview1.src = img1;
+        preview2.src = img2;
+      } else {
+        console.error("error.");
+      }
+    } catch (err) {
+      console.error("preview images error :", err);
+    }
+
+    const previewChange = () => {
+      const v = document.querySelector('#setting_sd_image_info_layout label.selected input')?.value;
+      preview1.style.display = v === 'fullwidth' ? 'flex' : '';
+      preview2.style.display = v === 'side by side' ? 'flex' : '';
+    };
+
+    previewChange();
+    document.querySelectorAll('#setting_sd_image_info_layout input').forEach(input => {
+      input.onchange = () => previewChange();
+    });
   }
+}
+
+function SDImageInfoLoadSetting(Opts) {
+  const id = 'SDImageInfo-SideBySide';
+  const style = Opts ?? document.querySelector('#setting_sd_image_info_layout label.selected input')?.value;
+  const el = document.getElementById(id);
+
+  if (style) {
+    style === 'side by side'
+      ? el || document.body.appendChild(Object.assign(document.createElement('style'), { id, textContent: SDImageInfosideBysideCSS }))
+      : el?.remove();
+  }
+
+  !Opts && document.querySelector('#tab_settings #settings_submit')?.click();
 }
 
 const SDImageInfosideBysideCSS = `

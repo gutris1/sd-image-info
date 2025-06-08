@@ -12,113 +12,6 @@ onUiLoaded(() => {
   }
 });
 
-function SDImageInfoCreateSomething() {
-  let Tab = document.getElementById('tab_SDImageInfo-Tab');
-  let column = document.getElementById('SDImageInfo-Column');
-  let imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
-  let panel = document.getElementById('SDImageInfo-Output-Panel');
-  let LightBox = document.getElementById('SDImageInfo-Image-Viewer');
-
-  const customWrap = document.createElement('div');
-  customWrap.id = 'SDImageInfo-Custom-Wrapper';
-
-  const frame = document.createElement('div');
-  frame.id = 'SDImageInfo-Frame';
-
-  const imgFrame = document.createElement('div');
-  imgFrame.id = 'SDImageInfo-Image-Frame';
-
-  const gearButton = document.createElement('div');
-  gearButton.id = 'SDImageInfo-Gear-Button';
-  gearButton.innerHTML = SDImageInfoGearSVG;
-
-  gearButton.onclick = () => {
-    const setting = Array.from(document.querySelectorAll('#tab_settings #settings .tab-nav button')).find(button => button.textContent.trim() === 'SD Image Info');
-    const tab = Array.from(document.querySelectorAll('#tabs .tab-nav button')).find(button => button.textContent.trim() === 'Settings');
-    if (setting) (setting.click(), tab.click());
-  };
-
-  const clearButton = document.createElement('div');
-  clearButton.id = 'SDImageInfo-Clear-Button';
-  clearButton.title = 'Exit';
-  clearButton.innerHTML = SDImageInfoCrossSVG;
-
-  window.SDImageInfoClearImage = () => {
-    const btn = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') ||
-                document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
-    btn && (btn.click(), window.SDImageInfoRawOutput = '');
-  };
-
-  clearButton.onclick = () => window.SDImageInfoClearImage();
-
-  customWrap.append(imgFrame, gearButton, clearButton);
-  imgCon.append(customWrap, frame);
-
-  const arrow = document.createElement('div');
-  arrow.id = 'SDImageInfo-Arrow';
-  arrow.innerHTML = SDImageInfoArrowSVG;
-
-  column.append(arrow);
-  SDImageInfoArrowScroll(arrow);
-
-  const imgArea = document.createElement('div');
-  imgArea.id = 'SDImageInfo-img-area'
-  imgArea.onclick = () => document.querySelector('#SDImageInfo-Image img')?.click();
-  panel.prepend(imgArea);
-
-  ['drop', 'dragover'].forEach(t => document.addEventListener(t, e =>
-    Tab?.style.display === 'block' && LightBox?.style.display !== 'flex' &&
-    (e.target.id === imgArea.id || e.target.classList?.contains('sdimageinfo-output-content')) &&
-    (e.preventDefault(), t === 'drop' && imgCon.querySelector('.boundedheight')?.dispatchEvent(new DragEvent('drop', {
-      bubbles: true, cancelable: true, dataTransfer: e.dataTransfer })))
-    )
-  );
-
-  document.addEventListener('keydown', (e) => {
-    if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
-    const img = document.querySelector('#SDImageInfo-Image img');
-    if (e.key === 'Escape' && img) { e.preventDefault(); window.SDImageInfoClearImage(); }
-    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? column.scrollHeight : null;
-    if (Scroll !== null) { e.preventDefault(); column.scrollTo({ top: Scroll, behavior: 'smooth' }); }
-  });
-}
-
-function SDImageInfoArrowScroll(arrow) {
-  let clicked = false;
-
-  const whichEL = () => {
-    const column = document.getElementById('SDImageInfo-Column');
-    const panel = document.getElementById('SDImageInfo-Output-Panel');
-    return (panel && panel.scrollHeight > panel.clientHeight) ? panel : column;
-  };
-
-  arrow.onclick = () => {
-    clicked = true;
-    arrow.style.transform = '';
-    const el = whichEL();
-    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    setTimeout(() => clicked = false, 500);
-  };
-
-  window.SDImageInfoArrowScrolling = () => {
-    if (clicked) return;
-    const el = whichEL();
-    if (!el) return arrow.style.transform = '';
-    requestAnimationFrame(() => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const overflow = scrollHeight > clientHeight + 1;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 5;
-      arrow.style.transform = overflow && !atBottom ? 'scale(1)' : '';
-    });
-  };
-
-  ['SDImageInfo-Column', 'SDImageInfo-Output-Panel'].forEach(id =>
-    document.getElementById(id)?.addEventListener('scroll', window.SDImageInfoArrowScrolling)
-  );
-
-  ['scroll', 'resize'].forEach(e => window.addEventListener(e, () => setTimeout(window.SDImageInfoArrowScrolling, 50)));
-}
-
 async function SDImageInfoParser() {
   const RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea');
   const Column = document.getElementById('SDImageInfo-Column');
@@ -352,8 +245,6 @@ function SDImageInfoCopyButtonEvent(e) {
 
 function SDImageInfoTabLayout() {
   const Tab = document.getElementById('tab_SDImageInfo-Tab');
-  const Frame = document.getElementById('SDImageInfo-Frame');
-  const imgFrame = document.getElementById('SDImageInfo-Image-Frame');
   const Nav = document.querySelector('.tabs.gradio-tabs');
 
   if (Tab?.style.display !== 'block') return;
@@ -363,8 +254,6 @@ function SDImageInfoTabLayout() {
   const height = +(document.body.clientHeight - top).toFixed(2);
 
   Object.assign(Tab.style, { top: `${top}px`, height: `${height}px` });
-  Object.assign(Frame.style, { top: `${top}px`, height: `${height}px` });
-  Object.assign(imgFrame.style, { top: `${top}px`, height: `${height}px` });
 }
 
 function SDImageInfoTabChange() {

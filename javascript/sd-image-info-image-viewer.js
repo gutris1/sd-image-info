@@ -8,10 +8,14 @@ function SDImageInfoImageViewer(img) {
   const Wrapper = document.createElement('div');
   Wrapper.id = 'SDImageInfo-Image-Viewer-Wrapper';
 
+  const exit = document.createElement('div');
+  exit.id = 'SDImageInfo-Image-Viewer-Exit';
+  exit.innerHTML = SDImageInfoCrossSVG;
+
   const imgEL = img.cloneNode();
   imgEL.id = 'SDImageInfo-Image-Viewer-img';
 
-  Wrapper.prepend(imgEL), LightBox.append(Wrapper), document.body.append(LightBox);
+  Wrapper.prepend(imgEL), LightBox.append(exit, Wrapper), document.body.append(LightBox);
 
   const imgState = {
     scale: 1, offsetX: 0, offsetY: 0, lastX: 0, lastY: 0, lastLen: 1, LastTouch: 0, LastZoom: 0,
@@ -61,11 +65,13 @@ function SDImageInfoImageViewer(img) {
       }
     },
 
-    SDImageInfoImageViewerCloseZoom: function () {
+    SDImageInfoImageViewerExit: function () {
       LightBox.style.opacity = '';
       setTimeout(() => LightBox.remove(), 200);
     }
   };
+
+  window.SDImageInfoImageViewerExit = imgState.SDImageInfoImageViewerExit;
 
   requestAnimationFrame(() => setTimeout(() => {
     LightBox.style.opacity = '1';
@@ -75,13 +81,7 @@ function SDImageInfoImageViewer(img) {
   }, 50));
 
   imgEL.ondrag = imgEL.ondragend = imgEL.ondragstart = (e) => { e.stopPropagation(); e.preventDefault(); };
-
-  LightBox.onkeydown = (e) => {
-    if (LightBox?.style.display === 'flex' && e.key === 'Escape') {
-      e.preventDefault();
-      imgState.SDImageInfoImageViewerCloseZoom();
-    }
-  };
+  exit.onclick = () => imgState.SDImageInfoImageViewerExit();
 
   let GropinTime = null;
   let Groped = false;
@@ -151,8 +151,8 @@ function SDImageInfoImageViewer(img) {
   window.SDImageInfoMouse.MouseUp = (e) => {
     clearTimeout(GropinTime);
     if (!Groped && e.button === 0) {
-      imgEL.onclick = (e) => (e.preventDefault(), imgState.SDImageInfoImageViewerCloseZoom());
-      LightBox.onclick = (e) => (e.preventDefault(), imgState.SDImageInfoImageViewerCloseZoom());
+      imgEL.onclick = undefined;
+      LightBox.onclick = e => (e.preventDefault(), e.target === imgEL || imgState.SDImageInfoImageViewerExit());
       return;
     }
 

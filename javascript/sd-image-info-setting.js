@@ -332,10 +332,8 @@ function SDImageInfoArrowScroll(arrow) {
     const panel = document.getElementById('SDImageInfo-Output-Panel');
     if (!column?.classList.contains('sdimageinfo-column-overflow')) return null;
     return panel && panel.scrollHeight > panel.clientHeight
-      ? panel
-      : column.scrollHeight > column.clientHeight
-        ? column
-        : null;
+      ? panel : column.scrollHeight > column.clientHeight
+        ? column : null;
   };
 
   arrow.onclick = () => {

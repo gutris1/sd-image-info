@@ -130,8 +130,7 @@ function SDImageInfoLoadSetting(Opts) {
       max-height: 100% !important;
       object-fit: cover !important;
       object-position: top !important;
-      border-top-right-radius: 1.5rem !important;
-      border-top-left-radius: 1.5rem !important;
+      border-radius: 1.2rem !important;
     }
 
     #SDImageInfo-Gear-Button, #SDImageInfo-Clear-Button {
@@ -146,6 +145,10 @@ function SDImageInfoLoadSetting(Opts) {
       margin: 0 !important;
       left: 0 !important;
       right: unset !important;
+    }
+
+    #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
+      border-top-left-radius: 1.2rem !important;
     }
 
     #SDImageInfo-Clear-Button { margin: 0; border-top-right-radius: 1rem; }
@@ -202,6 +205,11 @@ function SDImageInfoLoadSetting(Opts) {
 
     #SDImageInfo-HTML .sdimageinfo-output-title { background: var(--input-background-fill); filter: unset !important; }
     #SDImageInfo-HTML .sdimageinfo-output-wrapper { background: var(--input-background-fill) !important; filter: unset !important; }
+    #SDImageInfo-HTML .sdimageinfo-output-failed {
+      position: relative !important;
+      margin-top: 5px !important;
+      bottom: unset !important;
+    }
 
     @media (max-width: 600px) {
       #SDImageInfo-Column { overflow-y: auto !important; filter: unset; }
@@ -213,21 +221,19 @@ function SDImageInfoLoadSetting(Opts) {
     }
   `;
 
-  if (style) {
+  style && (
     style === 'side by side'
       ? el || document.body.appendChild(Object.assign(document.createElement('style'), { id, textContent: sideBysideCSS }))
-      : el?.remove();
-  }
+      : el?.remove()
+  );
 
   !Opts && document.querySelector('#tab_settings #settings_submit')?.click();
 }
 
 function SDImageInfoCreateSomething() {
-  let Tab = document.getElementById('tab_SDImageInfo-Tab');
   let column = document.getElementById('SDImageInfo-Column');
   let imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
   let panel = document.getElementById('SDImageInfo-Output-Panel');
-  let LightBox = document.getElementById('SDImageInfo-Image-Viewer');
 
   const customWrap = document.createElement('div');
   customWrap.id = 'SDImageInfo-Custom-Wrapper';

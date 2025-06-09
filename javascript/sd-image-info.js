@@ -7,6 +7,7 @@ onUiLoaded(() => {
 
     SDImageInfoCreateSetting();
     SDImageInfoCreateSomething();
+    SDImageInfoCreateLightBox();
     onUiUpdate(SDImageInfoTabChange);
     window.addEventListener('resize', SDImageInfoTabLayout);
   }
@@ -34,7 +35,7 @@ async function SDImageInfoParser() {
   img.onclick = () => SDImageInfoImageViewer(img);
   img.onload = () => img.style.opacity = '1';
 
-  const output = await SDImageParser(img);
+  const output = await SharedImageParser(img);
   RawOutput.value = output;
   updateInput(RawOutput);
   window.SDImageInfoRawOutput = output;
@@ -172,7 +173,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         setTimeout(async () => {
           const modelBox = document.getElementById(Id);
           try {
-            const links = await SDImageParserFetchModelOutput(paramsRAW);
+            const links = await SharedModelsFetch(paramsRAW);
             modelBox.classList.add(display);
             modelBox.innerHTML = links;
             setTimeout(() => modelBox.classList.remove(display), 2000);

@@ -231,9 +231,12 @@ function SDImageInfoLoadSetting(Opts) {
 }
 
 function SDImageInfoCreateSomething() {
-  let column = document.getElementById('SDImageInfo-Column');
-  let imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
-  let panel = document.getElementById('SDImageInfo-Output-Panel');
+  const column = document.getElementById('SDImageInfo-Column');
+  const imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
+  const panel = document.getElementById('SDImageInfo-Output-Panel');
+
+  const HTMLPanel = document.getElementById('SDImageInfo-HTML');
+  HTMLPanel.classList.add('prose');
 
   const customWrap = document.createElement('div');
   customWrap.id = 'SDImageInfo-Custom-Wrapper';

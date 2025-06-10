@@ -14,6 +14,7 @@ onUiLoaded(() => {
 });
 
 async function SDImageInfoParser() {
+  const Tab = document.getElementById('tab_SDImageInfo-Tab');
   const RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea');
   const Column = document.getElementById('SDImageInfo-Column');
   const HTMLPanel = document.getElementById('SDImageInfo-HTML');
@@ -24,22 +25,18 @@ async function SDImageInfoParser() {
 
   if (!img) {
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
-    Column.classList.remove(imgEnter);
-    ImagePanel.classList.remove(imgEnter);
+    [Tab, Column, ImagePanel].forEach(el => el.classList.remove(imgEnter));
     setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     return;
   }
 
-  Column.classList.add(imgEnter);
-  ImagePanel.classList.add(imgEnter);
+  [Tab, Column, ImagePanel].forEach(el => el.classList.add(imgEnter));
   img.onclick = () => SDImageInfoImageViewer(img);
   img.onload = () => img.style.opacity = '1';
 
   const output = await SharedImageParser(img);
-  RawOutput.value = output;
+  window.SDImageInfoRawOutput = RawOutput.value = output;
   updateInput(RawOutput);
-  window.SDImageInfoRawOutput = output;
-  HTMLPanel.classList.add('prose');
   HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
 
   setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
@@ -261,11 +258,14 @@ function SDImageInfoTabChange() {
   const id = 'SDImageInfo-HideScrollBar';
   const MainTab = document?.querySelector('#tabs > .tab-nav > button.selected')?.textContent.trim();
   const tabNav = document.querySelector('.tab-nav.scroll-hide');
+  const footer = document.getElementById('footer');
+  const tabBlock = 'sdimageinfo-tab-block';
 
   if (MainTab === 'Image Info') {
     SDImageInfoTabLayout();
     setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     if (tabNav) tabNav.style.borderBottom = '0';
+    footer.classList.add(tabBlock);
     document.documentElement.style.scrollbarWidth = 'none';
 
     if (!document.getElementById(id)) {
@@ -276,6 +276,7 @@ function SDImageInfoTabChange() {
     }
 
   } else {
+    footer.classList.remove(tabBlock);
     if (tabNav) tabNav.style.borderBottom = '';
     document.documentElement.style.scrollbarWidth = '';
     document.getElementById(id)?.remove();

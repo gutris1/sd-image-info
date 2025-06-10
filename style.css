@@ -10,6 +10,12 @@ body.sdimageinfo-body-dont-scroll {
   overflow: hidden;
 }
 
+#footer.sdimageinfo-tab-block {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+}
+
 #tab_SDImageInfo-Tab {
   padding: 0;
   box-sizing: border-box;
@@ -18,11 +24,14 @@ body.sdimageinfo-body-dont-scroll {
   border-radius: 0;
   position: fixed;
   left: 0;
-  z-index: 1;
   width: 100%;
   transform: scale(1);
   background: var(--background-fill-primary);
   overflow: auto;
+}
+
+#tab_SDImageInfo-Tab.sdimageinfo-img-enter {
+  z-index: 1;
 }
 
 #tab_SDImageInfo-Tab > div {
@@ -405,7 +414,7 @@ body.sdimageinfo-body-dont-scroll {
   opacity: 0;
   overflow: hidden;
   backdrop-filter: blur(3px);
-  transition: opacity .25s;
+  transition: opacity .3s ease;
 }
 
 #SDImageInfo-Image-Viewer-Control {
@@ -468,10 +477,9 @@ body.sdimageinfo-body-dont-scroll {
   justify-content: center;
   height: 100%;
   width: 100%;
-  opacity: 0;
   gap: 0;
   transform: translate(0px, 0px) scale(0.7);
-  transition: transform .25s ease-out, opacity .25s ease;
+  transition: transform .2s ease-out;
 }
 
 #SDImageInfo-Image-Viewer-img {

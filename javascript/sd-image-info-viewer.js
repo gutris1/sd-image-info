@@ -16,9 +16,7 @@ function SDImageInfoImageViewer(img) {
 
   requestAnimationFrame(() => setTimeout(() => {
     LightBox.style.opacity = '1';
-    Wrapper.style.transition = '';
-    Wrapper.style.transform = 'translate(0px, 0px) scale(1)';
-    Wrapper.style.opacity = '1';
+    setTimeout(() => Wrapper.style.transform = 'translate(0px, 0px) scale(1)', 50);
   }, 50));
 
   const imageViewer = SharedImageViewer(imgEL, LightBox, Control, Wrapper, {

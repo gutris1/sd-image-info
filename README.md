@@ -9,7 +9,7 @@ Support:
 Usage:
 - Click one of the buttons: <code>Prompt</code> <code>Negative Prompt</code> <code>Parameters</code> <code>Seed</code> to copy its raw values.
 - Click the image to open the image viewer, use mousewheel to zoom in and out, hold left click/touch to drag the image, CTRL/SHIFT + mousewheel to move the image vertically/horizontally.
-- Click the gear icon to go to the Settings tab and change the layout.
+- Click the gear icon to go to the Settings tab for changing the layout.
 <details><summary> Setting </summary><br>
 
 <p align="center">

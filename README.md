@@ -10,10 +10,12 @@ Usage:
 - Click one of the buttons: <code>Prompt</code> <code>Negative Prompt</code> <code>Parameters</code> <code>Seed</code> to copy its raw values.
 - Click the image to open the image viewer, use mousewheel to zoom in and out, hold left click/touch to drag the image, CTRL/SHIFT + mousewheel to move the image vertically/horizontally.
 - Click the gear icon to go to the Settings tab for changing the layout.
-<details><summary> Setting </summary><br>
+
+
+<details><summary>Setting</summary><br>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/2a7f7403-8138-4047-975d-969c638dcaef", max-width=1000px>
+  <img src="https://github.com/user-attachments/assets/8291ee77-a9ed-4b95-bed3-c3aad9acf482", max-width=1000px>
 </p>
 </details>
 

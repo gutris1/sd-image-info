@@ -63,7 +63,7 @@ async function SDImageInfoCreateSetting() {
 
     const previewChange = () => {
       const v = document.querySelector('#setting_sd_image_info_layout label.selected input')?.value;
-      preview1.style.display = v === 'fullwidth' ? 'flex' : '';
+      preview1.style.display = v === 'full width' ? 'flex' : '';
       preview2.style.display = v === 'side by side' ? 'flex' : '';
     };
 
@@ -185,7 +185,7 @@ function SDImageInfoLoadSetting(Opts) {
 
     #SDImageInfo-Output-Panel { position: relative; padding: 10px !important; }
 
-    #SDImageInfo-Output-Panel.display-output-panel {
+    #SDImageInfo-Output-Panel.sdimageinfo-display-output-panel {
       height: max-content !important;
       max-height: 100%;
       pointer-events: auto !important;

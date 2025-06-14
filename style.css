@@ -171,16 +171,25 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-SendButton {
-  display: none;
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  padding: 20px 0 0 20px !important;
-  width: max-content;
-  pointer-events: auto;
+  display: grid;
   grid-template-columns: 1fr !important;
   justify-content: center;
   align-items: center;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  width: max-content;
+  padding: 20px 0 0 20px !important;
+  opacity: 0;
+  pointer-events: auto;
+  transform: scale(0);
+  transition: opacity 0s;
+}
+
+#SDImageInfo-SendButton.sdimageinfo-display-output-panel {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity .4s ease-out;
 }
 
 #SDImageInfo-SendButton button {
@@ -216,12 +225,12 @@ body.sdimageinfo-body-dont-scroll {
   transition: opacity 1s ease;
 }
 
-#SDImageInfo-Output-Panel.display-output-panel {
+#SDImageInfo-Output-Panel.sdimageinfo-display-output-panel {
   opacity: 1;
   height: max-content;
 }
 
-#SDImageInfo-Output-Panel.display-output-fail {
+#SDImageInfo-Output-Panel.sdimageinfo-display-output-fail {
   height: 100%;
 }
 

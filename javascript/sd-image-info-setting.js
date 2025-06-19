@@ -39,7 +39,7 @@ async function SDImageInfoCreateSetting() {
 
     previewWrap.append(preview1, preview2);
 
-    settingColumn.parentNode?.prepend(previewWrap);
+    settingColumn.prepend(previewWrap);
     settingColumn.append(applyWrap);
 
     const img1 = `${window.SDImageInfoFilePath}example/fullwidth.jpg?ts=${Date.now()}`;

@@ -244,9 +244,10 @@ function SDImageInfoTabChange() {
 
   if (MainTab === 'Image Info') {
     SDImageInfoTabLayout();
-    setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
+    setTimeout(() => window.SDImageInfoArrowScrolling?.(), 0);
+
     if (tabNav) tabNav.style.borderBottom = '0';
-    footer.classList.add(tabBlock);
+    if (footer) footer.classList.add(tabBlock);
     document.documentElement.style.scrollbarWidth = 'none';
 
     if (!document.getElementById(id)) {
@@ -257,7 +258,7 @@ function SDImageInfoTabChange() {
     }
 
   } else {
-    footer.classList.remove(tabBlock);
+    if (footer) footer.classList.remove(tabBlock);
     if (tabNav) tabNav.style.borderBottom = '';
     document.documentElement.style.scrollbarWidth = '';
     document.getElementById(id)?.remove();

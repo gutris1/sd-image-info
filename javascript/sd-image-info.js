@@ -148,7 +148,7 @@ async function SDImageInfoPlainTextToHTML(inputs) {
 
   if (stepsIndex !== -1) {
     const paramsRAW = process.slice(stepsIndex).trim();
-    paramsText = paramsRAW.replace(/,\s*(Lora hashes|TI hashes):\s*'[^']+'/g, '').trim();
+    paramsText = paramsRAW.replace(/,\s*(Lora hashes|TI hashes):\s*"[^"]+"/g, '').trim();
 
     const hashes = process.slice(hashesIndex).match(/Hashes:\s*(\{.*?\})(,\s*)?/);
     if (hashes?.[1]) paramsText = paramsText.replace(hashes[0], '').trim();

@@ -166,7 +166,7 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-Image > div > div > div > button:nth-child(2),
-.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button {
+.gradio-container-4-40-0 #SDImageInfo-Image.sdimageinfo-img-enter > div > div:first-child:not(.upload-container) {
   display: none;
 }
 
@@ -527,7 +527,7 @@ body.sdimageinfo-body-dont-scroll {
   opacity: 0;
   pointer-events: none;
   overflow: hidden;
-  transition: opacity 1s ease;
+  transition: opacity 1.2s ease;
 }
 
 #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Custom-Wrapper {
@@ -594,25 +594,23 @@ body.sdimageinfo-body-dont-scroll {
 
 #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
   margin: 4px 0 0 0;
-  top: unset;
+  top: 0;
   right: 90px;
   left: unset;
   border-radius: 0 0 100px 100px;
 }
 
 #SDImageInfo-Clear-Button {
+  display: none;
   margin: 4px 4px 0 0;
   right: 0;
   padding: 7px;
-  visibility: hidden;
-  opacity: 0;
   border-bottom-left-radius: 1.5rem;
   transition: .2s ease, filter .2s ease, opacity 1s ease;
 }
 
 #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button {
-  visibility: visible;
-  opacity: 1;
+  display: flex;
 }
 
 #SDImageInfo-Clear-Button:hover {

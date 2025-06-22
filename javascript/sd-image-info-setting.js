@@ -289,26 +289,27 @@ function SDImageInfoCreateSomething() {
     document.addEventListener(t, e => {
       const Tab = document.getElementById('tab_SDImageInfo-Tab');
       const LightBox = document.getElementById('SDImageInfo-Image-Viewer');
+      const column = document.getElementById('SDImageInfo-Column');
       const form = document.querySelector('#SDImageInfo-Column > .form');
       const imgColumn = document.getElementById('SDImageInfo-Image-Column');
       const imgArea = document.getElementById('SDImageInfo-img-area');
-      const imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
       const panel = document.getElementById('SDImageInfo-Output-Panel');
+      const imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
 
       if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
 
       const el =
-        e.target?.id === form?.id || e.target?.id === imgColumn?.id ||
-        e.target?.id === imgArea?.id || e.target?.id === panel?.id ||
-        e.target?.classList?.contains('sdimageinfo-output-content');
+        e.target?.id === column?.id || e.target?.id === form?.id || e.target?.id === imgColumn?.id || 
+        e.target?.id === imgArea?.id || e.target?.id === panel?.id || e.target?.classList?.contains('sdimageinfo-output-content');
 
       if (!el) return;
       e.preventDefault();
+
       if (t === 'drop') {
-        const bounded = imgCon?.querySelector('.boundedheight');
-        if (bounded) {
+        const dropArea = imgCon?.querySelector('.boundedheight');
+        if (dropArea) {
           const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.dataTransfer });
-          bounded.dispatchEvent(dropEvent);
+          dropArea.dispatchEvent(dropEvent);
         }
       }
     })

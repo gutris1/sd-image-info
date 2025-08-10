@@ -1,9 +1,11 @@
 :root {
   --output-text-color: #fff;
+  --sdimginfo-arrow-background: rgb(224 224 224 / 90%);
 }
 
 .dark {
   --output-text-color: var(--body-text-color);
+  --sdimginfo-arrow-background: rgb(32 32 32 / 90%);
 }
 
 body.sdimageinfo-body-dont-scroll {
@@ -17,16 +19,16 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #tab_SDImageInfo-Tab {
-  padding: 0;
   box-sizing: border-box;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
   position: fixed;
   left: 0;
   width: 100%;
-  transform: scale(1);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
   background: var(--background-fill-primary);
+  transform: scale(1);
   overflow: auto;
 }
 
@@ -46,22 +48,23 @@ body.sdimageinfo-body-dont-scroll {
 
 #SDImageInfo-Column {
   display: flex;
-  flex-grow: 10;
-  margin: 0;
-  min-height: max-content;
-  padding: 0 !important;
-  background: var(--input-background-fill-hover) !important;
-  position: fixed;
-  gap: 0 !important;
-  height: 100%;
-  width: 100%;
   flex-direction: row;
+  flex-grow: 10;
   justify-content: center;
   align-items: flex-start;
-  box-sizing: border-box;
+  gap: 0 !important;
+  position: fixed;
   z-index: 1;
+  height: 100%;
+  min-height: max-content;
+  width: 100%;
+  margin: 0;
+  padding: 0 !important;
+  box-shadow: inset 0 0 7px 1px var(--background-fill-primary);
+  background: var(--input-background-fill-hover) !important;
   overflow: hidden;
-  box-shadow: inset 0 0 7px 2px #000;
+  box-sizing: border-box;
+  will-change: opacity;
 }
 
 #SDImageInfo-Column > .form {
@@ -93,19 +96,18 @@ body.sdimageinfo-body-dont-scroll {
   top: 20px;
   height: unset !important;
   width: min(320px, 100%);
-  border: 2px solid var(--primary-400) !important;
+  border: 1px solid var(--primary-400) !important;
   border-radius: 1rem !important;
-  box-shadow: inset 0 0 20px 1px var(--primary-400) !important;
-  filter: drop-shadow(0 0 6px var(--primary-400));
+  box-shadow: inset 0 0 15px 0 var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
+  filter: drop-shadow(0 0 4px var(--primary-400));
   background: transparent;
   overflow: hidden !important;
   transition: box-shadow 0.3s ease;
 }
 
-#SDImageInfo-Image:hover {
-  box-shadow: inset 0 0 5px 1px var(--primary-400) !important;
+#SDImageInfo-Image:not(.sdimageinfo-img-enter):hover {
+  box-shadow: inset 0 0 3px 0 var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
 }
-
 
 #SDImageInfo-Image > .image-container {
   width: 100%;
@@ -175,15 +177,16 @@ body.sdimageinfo-body-dont-scroll {
   grid-template-columns: 1fr !important;
   justify-content: center;
   align-items: center;
+  gap: 5px !important;
   position: absolute;
   z-index: 1;
   left: 0;
   width: max-content;
-  padding: 20px 0 0 20px !important;
+  padding: 30px 0 0 30px !important;
   opacity: 0;
-  pointer-events: auto;
   transform: scale(0);
   transition: opacity 0s;
+  pointer-events: auto;
 }
 
 #SDImageInfo-SendButton.sdimageinfo-display-output-panel {
@@ -193,19 +196,17 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-SendButton button {
-  border: 1px solid #000;
-  position: relative;
-  padding: 6px 20px;
-  border-radius: 1rem;
-  box-shadow: 0 0 5px 1px #000;
   white-space: nowrap;
-  transition: 0.1s ease-out;
+  position: relative;
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 0 5px 1px #000, 0 0 1px 1px var(--button-secondary-background-fill-hover);
+  padding: 6px 20px;
+  transition: .2s ease;
 }
 
 #SDImageInfo-SendButton button:hover {
-  box-shadow: 0 0 5px 1px var(--primary-400);
-  filter: drop-shadow(0 0 9px var(--primary-400));
-  border-color: var(--background-fill-primary);
+  box-shadow: 0 0 15px 1px var(--primary-400), 0 0 1px 1px var(--background-fill-primary), 0 0 5px 1px var(--primary-400);
   color: var(--background-fill-primary);
   background: var(--button-primary-background-fill);
 }
@@ -247,14 +248,15 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-HTML {
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 1.2rem !important;
   overflow-wrap: break-word;
+  position: relative;
   height: 100%;
-  gap: 1.2rem;
   max-width: 100%;
-  margin-top: 240px;
-  padding: 0 20px 20px 20px !important;
-  border-radius: 0.8rem !important;
+  border-radius: .8rem !important;
+  margin-top: 220px;
+  padding: 30px !important;
+  padding-top: 0 !important;
   pointer-events: none;
 }
 
@@ -263,9 +265,13 @@ body.sdimageinfo-body-dont-scroll {
   border: 0;
   margin: 0;
   background: transparent;
-  filter: drop-shadow(0 0 4px #000);
+  filter: drop-shadow(0 0 3px #000);
   cursor: default;
   transition: 0.3s ease;
+}
+
+#SDImageInfo-Output-Panel .sdimageinfo-output-section.sdimageinfo-output-models-section {
+  filter: none !important;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-title {
@@ -283,8 +289,7 @@ body.sdimageinfo-body-dont-scroll {
   border: 0;
   border-radius: 0.5rem 0.5rem 0 0;
   padding: 4px 10px;
-  background: var(--sdimageinfo-output-bg);
-  filter: drop-shadow(0 0 5px var(--sdimageinfo-output-bg));
+  background: var(--input-background-fill);
   pointer-events: auto;
   transition: 0.4s ease;
 }
@@ -316,8 +321,7 @@ body.sdimageinfo-body-dont-scroll {
   z-index: 1;
   border: 0;
   border-radius: 0 0.5rem 0.5rem 0.5rem;
-  background: var(--sdimageinfo-output-bg);
-  filter: drop-shadow(0 0 5px var(--sdimageinfo-output-bg));
+  background: var(--input-background-fill);
   pointer-events: auto;
   transition: 0.4s ease;
 }
@@ -333,7 +337,16 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-display-model-output {
-  animation: undressBox 1s forwards ease-out;
+  animation: undressBox 1.5s forwards ease;
+}
+
+@keyframes undressBox {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .sdimageinfo-borderpulse {
@@ -369,17 +382,39 @@ body.sdimageinfo-body-dont-scroll {
   pointer-events: auto;
   padding: 5px 10px;
   color: var(--output-text-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 1rem;
-  box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.1), 0 0 5px 0 rgba(255, 255, 255, 0.2), inset 0 0 5px 0 rgba(255, 255, 255, 0.2);
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5));
-  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px 0 rgb(255 255 255 / 10%), 0 0 5px 0 rgb(255 255 255 / 20%), inset 0 0 5px 0 rgb(255 255 255 / 20%);
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 50%));
+  background: rgb(0 0 0 / 30%);
+}
+
+#SDImageInfo-Spinner-Wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 80px;
+  width: 100%;
+  margin: 0;
 }
 
 #SDImageInfo-Spinner {
-  margin: 0 auto;
-  animation: Spin 1.5s linear infinite;
-  filter: drop-shadow(0 0 10px rgba(0,0,0,0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 90px;
+  width: 90px;
+  margin: 0;
+  padding: 0;
+  animation: sdimginfo-spinner 1.5s linear infinite;
+}
+
+#SDImageInfo-Spinner > svg {
+  height: 90px;
+  width: 90px;
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 90%)) drop-shadow(0 0 10px rgb(0 0 0 / 60%)) drop-shadow(0 0 1px var(--primary-400));
 }
 
 #SDImageInfo-Spinner path,
@@ -387,23 +422,12 @@ body.sdimageinfo-body-dont-scroll {
   fill: var(--primary-400);
 }
 
-@keyframes Spin {
+@keyframes sdimginfo-spinner {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes undressBox {
-  0% {
-    opacity: 0;
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0px);
   }
 }
 
@@ -416,7 +440,7 @@ body.sdimageinfo-body-dont-scroll {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgb(0 0 0 / 80%);
   justify-content: center;
   align-items: center;
   z-index: 999999;
@@ -467,10 +491,7 @@ body.sdimageinfo-body-dont-scroll {
   right: 3px;
   width: 50px;
   height: 50px;
-  filter:
-    drop-shadow(0 0 3px rgb(0 0 0 / 50%))
-    drop-shadow(0 0 2px rgb(0 0 0 / 50%))
-    drop-shadow(0 0 2px rgb(0 0 0 / 50%));
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 50%)) drop-shadow(0 0 2px rgb(0 0 0 / 50%)) drop-shadow(0 0 2px rgb(0 0 0 / 50%));
 }
 
 #SDImageInfo-Image-Viewer-Exit-Button:hover {
@@ -487,7 +508,7 @@ body.sdimageinfo-body-dont-scroll {
   height: 100%;
   width: 100%;
   gap: 0;
-  transform: translate(0px, 0px) scale(0.7);
+  transform: translate(0px, 0px) scale(1.2);
   transition: transform .2s ease-out;
 }
 
@@ -543,8 +564,7 @@ body.sdimageinfo-body-dont-scroll {
   z-index: 5;
   border-radius: 0 !important;
   pointer-events: none;
-  box-shadow: inset 0 0 10px 4px #000;
-  filter: drop-shadow(0 0 0 #000);
+  box-shadow: inset 0 0 15px 2px var(--background-fill-primary), inset 0 0 15px 2px var(--background-fill-primary);
 }
 
 #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Image-Frame {
@@ -563,46 +583,61 @@ body.sdimageinfo-body-dont-scroll {
   box-sizing: border-box;
   border: 0;
   color: var(--primary-400);
-  background: var(--input-background-fill);
-  box-shadow: 0 0 5px 3px #000;
+  background: var(--input-background-fill-hover);
+  box-shadow: 0 0 5px 1px #000;
   pointer-events: auto;
   cursor: pointer;
 }
 
-#SDImageInfo-Gear-Button > svg,
-#SDImageInfo-Clear-Button > svg {
-  filter:
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button,
+#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button {
+  background: var(--input-background-fill);
 }
 
 #SDImageInfo-Gear-Button {
   position: fixed;
-  top: 0;
   z-index: 2;
-  left: 0;
+  top: -1px;
+  left: -1px;
   border-bottom-right-radius: 1.5rem;
-  transition: filter .2s ease, color .2s ease, background-color .2s ease;
+  transition: filter .2s ease, color .2s ease, background-color .2s ease, box-shadow .3s ease;
 }
 
-#SDImageInfo-Gear-Button:hover {
-  color: #fff;
+#SDImageInfo-Gear-Button > svg {
+  stroke: var(--primary-400);
+  filter: drop-shadow(0 0 1px #000);
+  transition: .2s ease;
+}
+
+#SDImageInfo-Gear-Button > svg > path {
+  fill: transparent;
+}
+
+#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button:hover {
   background: var(--primary-400);
   filter: drop-shadow(0 0 5px var(--primary-400));
 }
 
+#SDImageInfo-Image:not(.sdimageinfo-img-enter) #SDImageInfo-Gear-Button:hover {
+  background: var(--primary-400);
+}
+
+#SDImageInfo-Gear-Button:hover > svg {
+  stroke: #fff;
+}
+
 #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
-  margin: 4px 0 0 0;
+  margin: 0;
   top: 0;
   right: 90px;
   left: unset;
   border-radius: 0 0 100px 100px;
+  filter: unset;
 }
 
 #SDImageInfo-Clear-Button {
   display: none;
-  margin: 4px 4px 0 0;
+  margin: 0;
   right: 0;
   padding: 7px;
   border-bottom-left-radius: 1.5rem;
@@ -613,10 +648,20 @@ body.sdimageinfo-body-dont-scroll {
   display: flex;
 }
 
+#SDImageInfo-Clear-Button > svg {
+  stroke: var(--primary-400);
+  filter: drop-shadow(0 0 2px #000);
+  transition: .2s ease;
+}
+
+#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button:hover,
 #SDImageInfo-Clear-Button:hover {
-  color: #fff;
   background: red;
   filter: drop-shadow(0 0 5px red);
+}
+
+#SDImageInfo-Clear-Button:hover > svg {
+  stroke: #fff;
 }
 
 #column_settings_SDImageInfo-Setting {
@@ -635,6 +680,7 @@ body.sdimageinfo-body-dont-scroll {
   display: flex;
   margin-top: 0 !important;
   padding: 10px !important;
+  background: transparent !important;
 }
 
 #setting_sd_image_info_layout > .wrap:not(.hide) {
@@ -700,34 +746,37 @@ body.sdimageinfo-body-dont-scroll {
 
 #SDImageInfo-Arrow {
   display: flex;
-  position: fixed;
   align-items: center;
   justify-content: center;
-  min-width: 0;
-  right: 30px;
-  bottom: 16px;
+  position: fixed;
+  z-index: 1;
+  right: 23px;
+  bottom: 23px;
   height: 45px;
   width: 45px;
+  min-width: 0;
   padding: 0;
   margin: 0;
-  border: 0;
+  border: 2px solid var(--primary-400);
   border-radius: 50%;
-  z-index: 1;
-  cursor: pointer;
-  box-shadow: 0 0 7px 2px #000;
+  box-shadow: inset 0 0 8px 0 var(--primary-400), 0 0 8px 0 var(--primary-400);
   color: var(--primary-400);
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--sdimginfo-arrow-background);
   transform: scale(0);
   transition: .3s ease;
+  cursor: pointer;
 }
 
 #SDImageInfo-Arrow svg {
-  border-radius: 50%;
-  box-shadow: inset 0 0 10px 1px var(--primary-400);
-  filter: drop-shadow(0 0 1px var(--primary-400));
+  transition: .3s ease;
 }
 
 #SDImageInfo-Arrow polygon {
-  transform: scale(85%);
+  transform: scale(90%);
   transform-origin: center;
+}
+
+#SDImageInfo-Arrow:hover,
+#SDImageInfo-Arrow:hover svg {
+  filter: drop-shadow(0 0 2px var(--primary-400));
 }

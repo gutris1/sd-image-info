@@ -32,34 +32,17 @@ async function SDImageInfoCreateSetting() {
     const preview1 = document.createElement('img');
     preview1.id = 'SDImageInfo-Setting-Preview-1';
     preview1.className = 'sdimageinfo-setting-preview';
+    preview1.src = `${window.SDImageInfoFilePath}example/fullwidth.jpg?ts=${Date.now()}`;
 
     const preview2 = document.createElement('img');
     preview2.id = 'SDImageInfo-Setting-Preview-2';
     preview2.className = 'sdimageinfo-setting-preview';
+    preview2.src = `${window.SDImageInfoFilePath}example/sidebyside.jpg?ts=${Date.now()}`;
 
     previewWrap.append(preview1, preview2);
 
     settingColumn.prepend(previewWrap);
     settingColumn.append(applyWrap);
-
-    const img1 = `${window.SDImageInfoFilePath}example/fullwidth.jpg?ts=${Date.now()}`;
-    const img2 = `${window.SDImageInfoFilePath}example/sidebyside.jpg?ts=${Date.now()}`;
-
-    try {
-      const [res1, res2] = await Promise.all([
-        fetch(img1),
-        fetch(img2),
-      ]);
-
-      if (res1.ok && res2.ok) {
-        preview1.src = img1;
-        preview2.src = img2;
-      } else {
-        console.error("error.");
-      }
-    } catch (err) {
-      console.error("preview images error :", err);
-    }
 
     const previewChange = () => {
       const v = document.querySelector('#setting_sd_image_info_layout label.selected input')?.value;
@@ -75,11 +58,11 @@ async function SDImageInfoCreateSetting() {
 }
 
 function SDImageInfoLoadSetting(Opts) {
-  const id = 'SDImageInfo-SideBySide';
-  const style = Opts ?? document.querySelector('#setting_sd_image_info_layout label.selected input')?.value;
-  const el = document.getElementById(id);
+  const id = 'SDImageInfo-SideBySide',
+  style = Opts ?? document.querySelector('#setting_sd_image_info_layout label.selected input')?.value,
+  el = document.getElementById(id),
 
-  const sideBysideCSS = `
+  sideBysideCSS = `
     #SDImageInfo-Column { filter: drop-shadow(0 0 1px #000); }
 
     #SDImageInfo-Column > .form {
@@ -102,7 +85,7 @@ function SDImageInfoLoadSetting(Opts) {
     #SDImageInfo-Frame {
       left: 0;
       top: 0 !important;
-      box-shadow: inset 0 0 7px 2px #000;
+      box-shadow: inset 0 0 7px 2px var(--background-fill-primary);
     }
 
     #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Frame { transform: scale(1); }
@@ -140,14 +123,17 @@ function SDImageInfoLoadSetting(Opts) {
     }
 
     #SDImageInfo-Gear-Button {
+      top: -1px !important;
+      left: -1px !important;
+      right: unset !important;
       border-radius: 0 !important;
       border-bottom-right-radius: 1.5rem !important;
       margin: 0 !important;
-      left: 0 !important;
-      right: unset !important;
     }
 
     #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
+      top: 0 !important;
+      left: 0 !important;
       border-top-left-radius: 1.2rem !important;
     }
 
@@ -155,29 +141,29 @@ function SDImageInfoLoadSetting(Opts) {
 
     #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Image-Frame {
       position: absolute !important;
-      filter: unset !important;
-      box-shadow: inset 0 0 7px 3px #000 !important;
-      border-radius: 1rem !important;
-      width: 100% !important;
       top: unset !important;
       height: 100% !important;
+      width: 100% !important;
+      border-radius: .9rem !important;
+      box-shadow: inset 0 0 7px 2px #000, inset 0 0 7px 2px #000 !important;
+      filter: unset !important;
     }
 
     #SDImageInfo-Custom-Wrapper { position: absolute; }
 
     #SDImageInfo-SendButton {
       grid-template-columns: 1fr 1fr !important;
-      left: unset !important;
-      position: absolute !important;
-      bottom: 0 !important;
-      padding: 0 10px 15px 10px !important;
-      border-radius: 1rem !important;
-      width: 100% !important;
       align-self: center !important;
       gap: 2px !important;
+      position: absolute !important;
+      left: unset !important;
+      width: 100% !important;
+      bottom: 0 !important;
+      border-radius: 1rem !important;
+      padding: 0 10px 15px 10px !important;
     }
 
-    #SDImageInfo-SendButton button { border-radius: 0 !important; box-shadow: 0 0 5px 1px #000 !important; }
+    #SDImageInfo-SendButton button { border-radius: 0 !important; }
     #SDImageInfo-SendButton > :nth-child(1) { border-top-left-radius: 1rem !important; }
     #SDImageInfo-SendButton > :nth-child(2) { border-top-right-radius: 1rem !important; }
     #SDImageInfo-SendButton > :nth-child(3) { border-bottom-left-radius: 1rem !important; }
@@ -190,7 +176,6 @@ function SDImageInfoLoadSetting(Opts) {
       max-height: 100%;
       pointer-events: auto !important;
       overflow: auto;
-      will-change: transform;
       scrollbar-width: none;
     }
 
@@ -230,116 +215,12 @@ function SDImageInfoLoadSetting(Opts) {
   !Opts && document.querySelector('#tab_settings #settings_submit')?.click();
 }
 
-function SDImageInfoCreateSomething() {
-  const column = document.getElementById('SDImageInfo-Column');
-  const imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
-  const panel = document.getElementById('SDImageInfo-Output-Panel');
-
-  const HTMLPanel = document.getElementById('SDImageInfo-HTML');
-  HTMLPanel.classList.add('prose');
-
-  const customWrap = document.createElement('div');
-  customWrap.id = 'SDImageInfo-Custom-Wrapper';
-
-  const frame = document.createElement('div');
-  frame.id = 'SDImageInfo-Frame';
-
-  const imgFrame = document.createElement('div');
-  imgFrame.id = 'SDImageInfo-Image-Frame';
-
-  const gearButton = document.createElement('div');
-  gearButton.id = 'SDImageInfo-Gear-Button';
-  gearButton.innerHTML = SDImageInfoGearSVG;
-
-  gearButton.onclick = () => {
-    [['#tab_settings #settings .tab-nav button', 'SD Image Info'],  ['#tabs .tab-nav button', 'Settings']]
-      .forEach(([el, text]) => [...document.querySelectorAll(el)].find(btn => btn.textContent.trim() === text)?.click()
-    );
-  };
-
-  const clearButton = document.createElement('div');
-  clearButton.id = 'SDImageInfo-Clear-Button';
-  clearButton.title = 'Exit';
-  clearButton.innerHTML = SDImageInfoCrossSVG;
-
-  window.SDImageInfoClearImage = () => {
-    const btn = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') ||
-                document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
-    btn && (btn.click(), window.SDImageInfoRawOutput = '');
-  };
-
-  clearButton.onclick = () => window.SDImageInfoClearImage();
-
-  customWrap.append(imgFrame, clearButton);
-  imgCon.append(gearButton, customWrap, frame);
-
-  const arrow = document.createElement('div');
-  arrow.id = 'SDImageInfo-Arrow';
-  arrow.innerHTML = SDImageInfoArrowSVG;
-
-  column.append(arrow);
-  SDImageInfoArrowScroll(arrow);
-
-  const imgArea = document.createElement('div');
-  imgArea.id = 'SDImageInfo-img-area'
-  imgArea.onclick = () => document.querySelector('#SDImageInfo-Image img')?.click();
-  panel.prepend(imgArea);
-
-  ['drop', 'dragover'].forEach(t =>
-    document.addEventListener(t, e => {
-      const Tab = document.getElementById('tab_SDImageInfo-Tab');
-      const LightBox = document.getElementById('SDImageInfo-Image-Viewer');
-      const column = document.getElementById('SDImageInfo-Column');
-      const form = document.querySelector('#SDImageInfo-Column > .form');
-      const imgColumn = document.getElementById('SDImageInfo-Image-Column');
-      const imgArea = document.getElementById('SDImageInfo-img-area');
-      const panel = document.getElementById('SDImageInfo-Output-Panel');
-      const imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
-
-      if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
-
-      const el =
-        e.target?.id === column?.id || e.target?.id === form?.id || e.target?.id === imgColumn?.id || 
-        e.target?.id === imgArea?.id || e.target?.id === panel?.id || e.target?.classList?.contains('sdimageinfo-output-content');
-
-      if (!el) return;
-      e.preventDefault();
-
-      if (t === 'drop') {
-        const dropArea = imgCon?.querySelector('.boundedheight');
-        if (dropArea) {
-          const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.dataTransfer });
-          dropArea.dispatchEvent(dropEvent);
-        }
-      }
-    })
-  );
-
-  document.addEventListener('keydown', (e) => {
-    const Tab = document.getElementById('tab_SDImageInfo-Tab');
-    const LightBox = document.getElementById('SDImageInfo-Image-Viewer');
-    const column = document.getElementById('SDImageInfo-Column');
-
-    if (Tab?.style.display !== 'block') return;
-
-    const img = document.querySelector('#SDImageInfo-Image img');
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      if (LightBox?.style.display === 'flex') return window.SDImageInfoImageViewerExit();
-      if (img) window.SDImageInfoClearImage();
-    }
-
-    const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? column.scrollHeight : null;
-    if (Scroll !== null) { e.preventDefault(); column.scrollTo({ top: Scroll, behavior: 'smooth' }); }
-  });
-}
-
 function SDImageInfoArrowScroll(arrow) {
   let clicked = false;
 
   const whichEL = () => {
-    const column = document.getElementById('SDImageInfo-Column');
-    const panel = document.getElementById('SDImageInfo-Output-Panel');
+    const column = document.getElementById('SDImageInfo-Column'),
+    panel = document.getElementById('SDImageInfo-Output-Panel');
     if (!column?.classList.contains('sdimageinfo-column-overflow')) return null;
     return panel && panel.scrollHeight > panel.clientHeight
       ? panel : column.scrollHeight > column.clientHeight
@@ -359,9 +240,9 @@ function SDImageInfoArrowScroll(arrow) {
     const el = whichEL();
     if (!el) return arrow.style.transform = '';
     requestAnimationFrame(() => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const overflow = scrollHeight > clientHeight + 1;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 5;
+      const { scrollTop, scrollHeight, clientHeight } = el,
+      overflow = scrollHeight > clientHeight + 1,
+      atBottom = scrollTop + clientHeight >= scrollHeight - 5;
       arrow.style.transform = overflow && !atBottom ? 'scale(1)' : '';
     });
   };

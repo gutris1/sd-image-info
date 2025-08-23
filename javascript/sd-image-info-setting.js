@@ -14,32 +14,26 @@ async function SDImageInfoCreateSetting() {
     let get = await waitForOpts();
     SDImageInfoLoadSetting(get.sd_image_info_layout);
 
-    const applyWrap = document.createElement('div');
-    applyWrap.id = 'SDImageInfo-Setting-Button-Wrapper';
+    const applyButton = SDImgInfoEL('button', {
+      id: 'SDImageInfo-Setting-Apply-Button',
+      class: 'lg primary gradio-button svelte-cmf5ev',
+      text: 'Apply',
+      title: 'apply the style immediately',
+      onclick: () => SDImageInfoLoadSetting()
+    }),
+    applyWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Button-Wrapper', children: applyButton }),
 
-    const applyButton = document.createElement('button');
-    applyButton.id = 'SDImageInfo-Setting-Apply-Button';
-    applyButton.className = 'lg primary gradio-button svelte-cmf5ev';
-    applyButton.textContent = 'Apply';
-    applyButton.title = 'apply the style immediately';
-    applyButton.onclick = () => SDImageInfoLoadSetting();
-
-    applyWrap.append(applyButton);
-
-    const previewWrap = document.createElement('div');
-    previewWrap.id = 'SDImageInfo-Setting-Preview-Wrapper';
-
-    const preview1 = document.createElement('img');
-    preview1.id = 'SDImageInfo-Setting-Preview-1';
-    preview1.className = 'sdimageinfo-setting-preview';
-    preview1.src = `${window.SDImageInfoFilePath}example/fullwidth.jpg?ts=${Date.now()}`;
-
-    const preview2 = document.createElement('img');
-    preview2.id = 'SDImageInfo-Setting-Preview-2';
-    preview2.className = 'sdimageinfo-setting-preview';
-    preview2.src = `${window.SDImageInfoFilePath}example/sidebyside.jpg?ts=${Date.now()}`;
-
-    previewWrap.append(preview1, preview2);
+    preview1 = SDImgInfoEL('img', {
+      id: 'SDImageInfo-Setting-Preview-1',
+      class: 'sdimageinfo-setting-preview',
+      src: `${window.SDImageInfoFilePath}example/fullwidth.jpg?ts=${Date.now()}`
+    }),
+    preview2 = SDImgInfoEL('img', {
+      id: 'SDImageInfo-Setting-Preview-2',
+      class: 'sdimageinfo-setting-preview',
+      src: `${window.SDImageInfoFilePath}example/sidebyside.jpg?ts=${Date.now()}`
+    }),
+    previewWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Preview-Wrapper', children: [preview1, preview2] });
 
     settingColumn.prepend(previewWrap);
     settingColumn.append(applyWrap);
@@ -88,7 +82,7 @@ function SDImageInfoLoadSetting(Opts) {
       box-shadow: inset 0 0 7px 2px var(--background-fill-primary);
     }
 
-    #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Frame { transform: scale(1); }
+    #SDImageInfo-Image.${sdimginfoD} #SDImageInfo-Frame { transform: scale(1); }
 
     #SDImageInfo-Image {
       position: relative;
@@ -97,26 +91,33 @@ function SDImageInfoLoadSetting(Opts) {
       flex: unset;
     }
 
-    #SDImageInfo-Image.sdimageinfo-img-enter {
+    #SDImageInfo-Image.${sdimginfoD} {
       border-style: solid !important;
       min-width: 100% !important;
       border-width: var(--block-border-width) !important;
       min-height: 100% !important;
       border: 0 !important;
       border-radius: 1rem !important;
-      box-shadow: 0 0 5px 0 #000 !important;
+      box-shadow: 0 0 4px 0 #000, 0 0 1px 1px var(--background-fill-primary) !important;
+    }
+
+    #SDImageInfo-Image.${sdimginfoD} .boundedheight {
+      position: relative !important;
+      inset: unset !important;
+      filter: unset !important;
     }
 
     #SDImageInfo-Image img {
+      object-fit: cover !important;
+      object-position: top !important;
       position: unset !important;
       max-width: 100% !important;
       max-height: 100% !important;
-      object-fit: cover !important;
-      object-position: top !important;
       border-radius: 1.2rem !important;
     }
 
-    #SDImageInfo-Gear-Button, #SDImageInfo-Clear-Button {
+    #SDImageInfo-Gear-Button,
+    #SDImageInfo-Clear-Button {
       position: absolute !important;
       height: 54px !important;
       width: 54px !important;
@@ -127,25 +128,32 @@ function SDImageInfoLoadSetting(Opts) {
       left: -1px !important;
       right: unset !important;
       border-radius: 0 !important;
-      border-bottom-right-radius: 1.5rem !important;
+      border-bottom-right-radius: 1.2rem !important;
       margin: 0 !important;
     }
 
-    #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
+    #SDImageInfo-Image.${sdimginfoD} #SDImageInfo-Gear-Button {
       top: 0 !important;
       left: 0 !important;
-      border-top-left-radius: 1.2rem !important;
+      border-top-left-radius: 1rem !important;
     }
 
-    #SDImageInfo-Clear-Button { margin: 0; border-top-right-radius: 1rem; }
+    #SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button > svg {
+      top: 0 !important;
+    }
 
-    #SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Image-Frame {
+    #SDImageInfo-Clear-Button {
+      margin: 0;
+      border-top-right-radius: 1rem;
+    }
+
+    #SDImageInfo-Image.${sdimginfoD} #SDImageInfo-Image-Frame {
       position: absolute !important;
       top: unset !important;
       height: 100% !important;
       width: 100% !important;
-      border-radius: .9rem !important;
-      box-shadow: inset 0 0 7px 2px #000, inset 0 0 7px 2px #000 !important;
+      border-radius: 1rem !important;
+      box-shadow: inset 0 0 1px 0 var(--background-fill-primary), inset 0 0 3px 1px var(--background-fill-primary) !important;
       filter: unset !important;
     }
 
@@ -154,13 +162,13 @@ function SDImageInfoLoadSetting(Opts) {
     #SDImageInfo-SendButton {
       grid-template-columns: 1fr 1fr !important;
       align-self: center !important;
-      gap: 2px !important;
+      gap: 4px !important;
       position: absolute !important;
       left: unset !important;
-      width: 100% !important;
       bottom: 0 !important;
-      border-radius: 1rem !important;
+      width: 100% !important;
       padding: 0 10px 15px 10px !important;
+      border-radius: 1rem !important;
     }
 
     #SDImageInfo-SendButton button { border-radius: 0 !important; }
@@ -179,7 +187,9 @@ function SDImageInfoLoadSetting(Opts) {
       scrollbar-width: none;
     }
 
-    #SDImageInfo-img-area { display: none !important; }
+    #SDImageInfo-img-area {
+      display: none !important;
+    }
 
     #SDImageInfo-HTML {
       height: max-content !important;

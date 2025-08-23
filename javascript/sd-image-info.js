@@ -1,66 +1,75 @@
+let sdimginfoD = 'sdimginfo-display';
+
+function SDImgInfoEL(t, o = {}) {
+  const l = document.createElement(t);
+  for (const [k, v] of Object.entries(o)) {
+    if (k === 'class') l.className = Array.isArray(v) ? v.join(' ') : v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(l.style, v);
+    else if (k === 'html') l.innerHTML = v;
+    else if (k === 'text') l.textContent = v;
+    else if (k === 'children') (Array.isArray(v) ? v : [v]).forEach(child => l.appendChild(child));
+    else if (k === 'dataset') Object.assign(l.dataset, v);
+    else if (k in l) l[k] = v;
+    else l.setAttribute(k, v);
+  }
+  return l;
+}
+
 onUiLoaded(() => {
   if (document.getElementById('tab_SDImageInfo-Tab')) {
+    SDImageInfoCreateSetting();
+
     const sendButton = document.getElementById('SDImageInfo-SendButton');
     sendButton?.querySelectorAll('button').forEach(btn => btn.onclick = () => SDImageInfoSendButton(btn.id));
-  
-    SDImageInfoCreateSetting();
-    SDImageInfoCreateLightBox();
-    onUiUpdate(SDImageInfoTabChange);
-    window.addEventListener('resize', SDImageInfoTabLayout);
-
-    const column = document.getElementById('SDImageInfo-Column'),
-    imgCon = document.querySelector('#SDImageInfo-Image > .image-container'),
-    panel = document.getElementById('SDImageInfo-Output-Panel'),
-    HTMLPanel = document.getElementById('SDImageInfo-HTML'),
-    customWrap = document.createElement('div');
-
-    HTMLPanel.classList.add('prose');
-    customWrap.id = 'SDImageInfo-Custom-Wrapper';
-
-    const frame = document.createElement('div');
-    frame.id = 'SDImageInfo-Frame';
-
-    const imgFrame = document.createElement('div');
-    imgFrame.id = 'SDImageInfo-Image-Frame';
-
-    const gearButton = document.createElement('div');
-    gearButton.id = 'SDImageInfo-Gear-Button';
-    gearButton.title = SDImageInfoTranslation('setting_title', 'Setting');
-    gearButton.innerHTML = SDImageInfoGearSVG;
-
-    gearButton.onclick = () => {
-      [['#tab_settings #settings .tab-nav button', 'SD Image Info'],  ['#tabs .tab-nav button', 'Settings']]
-        .forEach(([el, text]) => [...document.querySelectorAll(el)].find(btn => btn.textContent.trim() === text)?.click()
-      );
-    };
-
-    const clearButton = document.createElement('div');
-    clearButton.id = 'SDImageInfo-Clear-Button';
-    clearButton.title = SDImageInfoTranslation('clear_image', 'Clear Image');
-    clearButton.innerHTML = SDImageInfoCrossSVG;
 
     window.SDImageInfoClearImage = () => {
-      const btn = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)') ||
-                  document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button');
+      const gradio3 = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
+      gradio4 = document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
+      btn = gradio3 || gradio4;
       btn && (btn.click(), window.SDImageInfoRawOutput = '');
     };
 
-    clearButton.onclick = () => window.SDImageInfoClearImage();
+    const column = document.getElementById('SDImageInfo-Column'),
+    imgInfo = document.getElementById('SDImageInfo-Image'),
+    panel = document.getElementById('SDImageInfo-Output-Panel'),
 
-    customWrap.append(imgFrame, clearButton);
-    imgCon.append(gearButton, customWrap, frame);
+    clearButton = SDImgInfoEL('div', {
+      id: 'SDImageInfo-Clear-Button',
+      title: SDImageInfoTranslation('clear_image', 'Clear Image'),
+      html: SDImageInfoCrossSVG,
+      onclick: () => window.SDImageInfoClearImage()
+    }),
 
-    const arrow = document.createElement('div');
-    arrow.id = 'SDImageInfo-Arrow';
-    arrow.innerHTML = SDImageInfoArrowSVG;
+    imgFrame = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Frame' }),
+    customWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Custom-Wrapper', children: [imgFrame, clearButton] }),
+    frame = SDImgInfoEL('div', { id: 'SDImageInfo-Frame' }),
 
+    gearButton = SDImgInfoEL('div', {
+      id: 'SDImageInfo-Gear-Button',
+      title: SDImageInfoTranslation('setting_title', 'Setting'),
+      html: SDImageInfoGearSVG,
+      onclick: () => {
+        [['#tab_settings #settings .tab-nav button', 'SD Image Info'], ['#tabs .tab-nav button', 'Settings']]
+        .forEach(([el, text]) => [...document.querySelectorAll(el)].find(btn => btn.textContent.trim() === text)?.click());
+      }
+    });
+
+    imgInfo.append(gearButton, customWrap, frame);
+
+    const arrow = SDImgInfoEL('div', { id: 'SDImageInfo-Arrow', html: SDImageInfoArrowSVG });
     column.append(arrow);
     SDImageInfoArrowScroll(arrow);
 
-    const imgArea = document.createElement('div');
-    imgArea.id = 'SDImageInfo-img-area'
-    imgArea.onclick = () => document.querySelector('#SDImageInfo-Image img')?.click();
+    const imgArea = SDImgInfoEL('div', { id: 'SDImageInfo-img-area', onclick: () => document.querySelector('#SDImageInfo-Image img')?.click() });
     panel.prepend(imgArea);
+
+    document.getElementById('SDImageInfo-HTML')?.classList.add('prose');
+
+    const LightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0 }),
+    Control = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Control' }),
+    exitButton = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Exit-Button', html: SDImageInfoCrossSVG, onclick: window.SDImageInfoImageViewerExit }),
+    Wrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' });
+    Control.prepend(exitButton), LightBox.append(Control, Wrapper), document.body.append(LightBox);
 
     ['drop', 'dragover'].forEach(t =>
       document.addEventListener(t, e => {
@@ -111,6 +120,8 @@ onUiLoaded(() => {
     });
 
     typeof SDHubGetTranslation === 'function' && SDImageInfoTranslate();
+    window.addEventListener('resize', SDImageInfoTabLayout);
+    onUiUpdate(SDImageInfoTabChange);
   }
 });
 
@@ -120,19 +131,17 @@ async function SDImageInfoParser() {
   Column = document.getElementById('SDImageInfo-Column'),
   HTMLPanel = document.getElementById('SDImageInfo-HTML'),
   ImagePanel = document.getElementById('SDImageInfo-Image'),
-  img = ImagePanel.querySelector('img'),
-
-  imgEnter = 'sdimageinfo-img-enter';
+  img = ImagePanel.querySelector('img');
 
   if (!img) {
     window.SharedParserPostProcessingInfo = window.SharedParserExtrasInfo = '';
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
-    [Tab, Column, ImagePanel].forEach(el => el.classList.remove(imgEnter));
+    [Tab, Column, ImagePanel].forEach(el => el.classList.remove(sdimginfoD));
     setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     return;
   }
 
-  [Tab, Column, ImagePanel].forEach(el => el.classList.add(imgEnter));
+  [Tab, Column, ImagePanel].forEach(el => el.classList.add(sdimginfoD));
   img.onclick = () => SDImageInfoImageViewer(img);
   img.onload = () => img.style.opacity = '1';
 
@@ -363,7 +372,8 @@ function SDImageInfoTabLayout() {
 
 function SDImageInfoTabChange() {
   const id = 'SDImageInfo-HideScrollBar',
-  MainTab = document?.querySelector('#tabs > .tab-nav > button.selected')?.textContent.trim(),
+
+  MainTab = document.querySelector('#tabs > .tab-nav > button.selected')?.textContent.trim(),
   tabNav = document.querySelector('.tab-nav.scroll-hide'),
   footer = document.getElementById('footer'),
   tabBlock = 'sdimageinfo-tab-block';
@@ -377,9 +387,7 @@ function SDImageInfoTabChange() {
     document.documentElement.style.scrollbarWidth = 'none';
 
     if (!document.getElementById(id)) {
-      const sb = document.createElement('style');
-      sb.id = id;
-      sb.textContent = `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`;
+      const sb = SDImgInfoEL('style', { id: id, text: `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }` });
       document.head.appendChild(sb);
     }
 
@@ -391,14 +399,43 @@ function SDImageInfoTabChange() {
   }
 }
 
+function SDImageInfoImageViewer(img) {
+  const LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
+  Control = LightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
+  Wrapper = LightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
+
+  scroll = 'sdimageinfo-body-dont-scroll',
+  pointer = 'sdimageinfo-pointer-events-none',
+  imgId = 'SDImageInfo-Image-Viewer-img',
+  sf = 'SDImageInfo-output-filter';
+
+  LightBox.style.display = 'flex';
+  LightBox.focus();
+
+  document.getElementById(imgId)?.remove();
+  const imgEL = SDImgInfoEL('img', { id: imgId, src: img.src });
+  Wrapper.prepend(imgEL);
+
+  requestAnimationFrame(() => setTimeout(() => {
+    LightBox.classList.add(sdimginfoD);
+    setTimeout(() => Wrapper.style.transform = 'translate(0px, 0px) scale(1)', 50);
+  }, 50));
+
+  const imageViewer = SharedImageViewer(imgEL, LightBox, Control, Wrapper, {
+    noScroll: scroll, noPointer: pointer,
+    onLightboxClose: () => LightBox.classList.remove(sdimginfoD)
+  });
+
+  window.SDImageInfoImageViewerExit = imageViewer.state.close;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   window.getRunningScript = () => new Error().stack.match(/file=[^ \n]*\.js/)?.[0];
   const path = getRunningScript()?.match(/file=[^\/]+\/[^\/]+\//)?.[0];
   if (path) window.SDImageInfoFilePath = path;
 
   if (/firefox/i.test(navigator.userAgent)) {
-    const bg = document.createElement('style');
-    bg.innerHTML = `#SDImageInfo-Image-Viewer { backdrop-filter: none !important; }`;
+    const bg = SDImgInfoEL('style', { id: id, html: `#SDImageInfo-Image-Viewer { backdrop-filter: none !important; }` });
     document.body.append(bg);
   }
 });

@@ -32,7 +32,7 @@ body.sdimageinfo-body-dont-scroll {
   overflow: auto;
 }
 
-#tab_SDImageInfo-Tab.sdimageinfo-img-enter {
+#tab_SDImageInfo-Tab.sdimginfo-display {
   z-index: 1;
 }
 
@@ -72,7 +72,7 @@ body.sdimageinfo-body-dont-scroll {
   border-radius: 0;
 }
 
-#SDImageInfo-Column.sdimageinfo-img-enter {
+#SDImageInfo-Column.sdimginfo-display {
   box-shadow: unset;
 }
 
@@ -105,7 +105,7 @@ body.sdimageinfo-body-dont-scroll {
   transition: box-shadow 0.3s ease;
 }
 
-#SDImageInfo-Image:not(.sdimageinfo-img-enter):hover {
+#SDImageInfo-Image:not(.sdimginfo-display):hover {
   box-shadow: inset 0 0 3px 0 var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
 }
 
@@ -117,6 +117,32 @@ body.sdimageinfo-body-dont-scroll {
   #SDImageInfo-Image {
     width: 100%;
   }
+}
+
+#SDImageInfo-Image .boundedheight {
+  position: relative;
+}
+
+#SDImageInfo-Image.sdimginfo-display .boundedheight {
+  position: fixed;
+  inset: 0;
+  filter: brightness(0.9);
+}
+
+#SDImageInfo-Image img {
+  display: flex;
+  cursor: auto;
+  align-self: flex-start;
+  position: fixed;
+  object-fit: cover;
+  object-position: center 10%;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  border-radius: 0 !important;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 1s ease;
 }
 
 #SDImageInfo-Frame {
@@ -132,11 +158,11 @@ body.sdimageinfo-body-dont-scroll {
   transform: scale(0);
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Frame {
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Frame {
   visibility: visible;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter {
+#SDImageInfo-Image.sdimginfo-display {
   height: 100% !important;
   width: 100% !important;
   border: 0 !important;
@@ -147,28 +173,12 @@ body.sdimageinfo-body-dont-scroll {
   top: 0;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter > .image-container {
+#SDImageInfo-Image.sdimginfo-display > .image-container {
   display: flex !important;
 }
 
-#SDImageInfo-Image img {
-  display: flex;
-  cursor: auto;
-  align-self: flex-start;
-  position: fixed;
-  object-fit: cover;
-  object-position: center 10%;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  user-select: none;
-  border-radius: 0 !important;
-  -webkit-user-select: none;
-  transition: opacity 1s ease;
-}
-
 #SDImageInfo-Image > div > div > div > button:nth-child(2),
-.gradio-container-4-40-0 #SDImageInfo-Image.sdimageinfo-img-enter > div > div:first-child:not(.upload-container) {
+.gradio-container-4-40-0 #SDImageInfo-Image.sdimginfo-display > div > div:first-child:not(.upload-container) {
   display: none;
 }
 
@@ -265,9 +275,9 @@ body.sdimageinfo-body-dont-scroll {
   border: 0;
   margin: 0;
   background: transparent;
-  filter: drop-shadow(0 0 3px #000);
+  filter: drop-shadow(0 0 2px #000);
   cursor: default;
-  transition: 0.3s ease;
+  transition: 0.3s ease, filter 0s;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-section.sdimageinfo-output-models-section {
@@ -435,18 +445,23 @@ body.sdimageinfo-body-dont-scroll {
 
 #SDImageInfo-Image-Viewer {
   display: none;
+  justify-content: center;
+  align-items: center;
   position: fixed;
+  z-index: 999999;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgb(0 0 0 / 80%);
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
   opacity: 0;
+  background-color: rgb(0 0 0 / 80%);
+  backdrop-filter: blur(7px);
+  transition: opacity .2s ease;
   overflow: hidden;
-  backdrop-filter: blur(3px);
+}
+
+#SDImageInfo-Image-Viewer.sdimginfo-display {
+  opacity: 1;
   transition: opacity .3s ease;
 }
 
@@ -460,44 +475,6 @@ body.sdimageinfo-body-dont-scroll {
   position: absolute;
   opacity: 1;
   transition: .2s;
-}
-
-#SDImageInfo-Image-Viewer-Exit-Button {
-  display: flex;
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 60px;
-  width: 60px;
-  margin: 0;
-  gap: 0;
-  padding: 0;
-  border: 0;
-  z-index: 1;
-  border-radius: 0 0 0 1.5rem;
-  box-sizing: border-box;
-  pointer-events: auto;
-  color: var(--primary-400);
-  background: var(--input-background-fill);
-  box-shadow: 0 0 7px 2px #000;
-  filter: none;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-#SDImageInfo-Image-Viewer-Exit-Button svg {
-  position: fixed;
-  top: 3px;
-  right: 3px;
-  width: 50px;
-  height: 50px;
-  filter: drop-shadow(0 0 3px rgb(0 0 0 / 50%)) drop-shadow(0 0 2px rgb(0 0 0 / 50%)) drop-shadow(0 0 2px rgb(0 0 0 / 50%));
-}
-
-#SDImageInfo-Image-Viewer-Exit-Button:hover {
-  color: #fff;
-  background: red;
-  filter: drop-shadow(0 0 5px red);
 }
 
 #SDImageInfo-Image-Viewer-Wrapper {
@@ -551,7 +528,7 @@ body.sdimageinfo-body-dont-scroll {
   transition: opacity 1.2s ease;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Custom-Wrapper {
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Custom-Wrapper {
   opacity: 1;
 }
 
@@ -564,34 +541,30 @@ body.sdimageinfo-body-dont-scroll {
   z-index: 5;
   border-radius: 0 !important;
   pointer-events: none;
-  box-shadow: inset 0 0 15px 2px var(--background-fill-primary), inset 0 0 15px 2px var(--background-fill-primary);
+  box-shadow: inset 0 0 10px 0 var(--background-fill-primary), inset 0 0 5px 0 var(--background-fill-primary);
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Image-Frame {
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Image-Frame {
   display: flex;
 }
 
 #SDImageInfo-Gear-Button,
-#SDImageInfo-Clear-Button {
+#SDImageInfo-Clear-Button,
+#SDImageInfo-Image-Viewer-Exit-Button {
   display: flex;
   position: absolute;
-  height: 60px;
-  width: 60px;
+  height: 54px;
+  width: 54px;
   margin: 0;
   gap: 0;
-  padding: 5px;
+  padding: 6px;
   box-sizing: border-box;
   border: 0;
-  color: var(--primary-400);
-  background: var(--input-background-fill-hover);
+  color: var(--primary-400) !important;
+  background: var(--input-background-fill);
   box-shadow: 0 0 5px 1px #000;
   pointer-events: auto;
   cursor: pointer;
-}
-
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button,
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button {
-  background: var(--input-background-fill);
 }
 
 #SDImageInfo-Gear-Button {
@@ -599,7 +572,7 @@ body.sdimageinfo-body-dont-scroll {
   z-index: 2;
   top: -1px;
   left: -1px;
-  border-bottom-right-radius: 1.5rem;
+  border-bottom-right-radius: 1.2rem;
   transition: filter .2s ease, color .2s ease, background-color .2s ease, box-shadow .3s ease;
 }
 
@@ -613,12 +586,12 @@ body.sdimageinfo-body-dont-scroll {
   fill: transparent;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button:hover {
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button:hover {
   background: var(--primary-400);
   filter: drop-shadow(0 0 5px var(--primary-400));
 }
 
-#SDImageInfo-Image:not(.sdimageinfo-img-enter) #SDImageInfo-Gear-Button:hover {
+#SDImageInfo-Image:not(.sdimginfo-display) #SDImageInfo-Gear-Button:hover {
   background: var(--primary-400);
 }
 
@@ -626,8 +599,7 @@ body.sdimageinfo-body-dont-scroll {
   stroke: #fff;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
-  margin: 0;
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button {
   top: 0;
   right: 90px;
   left: unset;
@@ -635,33 +607,39 @@ body.sdimageinfo-body-dont-scroll {
   filter: unset;
 }
 
-#SDImageInfo-Clear-Button {
-  display: none;
-  margin: 0;
-  right: 0;
-  padding: 7px;
-  border-bottom-left-radius: 1.5rem;
-  transition: .2s ease, filter .2s ease, opacity 1s ease;
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button > svg {
+  position: relative;
+  top: -1px;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button {
+#SDImageInfo-Clear-Button {
+  display: none;
+}
+
+#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Clear-Button {
   display: flex;
 }
 
-#SDImageInfo-Clear-Button > svg {
-  stroke: var(--primary-400);
-  filter: drop-shadow(0 0 2px #000);
-  transition: .2s ease;
+#SDImageInfo-Clear-Button,
+#SDImageInfo-Image-Viewer-Exit-Button {
+  right: 0;
+  border-bottom-left-radius: 1.2rem;
+  transition: .2s ease, opacity .8s ease;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button:hover,
-#SDImageInfo-Clear-Button:hover {
+#SDImageInfo-Clear-Button > svg,
+#SDImageInfo-Image-Viewer-Exit-Button > svg {
+  position: relative;
+  top: -1px;
+  right: -1px;
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 50%)) drop-shadow(0 0 1px rgb(0 0 0 / 50%)) drop-shadow(0 0 1px rgb(0 0 0 / 50%));
+}
+
+#SDImageInfo-Clear-Button:hover,
+#SDImageInfo-Image-Viewer-Exit-Button:hover {
+  color: #fff !important;
   background: red;
   filter: drop-shadow(0 0 5px red);
-}
-
-#SDImageInfo-Clear-Button:hover > svg {
-  stroke: #fff;
 }
 
 #column_settings_SDImageInfo-Setting {

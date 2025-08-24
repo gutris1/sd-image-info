@@ -121,7 +121,7 @@ onUiLoaded(() => {
 
     typeof SDHubGetTranslation === 'function' && SDImageInfoTranslate();
     window.addEventListener('resize', SDImageInfoTabLayout);
-    onUiUpdate(SDImageInfoTabChange);
+    SDImageInfoTabChange();
   }
 });
 
@@ -372,31 +372,50 @@ function SDImageInfoTabLayout() {
 
 function SDImageInfoTabChange() {
   const id = 'SDImageInfo-HideScrollBar',
-
-  MainTab = document.querySelector('#tabs > .tab-nav > button.selected')?.textContent.trim(),
+  tabId = 'tab_SDImageInfo-Tab',
+  tabBlock = 'sdimageinfo-tab-block',
   tabNav = document.querySelector('.tab-nav.scroll-hide'),
   footer = document.getElementById('footer'),
-  tabBlock = 'sdimageinfo-tab-block';
 
-  if (MainTab === 'Image Info') {
-    SDImageInfoTabLayout();
-    setTimeout(() => window.SDImageInfoArrowScrolling?.(), 0);
+  TabChange = (Id, ON, OFF) => {
+    const tab = document.getElementById(Id);
+    if (!tab) return;
 
-    tabNav && (tabNav.style.borderBottom = '0');
-    footer && footer.classList.add(tabBlock);
-    document.documentElement.style.scrollbarWidth = 'none';
+    const check = () => {
+      const d = window.getComputedStyle(tab).display !== 'none';
+      if (d !== tab.__l) { tab.__l = d; d ? ON?.(tab) : OFF?.(tab); }
+    };
 
-    if (!document.getElementById(id)) {
-      const sb = SDImgInfoEL('style', { id: id, text: `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }` });
-      document.head.appendChild(sb);
+    check();
+
+    const obs = new MutationObserver(check);
+    obs.observe(tab, { attributes: true, attributeFilter: ['style'] });
+  };
+
+  TabChange(tabId,
+    () => {
+      SDImageInfoTabLayout();
+      setTimeout(() => window.SDImageInfoArrowScrolling?.(), 0);
+
+      tabNav && (tabNav.style.borderBottom = '0');
+      footer && footer.classList.add(tabBlock);
+      document.documentElement.style.scrollbarWidth = 'none';
+
+      if (!document.getElementById(id)) {
+        const sb = SDImgInfoEL('style', {
+          id: id,
+          text: `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`
+        });
+        document.head.appendChild(sb);
+      }
+    },
+    () => {
+      footer && footer.classList.remove(tabBlock);
+      tabNav && (tabNav.style.borderBottom = '');
+      document.documentElement.style.scrollbarWidth = '';
+      document.getElementById(id)?.remove();
     }
-
-  } else {
-    footer && footer.classList.remove(tabBlock);
-    tabNav && (tabNav.style.borderBottom = '');
-    document.documentElement.style.scrollbarWidth = '';
-    document.getElementById(id)?.remove();
-  }
+  );
 }
 
 function SDImageInfoImageViewer(img) {
@@ -406,8 +425,7 @@ function SDImageInfoImageViewer(img) {
 
   scroll = 'sdimageinfo-body-dont-scroll',
   pointer = 'sdimageinfo-pointer-events-none',
-  imgId = 'SDImageInfo-Image-Viewer-img',
-  sf = 'SDImageInfo-output-filter';
+  imgId = 'SDImageInfo-Image-Viewer-img';
 
   LightBox.style.display = 'flex';
   LightBox.focus();

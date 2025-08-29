@@ -82,7 +82,7 @@ function SDImageInfoLoadSetting(Opts) {
       box-shadow: inset 0 0 7px 2px var(--background-fill-primary);
     }
 
-    #SDImageInfo-Image.${sdimginfoD} #SDImageInfo-Frame { transform: scale(1); }
+    #SDImageInfo-Image.${sdimginfoS} #SDImageInfo-Frame { transform: scale(1); }
 
     #SDImageInfo-Image {
       position: relative;
@@ -91,7 +91,7 @@ function SDImageInfoLoadSetting(Opts) {
       flex: unset;
     }
 
-    #SDImageInfo-Image.${sdimginfoD} {
+    #SDImageInfo-Image.${sdimginfoS} {
       border-style: solid !important;
       min-width: 100% !important;
       border-width: var(--block-border-width) !important;
@@ -101,7 +101,7 @@ function SDImageInfoLoadSetting(Opts) {
       box-shadow: 0 0 4px 0 #000, 0 0 1px 1px var(--background-fill-primary) !important;
     }
 
-    #SDImageInfo-Image.${sdimginfoD} .boundedheight {
+    #SDImageInfo-Image.${sdimginfoS} .boundedheight {
       position: relative !important;
       inset: unset !important;
       filter: unset !important;
@@ -119,8 +119,6 @@ function SDImageInfoLoadSetting(Opts) {
     #SDImageInfo-Gear-Button,
     #SDImageInfo-Clear-Button {
       position: absolute !important;
-      height: 54px !important;
-      width: 54px !important;
     }
 
     #SDImageInfo-Gear-Button {
@@ -132,13 +130,13 @@ function SDImageInfoLoadSetting(Opts) {
       margin: 0 !important;
     }
 
-    #SDImageInfo-Image.${sdimginfoD} #SDImageInfo-Gear-Button {
+    #SDImageInfo-Image.${sdimginfoS} #SDImageInfo-Gear-Button {
       top: 0 !important;
       left: 0 !important;
       border-top-left-radius: 1rem !important;
     }
 
-    #SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button > svg {
+    #SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button > svg {
       top: 0 !important;
     }
 
@@ -147,7 +145,7 @@ function SDImageInfoLoadSetting(Opts) {
       border-top-right-radius: 1rem;
     }
 
-    #SDImageInfo-Image.${sdimginfoD} #SDImageInfo-Image-Frame {
+    #SDImageInfo-Image.${sdimginfoS} #SDImageInfo-Image-Frame {
       position: absolute !important;
       top: unset !important;
       height: 100% !important;

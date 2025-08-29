@@ -1,22 +1,7 @@
-let sdimginfoD = 'sdimginfo-display';
-
-function SDImgInfoEL(t, o = {}) {
-  const l = document.createElement(t);
-  for (const [k, v] of Object.entries(o)) {
-    if (k === 'class') l.className = Array.isArray(v) ? v.join(' ') : v;
-    else if (k === 'style' && typeof v === 'object') Object.assign(l.style, v);
-    else if (k === 'html') l.innerHTML = v;
-    else if (k === 'text') l.textContent = v;
-    else if (k === 'children') (Array.isArray(v) ? v : [v]).forEach(child => l.appendChild(child));
-    else if (k === 'dataset') Object.assign(l.dataset, v);
-    else if (k in l) l[k] = v;
-    else l.setAttribute(k, v);
-  }
-  return l;
-}
+let sdimginfoS = 'sdimginfo-style';
 
 onUiLoaded(() => {
-  if (document.getElementById('tab_SDImageInfo-Tab')) {
+  if (document.getElementById('tab_SDImageInfo')) {
     SDImageInfoCreateSetting();
 
     const sendButton = document.getElementById('SDImageInfo-SendButton');
@@ -73,7 +58,7 @@ onUiLoaded(() => {
 
     ['drop', 'dragover'].forEach(t =>
       document.addEventListener(t, e => {
-        const Tab = document.getElementById('tab_SDImageInfo-Tab'),
+        const Tab = document.getElementById('tab_SDImageInfo'),
         LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
         column = document.getElementById('SDImageInfo-Column'),
         form = column.querySelector('.form'),
@@ -102,7 +87,7 @@ onUiLoaded(() => {
     );
 
     document.addEventListener('keydown', (e) => {
-      const Tab = document.getElementById('tab_SDImageInfo-Tab'),
+      const Tab = document.getElementById('tab_SDImageInfo'),
       LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
       column = document.getElementById('SDImageInfo-Column');
 
@@ -126,22 +111,24 @@ onUiLoaded(() => {
 });
 
 async function SDImageInfoParser() {
-  const Tab = document.getElementById('tab_SDImageInfo-Tab'),
+  const Tab = document.getElementById('tab_SDImageInfo'),
   RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea'),
   Column = document.getElementById('SDImageInfo-Column'),
   HTMLPanel = document.getElementById('SDImageInfo-HTML'),
   ImagePanel = document.getElementById('SDImageInfo-Image'),
-  img = ImagePanel.querySelector('img');
+  img = ImagePanel.querySelector('img'),
+  gear = document.getElementById('SDImageInfo-Gear-Button');
 
   if (!img) {
     window.SharedParserPostProcessingInfo = window.SharedParserExtrasInfo = '';
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
-    [Tab, Column, ImagePanel].forEach(el => el.classList.remove(sdimginfoD));
+    [Tab, Column, ImagePanel, gear].forEach(el => el.classList.remove(sdimginfoS));
     setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     return;
   }
 
-  [Tab, Column, ImagePanel].forEach(el => el.classList.add(sdimginfoD));
+  [Tab, Column, ImagePanel, gear].forEach(el => el.classList.add(sdimginfoS));
+  setTimeout(() => gear.classList.remove(sdimginfoS), 1200);
   img.onclick = () => SDImageInfoImageViewer(img);
   img.onload = () => img.style.opacity = '1';
 
@@ -358,7 +345,7 @@ function SDImageInfoTranslate() {
 }
 
 function SDImageInfoTabLayout() {
-  const Tab = document.getElementById('tab_SDImageInfo-Tab'),
+  const Tab = document.getElementById('tab_SDImageInfo'),
   Nav = document.querySelector('.tabs.gradio-tabs');
 
   if (Tab?.style.display !== 'block') return;
@@ -371,17 +358,22 @@ function SDImageInfoTabLayout() {
 }
 
 function SDImageInfoTabChange() {
-  const id = 'SDImageInfo-HideScrollBar',
-  tabId = 'tab_SDImageInfo-Tab',
-  tabBlock = 'sdimageinfo-tab-block',
-  tabNav = document.querySelector('.tab-nav.scroll-hide'),
+  const styleId = 'SDImageInfo-HideScrollBar',
+
+  tabId = 'tab_SDImageInfo',
+  tabNav = document.querySelector('#tabs > .tab-nav'),
   footer = document.getElementById('footer'),
 
-  TabChange = (Id, ON, OFF) => {
-    const tab = document.getElementById(Id);
-    if (!tab) return;
+  css = `
+    ::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+    }
+  `,
 
-    const check = () => {
+  TabChange = (Id, ON, OFF) => {
+    const tab = document.getElementById(Id),
+    check = () => {
       const d = window.getComputedStyle(tab).display !== 'none';
       if (d !== tab.__l) { tab.__l = d; d ? ON?.(tab) : OFF?.(tab); }
     };
@@ -397,23 +389,17 @@ function SDImageInfoTabChange() {
       SDImageInfoTabLayout();
       setTimeout(() => window.SDImageInfoArrowScrolling?.(), 0);
 
-      tabNav && (tabNav.style.borderBottom = '0');
-      footer && footer.classList.add(tabBlock);
+      [footer, tabNav].forEach(el => el?.classList.add(sdimginfoS));
       document.documentElement.style.scrollbarWidth = 'none';
 
-      if (!document.getElementById(id)) {
-        const sb = SDImgInfoEL('style', {
-          id: id,
-          text: `::-webkit-scrollbar { width: 0 !important; height: 0 !important; }`
-        });
-        document.head.appendChild(sb);
+      if (!document.getElementById(styleId)) {
+        document.head.appendChild(SDImgInfoEL('style', { id: styleId, html: css }));
       }
     },
     () => {
-      footer && footer.classList.remove(tabBlock);
-      tabNav && (tabNav.style.borderBottom = '');
+      [footer, tabNav].forEach(el => el?.classList.remove(sdimginfoS));
       document.documentElement.style.scrollbarWidth = '';
-      document.getElementById(id)?.remove();
+      document.getElementById(styleId)?.remove();
     }
   );
 }
@@ -435,13 +421,13 @@ function SDImageInfoImageViewer(img) {
   Wrapper.prepend(imgEL);
 
   requestAnimationFrame(() => setTimeout(() => {
-    LightBox.classList.add(sdimginfoD);
+    LightBox.classList.add(sdimginfoS);
     setTimeout(() => Wrapper.style.transform = 'translate(0px, 0px) scale(1)', 50);
   }, 50));
 
   const imageViewer = SharedImageViewer(imgEL, LightBox, Control, Wrapper, {
     noScroll: scroll, noPointer: pointer,
-    onLightboxClose: () => LightBox.classList.remove(sdimginfoD)
+    onLightboxClose: () => LightBox.classList.remove(sdimginfoS)
   });
 
   window.SDImageInfoImageViewerExit = imageViewer.state.close;
@@ -457,3 +443,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.append(bg);
   }
 });
+
+function SDImgInfoEL(t, o = {}) {
+  const l = document.createElement(t);
+  for (const [k, v] of Object.entries(o)) {
+    if (k === 'class') l.className = Array.isArray(v) ? v.join(' ') : v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(l.style, v);
+    else if (k === 'html') l.innerHTML = v;
+    else if (k === 'text') l.textContent = v;
+    else if (k === 'children') (Array.isArray(v) ? v : [v]).forEach(child => l.appendChild(child));
+    else if (k === 'dataset') Object.assign(l.dataset, v);
+    else if (k in l) l[k] = v;
+    else l.setAttribute(k, v);
+  }
+  return l;
+}

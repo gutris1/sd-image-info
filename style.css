@@ -12,13 +12,17 @@ body.sdimageinfo-body-dont-scroll {
   overflow: hidden;
 }
 
-#footer.sdimageinfo-tab-block {
+#tabs > .tab-nav.sdimginfo-style {
+  border-color: transparent;
+}
+
+#footer.sdimginfo-style {
   position: fixed;
   bottom: 10px;
   left: 0;
 }
 
-#tab_SDImageInfo-Tab {
+#tab_SDImageInfo {
   box-sizing: border-box;
   position: fixed;
   left: 0;
@@ -32,17 +36,17 @@ body.sdimageinfo-body-dont-scroll {
   overflow: auto;
 }
 
-#tab_SDImageInfo-Tab.sdimginfo-display {
+#tab_SDImageInfo.sdimginfo-style {
   z-index: 1;
 }
 
-#tab_SDImageInfo-Tab > div {
+#tab_SDImageInfo > div {
   height: 100%;
   width: 100%;
   overflow: visible;
 }
 
-#tab_SDImageInfo-Tab > div > .form {
+#tab_SDImageInfo > div > .form {
   height: 100%;
 }
 
@@ -72,7 +76,7 @@ body.sdimageinfo-body-dont-scroll {
   border-radius: 0;
 }
 
-#SDImageInfo-Column.sdimginfo-display {
+#SDImageInfo-Column.sdimginfo-style {
   box-shadow: unset;
 }
 
@@ -105,7 +109,7 @@ body.sdimageinfo-body-dont-scroll {
   transition: box-shadow 0.3s ease;
 }
 
-#SDImageInfo-Image:not(.sdimginfo-display):hover {
+#SDImageInfo-Image:not(.sdimginfo-style):hover {
   box-shadow: inset 0 0 3px 0 var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
 }
 
@@ -123,7 +127,7 @@ body.sdimageinfo-body-dont-scroll {
   position: relative;
 }
 
-#SDImageInfo-Image.sdimginfo-display .boundedheight {
+#SDImageInfo-Image.sdimginfo-style .boundedheight {
   position: fixed;
   inset: 0;
   filter: brightness(0.9);
@@ -158,11 +162,11 @@ body.sdimageinfo-body-dont-scroll {
   transform: scale(0);
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Frame {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Frame {
   visibility: visible;
 }
 
-#SDImageInfo-Image.sdimginfo-display {
+#SDImageInfo-Image.sdimginfo-style {
   height: 100% !important;
   width: 100% !important;
   border: 0 !important;
@@ -173,12 +177,12 @@ body.sdimageinfo-body-dont-scroll {
   top: 0;
 }
 
-#SDImageInfo-Image.sdimginfo-display > .image-container {
+#SDImageInfo-Image.sdimginfo-style > .image-container {
   display: flex !important;
 }
 
 #SDImageInfo-Image > div > div > div > button:nth-child(2),
-.gradio-container-4-40-0 #SDImageInfo-Image.sdimginfo-display > div > div:first-child:not(.upload-container) {
+.gradio-container-4-40-0 #SDImageInfo-Image.sdimginfo-style > div > div:first-child:not(.upload-container) {
   display: none;
 }
 
@@ -192,7 +196,7 @@ body.sdimageinfo-body-dont-scroll {
   z-index: 1;
   left: 0;
   width: max-content;
-  padding: 30px 0 0 30px !important;
+  padding: 20px 0 0 20px !important;
   opacity: 0;
   transform: scale(0);
   transition: opacity 0s;
@@ -208,17 +212,26 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-SendButton button {
   white-space: nowrap;
   position: relative;
+  padding: 5px 20px;
   border: 0;
   border-radius: 1rem;
-  box-shadow: 0 0 5px 1px #000, 0 0 1px 1px var(--button-secondary-background-fill-hover);
-  padding: 6px 20px;
+  box-shadow: var(--c), var(--d);
+  color: var(--primary-400);
+  background: var(--input-background-fill);
   transition: .2s ease;
+  outline: none;
+  --a: #000 !important;
+  --b: var(--background-fill-secondary) !important;
+  --c: 0 0 5px 1px var(--a) !important;
+  --d: 0 0 1px 1px var(--b) !important;
 }
 
 #SDImageInfo-SendButton button:hover {
-  box-shadow: 0 0 15px 1px var(--primary-400), 0 0 1px 1px var(--background-fill-primary), 0 0 5px 1px var(--primary-400);
-  color: var(--background-fill-primary);
-  background: var(--button-primary-background-fill);
+  --a: var(--primary-400) !important;
+  --b: var(--background-fill-primary) !important;
+  box-shadow: 0 0 15px 1px var(--a), var(--c), var(--d);
+  color: var(--b);
+  background: var(--a);
 }
 
 #SDImageInfo-Output-Panel {
@@ -265,7 +278,7 @@ body.sdimageinfo-body-dont-scroll {
   max-width: 100%;
   border-radius: .8rem !important;
   margin-top: 220px;
-  padding: 30px !important;
+  padding: 20px !important;
   padding-top: 0 !important;
   pointer-events: none;
 }
@@ -460,7 +473,7 @@ body.sdimageinfo-body-dont-scroll {
   overflow: hidden;
 }
 
-#SDImageInfo-Image-Viewer.sdimginfo-display {
+#SDImageInfo-Image-Viewer.sdimginfo-style {
   opacity: 1;
   transition: opacity .3s ease;
 }
@@ -528,7 +541,7 @@ body.sdimageinfo-body-dont-scroll {
   transition: opacity 1.2s ease;
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Custom-Wrapper {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Custom-Wrapper {
   opacity: 1;
 }
 
@@ -544,7 +557,7 @@ body.sdimageinfo-body-dont-scroll {
   box-shadow: inset 0 0 10px 0 var(--background-fill-primary), inset 0 0 5px 0 var(--background-fill-primary);
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Image-Frame {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Image-Frame {
   display: flex;
 }
 
@@ -553,8 +566,8 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-Image-Viewer-Exit-Button {
   display: flex;
   position: absolute;
-  height: 54px;
-  width: 54px;
+  height: 50px;
+  width: 50px;
   margin: 0;
   gap: 0;
   padding: 6px;
@@ -586,12 +599,12 @@ body.sdimageinfo-body-dont-scroll {
   fill: transparent;
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button:hover {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button:hover {
   background: var(--primary-400);
   filter: drop-shadow(0 0 5px var(--primary-400));
 }
 
-#SDImageInfo-Image:not(.sdimginfo-display) #SDImageInfo-Gear-Button:hover {
+#SDImageInfo-Image:not(.sdimginfo-style) #SDImageInfo-Gear-Button:hover {
   background: var(--primary-400);
 }
 
@@ -599,15 +612,24 @@ body.sdimageinfo-body-dont-scroll {
   stroke: #fff;
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button {
   top: 0;
-  right: 90px;
+  right: 70px;
   left: unset;
   border-radius: 0 0 100px 100px;
   filter: unset;
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Gear-Button > svg {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button.sdimginfo-style {
+  animation: gear-fade-in 1.2s ease forwards;
+}
+
+@keyframes gear-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button > svg {
   position: relative;
   top: -1px;
 }
@@ -616,7 +638,7 @@ body.sdimageinfo-body-dont-scroll {
   display: none;
 }
 
-#SDImageInfo-Image.sdimginfo-display #SDImageInfo-Clear-Button {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Clear-Button {
   display: flex;
 }
 

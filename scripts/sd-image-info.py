@@ -28,7 +28,7 @@ def onSDImageInfoTab():
                 )
             )
 
-    return [(sd_image_info, 'Image Info', 'SDImageInfo-Tab')]
+    return [(sd_image_info, 'Image Info', 'SDImageInfo')]
 
 shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', 'SD Image Info'), {
     'sd_image_info_layout': shared.OptionInfo('full width', '', gr.Radio, lambda: {'choices': ['full width', 'side by side']}),

@@ -9,7 +9,7 @@ def onSDImageInfoTab():
         with FormRow(equal_height=False, elem_id='SDImageInfo-Column'):
             with FormColumn(variant='compact', scale=3, elem_id='SDImageInfo-Image-Column'):
                 image = gr.Image(elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
-                image.change(fn=None, _js='() => { SDImageInfoParser(); }')
+                image.change(fn=None, _js='() => SDImageInfoParser()')
 
                 with FormRow(variant='compact', elem_id='SDImageInfo-SendButton'):
                     buttons = tempe.create_buttons(['txt2img', 'img2img', 'inpaint', 'extras'])

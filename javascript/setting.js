@@ -57,7 +57,9 @@ function SDImageInfoLoadSetting(Opts) {
   el = document.getElementById(id),
 
   sideBysideCSS = `
-    #SDImageInfo-Column { filter: drop-shadow(0 0 1px #000); }
+    #SDImageInfo-Column {
+      filter: drop-shadow(0 0 1px #000);
+    }
 
     #SDImageInfo-Column > .form {
       position: absolute !important;
@@ -82,7 +84,9 @@ function SDImageInfoLoadSetting(Opts) {
       box-shadow: inset 0 0 7px 2px var(--background-fill-primary);
     }
 
-    #SDImageInfo-Image.${sdimginfoS} #SDImageInfo-Frame { transform: scale(1); }
+    #SDImageInfo-Image.${sdimginfoS} #SDImageInfo-Frame {
+      transform: scale(1);
+    }
 
     #SDImageInfo-Image {
       position: relative;
@@ -110,7 +114,7 @@ function SDImageInfoLoadSetting(Opts) {
     #SDImageInfo-Image img {
       object-fit: cover !important;
       object-position: top !important;
-      position: unset !important;
+      position: absolute !important;
       max-width: 100% !important;
       max-height: 100% !important;
       border-radius: 1.2rem !important;
@@ -155,7 +159,9 @@ function SDImageInfoLoadSetting(Opts) {
       filter: unset !important;
     }
 
-    #SDImageInfo-Custom-Wrapper { position: absolute; }
+    #SDImageInfo-Custom-Wrapper {
+      position: absolute;
+    }
 
     #SDImageInfo-SendButton {
       grid-template-columns: 1fr 1fr !important;
@@ -169,13 +175,27 @@ function SDImageInfoLoadSetting(Opts) {
       border-radius: 1rem !important;
     }
 
-    #SDImageInfo-SendButton button { border-radius: 0 !important; }
-    #SDImageInfo-SendButton > :nth-child(1) { border-top-left-radius: 1rem !important; }
-    #SDImageInfo-SendButton > :nth-child(2) { border-top-right-radius: 1rem !important; }
-    #SDImageInfo-SendButton > :nth-child(3) { border-bottom-left-radius: 1rem !important; }
-    #SDImageInfo-SendButton > :nth-child(4) { border-bottom-right-radius: 1rem !important; }
+    #SDImageInfo-SendButton button {
+      border-radius: 0 !important;
+    }
 
-    #SDImageInfo-Output-Panel { position: relative; padding: 10px !important; }
+    #SDImageInfo-SendButton > :nth-child(1) {
+      border-top-left-radius: 1rem !important;
+    }
+    #SDImageInfo-SendButton > :nth-child(2) {
+      border-top-right-radius: 1rem !important;
+    }
+    #SDImageInfo-SendButton > :nth-child(3) {
+      border-bottom-left-radius: 1rem !important;
+    }
+    #SDImageInfo-SendButton > :nth-child(4) {
+      border-bottom-right-radius: 1rem !important;
+    }
+
+    #SDImageInfo-Output-Panel {
+      position: relative;
+      padding: 10px !important;
+    }
 
     #SDImageInfo-Output-Panel.sdimageinfo-display-output-panel {
       height: max-content !important;
@@ -196,8 +216,14 @@ function SDImageInfoLoadSetting(Opts) {
       position: relative !important;
     }
 
-    #SDImageInfo-HTML .sdimageinfo-output-title { background: var(--input-background-fill); filter: unset !important; }
-    #SDImageInfo-HTML .sdimageinfo-output-wrapper { background: var(--input-background-fill) !important; filter: unset !important; }
+    #SDImageInfo-HTML .sdimageinfo-output-title {
+      background: var(--input-background-fill);
+      filter: unset !important;
+    }
+    #SDImageInfo-HTML .sdimageinfo-output-wrapper {
+      background: var(--input-background-fill) !important;
+      filter: unset !important;
+    }
     #SDImageInfo-HTML .sdimageinfo-output-failed {
       position: relative !important;
       margin-top: 5px !important;
@@ -221,6 +247,7 @@ function SDImageInfoLoadSetting(Opts) {
   );
 
   !Opts && document.querySelector('#tab_settings #settings_submit')?.click();
+  window.SDImageInfoStyle = style;
 }
 
 function SDImageInfoArrowScroll(arrow) {
@@ -230,9 +257,7 @@ function SDImageInfoArrowScroll(arrow) {
     const column = document.getElementById('SDImageInfo-Column'),
     panel = document.getElementById('SDImageInfo-Output-Panel');
     if (!column?.classList.contains('sdimageinfo-column-overflow')) return null;
-    return panel && panel.scrollHeight > panel.clientHeight
-      ? panel : column.scrollHeight > column.clientHeight
-        ? column : null;
+    return (panel && panel.scrollHeight > panel.clientHeight) ? panel : column;
   };
 
   arrow.onclick = () => {

@@ -271,13 +271,13 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-HTML {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem !important;
+  gap: 1rem !important;
   overflow-wrap: break-word;
   position: relative;
   height: 100%;
   max-width: 100%;
   border-radius: .8rem !important;
-  margin-top: 220px;
+  margin-top: 190px;
   padding: 20px !important;
   padding-top: 0 !important;
   pointer-events: none;
@@ -420,6 +420,7 @@ body.sdimageinfo-body-dont-scroll {
   height: 80px;
   width: 100%;
   margin: 0;
+  margin-bottom: 10px;
 }
 
 #SDImageInfo-Spinner {
@@ -427,16 +428,16 @@ body.sdimageinfo-body-dont-scroll {
   align-items: center;
   justify-content: center;
   position: relative;
-  height: 90px;
-  width: 90px;
+  height: 80px;
+  width: 80px;
   margin: 0;
   padding: 0;
   animation: sdimginfo-spinner 1.5s linear infinite;
 }
 
 #SDImageInfo-Spinner > svg {
-  height: 90px;
-  width: 90px;
+  height: 100%;
+  width: 100%;
   filter: drop-shadow(0 0 2px rgb(0 0 0 / 90%)) drop-shadow(0 0 10px rgb(0 0 0 / 60%)) drop-shadow(0 0 1px var(--primary-400));
 }
 

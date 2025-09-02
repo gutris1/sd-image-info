@@ -1,11 +1,19 @@
 :root {
   --output-text-color: #fff;
   --sdimginfo-arrow-background: rgb(224 224 224 / 90%);
+  --sdimginfo-viewer-background: rgb(200 200 200 / 80%);
 }
 
 .dark {
   --output-text-color: var(--body-text-color);
   --sdimginfo-arrow-background: rgb(32 32 32 / 90%);
+  --sdimginfo-viewer-background: rgb(0 0 0 / 80%);
+}
+
+@media (max-width: 768px) {
+  #tab_SDImageInfo * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 body.sdimageinfo-body-dont-scroll {
@@ -100,17 +108,18 @@ body.sdimageinfo-body-dont-scroll {
   top: 20px;
   height: unset !important;
   width: min(320px, 100%);
-  border: 1px solid var(--primary-400) !important;
+  border: 0 !important;
   border-radius: 1rem !important;
-  box-shadow: inset 0 0 15px 0 var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
+  box-shadow: inset 0 0 15px 0 var(--primary-400), var(--a) !important;
   filter: drop-shadow(0 0 4px var(--primary-400));
   background: transparent;
   overflow: hidden !important;
   transition: box-shadow 0.3s ease;
+  --a: 0 0 1px 1px var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
 }
 
 #SDImageInfo-Image:not(.sdimginfo-style):hover {
-  box-shadow: inset 0 0 3px 0 var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
+  box-shadow: inset 0 0 6px 0 var(--primary-400), var(--a) !important;
 }
 
 #SDImageInfo-Image > .image-container {
@@ -169,7 +178,6 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-Image.sdimginfo-style {
   height: 100% !important;
   width: 100% !important;
-  border: 0 !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   filter: none !important;
@@ -468,7 +476,7 @@ body.sdimageinfo-body-dont-scroll {
   width: 100%;
   height: 100%;
   opacity: 0;
-  background-color: rgb(0 0 0 / 80%);
+  background-color: var(--sdimginfo-viewer-background);
   backdrop-filter: blur(7px);
   transition: opacity .2s ease;
   overflow: hidden;
@@ -501,6 +509,10 @@ body.sdimageinfo-body-dont-scroll {
   gap: 0;
   transform: translate(0px, 0px) scale(1.2);
   transition: transform .2s ease-out;
+}
+
+#SDImageInfo-Image-Viewer-Wrapper.sdimginfo-style {
+  transform: translate(0px, 0px) scale(1);
 }
 
 #SDImageInfo-Image-Viewer-img {
@@ -584,8 +596,8 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-Gear-Button {
   position: fixed;
   z-index: 2;
-  top: -1px;
-  left: -1px;
+  top: 0;
+  left: 0;
   border-bottom-right-radius: 1.2rem;
   transition: filter .2s ease, color .2s ease, background-color .2s ease, box-shadow .3s ease;
 }

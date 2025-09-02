@@ -96,11 +96,8 @@ function SDImageInfoLoadSetting(Opts) {
     }
 
     #SDImageInfo-Image.${sdimginfoS} {
-      border-style: solid !important;
       min-width: 100% !important;
-      border-width: var(--block-border-width) !important;
       min-height: 100% !important;
-      border: 0 !important;
       border-radius: 1rem !important;
       box-shadow: 0 0 4px 0 #000, 0 0 1px 1px var(--background-fill-primary) !important;
     }
@@ -117,7 +114,7 @@ function SDImageInfoLoadSetting(Opts) {
       position: absolute !important;
       max-width: 100% !important;
       max-height: 100% !important;
-      border-radius: 1.2rem !important;
+      border-radius: 1.1rem !important;
     }
 
     #SDImageInfo-Gear-Button,
@@ -126,8 +123,6 @@ function SDImageInfoLoadSetting(Opts) {
     }
 
     #SDImageInfo-Gear-Button {
-      top: -1px !important;
-      left: -1px !important;
       right: unset !important;
       border-radius: 0 !important;
       border-bottom-right-radius: 1.2rem !important;
@@ -135,7 +130,6 @@ function SDImageInfoLoadSetting(Opts) {
     }
 
     #SDImageInfo-Image.${sdimginfoS} #SDImageInfo-Gear-Button {
-      top: 0 !important;
       left: 0 !important;
       border-top-left-radius: 1rem !important;
     }

@@ -8,10 +8,14 @@ onUiLoaded(() => {
     sendButton?.querySelectorAll('button').forEach(btn => btn.onclick = () => SDImageInfoSendButton(btn.id));
 
     window.SDImageInfoClearImage = () => {
-      const gradio3 = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
-      gradio4 = document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
-      btn = gradio3 || gradio4;
-      btn && (btn.click(), window.SDImageInfoRawOutput = '');
+      const gr3 = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
+      gr4 = document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
+      btn = gr3 || gr4;
+      btn && (
+        btn.click(),
+        window.SDImageInfoRawOutput = '',
+        document.removeEventListener('keydown', window.SDimageInfoKeydown)
+      );
     };
 
     const column = document.getElementById('SDImageInfo-Column'),
@@ -86,7 +90,7 @@ onUiLoaded(() => {
       })
     );
 
-    document.addEventListener('keydown', (e) => {
+    window.SDimageInfoKeydown = function(e) {
       const Tab = document.getElementById('tab_SDImageInfo'),
       LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
       column = document.getElementById('SDImageInfo-Column'),
@@ -95,16 +99,17 @@ onUiLoaded(() => {
       if (Tab?.style.display !== 'block') return;
 
       const img = document.querySelector('#SDImageInfo-Image img');
+
       if (e.key === 'Escape') {
         e.preventDefault();
-        if (LightBox?.style.display === 'flex') return window.SDImageInfoImageViewerExit();
+        if (LightBox?.style.display === 'flex') return;
         if (img) window.SDImageInfoClearImage();
       }
 
       const el = window.SDImageInfoStyle === 'side by side' ? panel : column,
       Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? el.scrollHeight : null;
       if (Scroll !== null) { e.preventDefault(); el.scrollTo({ top: Scroll, behavior: 'smooth' }); }
-    });
+    };
 
     typeof SDHubGetTranslation === 'function' && SDImageInfoTranslate();
     window.addEventListener('resize', SDImageInfoTabLayout);
@@ -112,193 +117,47 @@ onUiLoaded(() => {
   }
 });
 
-async function SDImageInfoParser() {
-  const Tab = document.getElementById('tab_SDImageInfo'),
-  RawOutput = document.querySelector('#SDImageInfo-Geninfo textarea'),
-  Column = document.getElementById('SDImageInfo-Column'),
-  HTMLPanel = document.getElementById('SDImageInfo-HTML'),
-  ImagePanel = document.getElementById('SDImageInfo-Image'),
-  img = ImagePanel.querySelector('img'),
-  gear = document.getElementById('SDImageInfo-Gear-Button');
+function SDImageInfoImageViewer(img) {
+  const LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
+  Control = LightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
+  Wrapper = LightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
 
-  if (!img) {
-    window.SharedParserPostProcessingInfo = window.SharedParserExtrasInfo = '';
-    HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
-    [Tab, Column, ImagePanel, gear].forEach(el => el.classList.remove(sdimginfoS));
-    setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
-    return;
-  }
+  noScroll = 'sdimageinfo-body-dont-scroll',
+  pointer = 'sdimageinfo-pointer-events-none',
+  imgId = 'SDImageInfo-Image-Viewer-img';
 
-  [Tab, Column, ImagePanel, gear].forEach(el => el.classList.add(sdimginfoS));
-  setTimeout(() => gear.classList.remove(sdimginfoS), 1200);
-  img.onclick = () => SDImageInfoImageViewer(img);
-  img.onload = () => img.style.opacity = '1';
+  LightBox.style.display = 'flex';
+  LightBox.focus();
 
-  const output = await SharedImageParser(img, true);
-  window.SDImageInfoRawOutput = RawOutput.value = output;
-  updateInput(RawOutput);
-  HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML(output);
-  setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
-}
+  document.getElementById(imgId)?.remove();
+  const imgEL = SDImgInfoEL('img', { id: imgId, src: img.src });
+  Wrapper.prepend(imgEL);
 
-async function SDImageInfoPlainTextToHTML(inputs) {
-  const { SharedParserExtrasInfo: ExtrasInfo, SharedParserPostProcessingInfo: PostProcessingInfo,
-          SharedParserEncryptInfo: EncryptInfo, SharedParserSha256Info: Sha256Info, SharedParserNaiSourceInfo: NaiSourceInfo,
-        } = window,
+  setTimeout(() => requestAnimationFrame(() => {
+    LightBox.classList.add(sdimginfoS);
+    setTimeout(() => Wrapper.classList.add(sdimginfoS), 50);
+  }, 100));
 
-  Column = document.getElementById('SDImageInfo-Column'),
-  SendButton = document.getElementById('SDImageInfo-SendButton'),
-  OutputPanel = document.getElementById('SDImageInfo-Output-Panel'),
+  setTimeout(() => {
+    LightBox.onkeydown = (e) => {
+      if (e.key === 'Escape') window.SDImageInfoImageViewerExit();
+    };
+  }, 400);
 
-  columnOverflow = 'sdimageinfo-column-overflow',
-  outputDisplay = 'sdimageinfo-display-output-panel',
-  outputFail = 'sdimageinfo-display-output-fail',
-
-  createTitle = (id, label, copyBtn = false, fl = '', ft = '') => {
-    const L = SDImageInfoTranslation(label, fl),
-    C = copyBtn ? SDImageInfoTranslation(`copy_${label}`, ft) : ft,
-
-    att = [
-      copyBtn && `id='SDImageInfo-${id}-Button'`,
-      `class='sdimageinfo-output-title${copyBtn ? ' sdimageinfo-copybutton' : ''}'`,
-      copyBtn && `title='${C}'`,
-      copyBtn && `onclick='SDImageInfoCopyButtonEvent(event)'`
-    ].filter(Boolean).join(' ');
-
-    return `<div ${att}>${L}</div>`;
+  const closing = () => {
+    LightBox.onkeydown = null;
+    document.body.classList.remove(noScroll);
+    Wrapper.classList.remove(sdimginfoS);
   },
 
-  titles = {
-    prompt: createTitle('Prompt', 'prompt', true, 'Prompt', 'Copy Prompt'),
-    negativePrompt: createTitle('NegativePrompt', 'negative_prompt', true, 'Negative Prompt', 'Copy Negative Prompt'),
-    params: createTitle('Params', 'parameters', true, 'Parameters', 'Copy Parameters'),
-    postProcessing: createTitle('PostProcessing', 'post_processing', false, 'Post Processing'),
-    encrypt: createTitle('Encrypt', 'encrypt', false, 'Encrypt'),
-    sha: createTitle('Sha256', 'encryptpwdsha', false, 'EncryptPwdSha'),
-    software: createTitle('Software', 'software', false, 'Software'),
-    source: createTitle('Source', 'source', false, 'Source'),
-    models: ''
-  },
+  imageViewer = SharedImageViewer(imgEL, LightBox, {
+    zoomStart: () => Control.classList.add(pointer),
+    zoomEnd: () => Control.classList.remove(pointer),
+    exitStart: () => LightBox.classList.remove(sdimginfoS),
+    exitEnd: closing
+  });
 
-  createSection = (title, content) => {
-    if (!content?.trim()) return '';
-    const empty = title === 'nothing', model = title === titles.models, wrapper = !empty && !model,
-    text = wrapper ? `<div class='sdimageinfo-output-wrapper'><div class='sdimageinfo-output-content'>${content}</div></div>` : content,
-    extra = model ? ' sdimageinfo-output-models-section' : '';
-    return `<div class='sdimageinfo-output-section${extra}'${empty ? " style='height: 100%'" : ''}>${empty ? '' : title}${text}</div>`;
-  };
-
-  if (!inputs?.trim() && !(window.SharedParserExtrasInfo?.trim() || window.SharedParserPostProcessingInfo?.trim())) {
-    Column.classList.remove(columnOverflow);
-    OutputPanel.classList.remove(outputDisplay, outputFail);
-    SendButton.classList.remove(outputDisplay);
-    return '';
-  }
-
-  Column.classList.add(columnOverflow);
-  OutputPanel.classList.add(outputDisplay);
-
-  if (inputs.trim().includes('Nothing To See Here') || inputs.trim().includes('Nothing To Read Here')) {
-    OutputPanel.classList.add(outputFail);
-    SendButton.classList.remove(outputDisplay);
-    const failContent = `<div class='sdimageinfo-output-failed' style='position: absolute; bottom: 0;'>${inputs}</div>`;
-    return createSection('nothing', failContent);
-  }
-
-  if (inputs.trim().startsWith('OPPAI:')) {
-    let output = '';
-    if (EncryptInfo?.trim()) output += createSection(titles.encrypt, EncryptInfo);
-    if (Sha256Info?.trim()) output += createSection(titles.sha, Sha256Info);
-    output += createSection('', inputs);
-    return output;
-  }
-
-  SendButton.classList.add(outputDisplay);
-
-  let text = inputs
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>').replace(/Seed:\s?(\d+),/gi, (_, seedNumber) => 
-      `<span id='SDImageInfo-Seed-Button' title='${SDImageInfoTranslation("copy_seed", "Copy Seed")}' onclick='SDImageInfoCopyButtonEvent(event)'>Seed</span>: ${seedNumber},`
-    );
-
-  let modelOutput = `<div id='SDImageInfo-Spinner-Wrapper'><div id='SDImageInfo-Spinner'>${SDImageInfoSpinnerSVG}</div></div>`;
-  const { prompt, negativePrompt, params, paramsRAW } = SharedPromptParser(text);
-
-  if (paramsRAW) {
-    setTimeout(async () => {
-      const modelsBox = OutputPanel.querySelector('.sdimageinfo-output-models-section');
-      if (modelsBox) {
-        try {
-          const links = await SharedModelsFetch(paramsRAW);
-          if (!links?.trim()) return modelsBox.remove();
-
-          modelsBox.innerHTML = links;
-        } catch {
-          modelsBox.innerHTML = '<div class="sdimageinfo-output-failed">Failed to fetch...</div>';
-        }
-        setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
-      }
-    }, 500);
-  }
-
-  const sections = [
-    [titles.prompt, prompt], [titles.negativePrompt, negativePrompt], [titles.params, params], [titles.models, modelOutput],
-    [titles.postProcessing, ExtrasInfo], [titles.postProcessing, PostProcessingInfo], [titles.software, window.SharedParserSoftwareInfo],
-    [titles.encrypt, EncryptInfo], [titles.sha, Sha256Info], [titles.source, NaiSourceInfo]
-  ];
-
-  return sections.filter(([_, content]) => content?.trim()).map(([title, content]) => createSection(title, content)).join('');
-}
-
-function SDImageInfoCopyButtonEvent(e) {
-  const OutputRaw = window.SDImageInfoRawOutput,
-
-  CopyText = (text, target) => {
-    const content = target.closest('.sdimageinfo-output-section')?.querySelector('.sdimageinfo-output-content');
-    content?.classList.add('sdimageinfo-borderpulse');
-    setTimeout(() => content?.classList.remove('sdimageinfo-borderpulse'), 2000);
-    navigator.clipboard.writeText(text);
-  };
-
-  if (e.target?.id) {
-    const { id } = e.target,
-
-    stepsStart = OutputRaw.indexOf('Steps:'),
-    negStart = OutputRaw.indexOf('Negative prompt:'),
-    seedMatch = OutputRaw.match(/Seed:\s?(\d+),/i),
-
-    text = {
-      'SDImageInfo-Prompt-Button': () => OutputRaw.substring(0, [negStart, stepsStart].find(i => i !== -1) || OutputRaw.length).trim(),
-      'SDImageInfo-NegativePrompt-Button': () => negStart !== -1 && stepsStart > negStart ? OutputRaw.slice(negStart + 16, stepsStart).trim() : null,
-      'SDImageInfo-Params-Button': () => stepsStart !== -1 ? OutputRaw.slice(stepsStart).trim() : null,
-      'SDImageInfo-Seed-Button': () => seedMatch?.[1]?.trim() || null
-    }[id]?.();
-
-    text && CopyText(text, e.target);
-  }
-}
-
-function SDImageInfoSendButton(id) {
-  const OutputRaw = window.SDImageInfoRawOutput,
-
-  ADetailer = (id) => {
-    const i = `script_${id.replace('_tab', '')}_adetailer_ad_main_accordion-visible-checkbox`,
-    cb = document.getElementById(i);
-    if (cb && !cb.checked) cb.click();
-  },
-
-  mahiro = (id) => {
-    const i = `#${id.replace('_tab', '')}_script_container span`,
-    cb = Array.from(document.querySelectorAll(i)).find(s => s.textContent.trim() === 'Enable Mahiro CFG')?.previousElementSibling;
-    if (cb && !cb.checked) cb.click();
-  };
-
-  if (['txt2img_tab', 'img2img_tab'].includes(id)) {
-    if (OutputRaw?.includes('ADetailer model')) ADetailer(id);
-    if (OutputRaw?.includes('mahiro_cfg_enabled: True')) mahiro(id);
-  }
-
-  if (document.querySelector('.gradio-container-4-40-0') && id.includes('extras_tab'))
-    setTimeout(() => document.getElementById('tab_extras-button').click(), 500);
+  window.SDImageInfoImageViewerExit = imageViewer.state.close;
 }
 
 const SDImageInfoTranslation = (k, f) => {
@@ -385,43 +244,27 @@ function SDImageInfoTabChange() {
   );
 }
 
-function SDImageInfoImageViewer(img) {
-  const LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
-  Control = LightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
-  Wrapper = LightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
-
-  scroll = 'sdimageinfo-body-dont-scroll',
-  pointer = 'sdimageinfo-pointer-events-none',
-  imgId = 'SDImageInfo-Image-Viewer-img';
-
-  LightBox.style.display = 'flex';
-  LightBox.focus();
-
-  document.getElementById(imgId)?.remove();
-  const imgEL = SDImgInfoEL('img', { id: imgId, src: img.src });
-  Wrapper.prepend(imgEL);
-
-  requestAnimationFrame(() => setTimeout(() => {
-    LightBox.classList.add(sdimginfoS);
-    setTimeout(() => Wrapper.style.transform = 'translate(0px, 0px) scale(1)', 50);
-  }, 50));
-
-  const imageViewer = SharedImageViewer(imgEL, LightBox, Control, Wrapper, {
-    noScroll: scroll, noPointer: pointer,
-    onLightboxClose: () => LightBox.classList.remove(sdimginfoS)
-  });
-
-  window.SDImageInfoImageViewerExit = imageViewer.state.close;
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   window.getRunningScript = () => new Error().stack.match(/file=[^ \n]*\.js/)?.[0];
   const path = getRunningScript()?.match(/file=[^\/]+\/[^\/]+\//)?.[0];
   if (path) window.SDImageInfoFilePath = path;
 
+  const css = `
+    :root {
+      --sdimginfo-viewer-background: rgb(200 200 200 / 90%) !important;
+    }
+
+    .dark {
+      --sdimginfo-viewer-background: rgb(0 0 0 / 90%) !important;
+    }
+
+    #SDImageInfo-Image-Viewer {
+      backdrop-filter: none !important;
+    }
+  `;
+
   if (/firefox/i.test(navigator.userAgent)) {
-    const bg = SDImgInfoEL('style', { id: id, html: `#SDImageInfo-Image-Viewer { backdrop-filter: none !important; }` });
-    document.body.append(bg);
+    document.body.append(SDImgInfoEL('style', { id: 'SDImageInfo-Styles', html: css }));
   }
 });
 

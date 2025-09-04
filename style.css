@@ -322,19 +322,17 @@ body.sdimageinfo-body-dont-scroll {
   padding: 4px 10px;
   background: var(--input-background-fill);
   pointer-events: auto;
-  transition: 0.4s ease;
+  transition: .2s ease;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-copybutton {
   cursor: pointer;
-  transition: 0.4s ease;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-copybutton:hover {
   color: var(--background-fill-primary);
   background: var(--primary-400);
-  box-shadow: 0 0 5px 1px var(--primary-400);
-  filter: drop-shadow(0 0 9px var(--primary-400));
+  box-shadow: 0 0 10px 0px var(--primary-400);
 }
 
 #SDImageInfo-Seed-Button {
@@ -351,20 +349,44 @@ body.sdimageinfo-body-dont-scroll {
   position: relative;
   z-index: 1;
   border: 0;
-  border-radius: 0 0.5rem 0.5rem 0.5rem;
+  border-radius: 0 .5rem .5rem .5rem;
   background: var(--input-background-fill);
   pointer-events: auto;
-  transition: 0.4s ease;
+  transition: .4s ease;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-content {
   line-height: 1.7;
   margin: 0;
   padding: 5px 8px;
-  border: 1px solid transparent;
+  border: 0;
   cursor: default;
-  border-radius: 0 0.5rem 0.5rem 0.5rem;
-  transition: 0.3s ease;
+  border-radius: 0 .5rem .5rem .5rem;
+  transition: .3s ease;
+}
+
+#SDImageInfo-Output-Panel .sdimageinfo-output-content.sdimginfo-style {
+  --a: inset 0 0 0 0 transparent !important;
+  --b: inset 0 0 1px 1px var(--primary-400) !important;
+  animation: sdimginfo-pulseBorder 2s infinite alternate forwards;
+}
+
+@keyframes sdimginfo-pulseBorder {
+  0% {
+    box-shadow: var(--a), var(--a);
+  }
+  25% {
+    box-shadow: var(--b), inset 0 0 15px 2px var(--primary-400);
+  }
+  50% {
+    box-shadow: var(--b), inset 0 0 3px 1px var(--primary-400);
+  }
+  75% {
+    box-shadow: var(--b), inset 0 0 15px 2px var(--primary-400);
+  }
+  100% {
+    box-shadow: var(--a), var(--a);
+  }
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-display-model-output {
@@ -377,33 +399,6 @@ body.sdimageinfo-body-dont-scroll {
   }
   100% {
     opacity: 1;
-  }
-}
-
-.sdimageinfo-borderpulse {
-  animation: pulseBorder 2s infinite alternate forwards;
-}
-
-@keyframes pulseBorder {
-  0% {
-    border-color: transparent;
-    box-shadow: inset 0 0 0 0 transparent;
-  }
-  25% {
-    border-color: var(--primary-400);
-    box-shadow: inset 0 0 15px 2px var(--primary-400)
-  }
-  50% {
-    border-color: var(--primary-400);
-    box-shadow: inset 0 0 3px 1px var(--primary-400)
-  }
-  75% {
-    border-color: var(--primary-400);
-    box-shadow: inset 0 0 15px 2px var(--primary-400)
-  }
-  100% {
-    border-color: transparent;
-    box-shadow: inset 0 0 0 0 transparent;
   }
 }
 

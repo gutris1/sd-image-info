@@ -210,27 +210,43 @@ function SDImageInfoLoadSetting(Opts) {
       position: relative !important;
     }
 
-    #SDImageInfo-HTML .sdimageinfo-output-title {
-      background: var(--input-background-fill);
-      filter: unset !important;
-    }
-    #SDImageInfo-HTML .sdimageinfo-output-wrapper {
-      background: var(--input-background-fill) !important;
-      filter: unset !important;
-    }
     #SDImageInfo-HTML .sdimageinfo-output-failed {
       position: relative !important;
       margin-top: 5px !important;
       bottom: unset !important;
     }
 
+    #SDImageInfo-HTML #SD-Image-Parser-Model-Output .sd-image-parser-modeloutput-hashes {
+      backdrop-filter: none !important;
+    }
+
     @media (max-width: 600px) {
-      #SDImageInfo-Column { overflow-y: auto !important; filter: unset; }
-      #SDImageInfo-Column > .form { overflow: visible !important; }
-      #SDImageInfo-Image-Column { padding: 10px !important; height: 70% !important; }
-      #SDImageInfo-Frame {  display: none; }
-      #SDImageInfo-SendButton { padding: 15px !important; }
-      #SDImageInfo-Output-Panel { max-height: max-content !important; overflow: visible !important; }
+      #SDImageInfo-Column {
+        overflow-y: auto !important;
+        filter: unset;
+      }
+
+      #SDImageInfo-Column > .form {
+        overflow: visible !important;
+      }
+
+      #SDImageInfo-Image-Column {
+        padding: 10px !important;
+        height: 70% !important;
+      }
+
+      #SDImageInfo-Frame {
+        display: none;
+      }
+
+      #SDImageInfo-SendButton {
+        padding: 15px !important;
+      }
+
+      #SDImageInfo-Output-Panel {
+        max-height: max-content !important;
+        overflow: visible !important;
+      }
     }
   `;
 

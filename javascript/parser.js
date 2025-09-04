@@ -140,25 +140,25 @@ async function SDImageInfoPlainTextToHTML(inputs) {
 function SDImageInfoCopyButtonEvent(e) {
   const OutputRaw = window.SDImageInfoRawOutput,
 
-  CopyText = (text, target) => {
-    const content = target.closest('.sdimageinfo-output-section')?.querySelector('.sdimageinfo-output-content');
-    content?.classList.add('sdimageinfo-borderpulse');
-    setTimeout(() => content?.classList.remove('sdimageinfo-borderpulse'), 2000);
+  CopyText = (text, btn) => {
     navigator.clipboard.writeText(text);
+    const box = btn.parentElement.querySelector('.sdimageinfo-output-content');
+    box?.classList.add(sdimginfoS);
+    setTimeout(() => box?.classList.remove(sdimginfoS), 2000);
   };
 
   if (e.target?.id) {
     const { id } = e.target,
 
-    stepsStart = OutputRaw.indexOf('Steps:'),
-    negStart = OutputRaw.indexOf('Negative prompt:'),
-    seedMatch = OutputRaw.match(/Seed:\s?(\d+),/i),
+    steps = OutputRaw.indexOf('Steps:'),
+    neg = OutputRaw.indexOf('Negative prompt:'),
+    seed = OutputRaw.match(/Seed:\s?(\d+),/i),
 
     text = {
-      'SDImageInfo-Prompt-Button': () => OutputRaw.substring(0, [negStart, stepsStart].find(i => i !== -1) || OutputRaw.length).trim(),
-      'SDImageInfo-NegativePrompt-Button': () => negStart !== -1 && stepsStart > negStart ? OutputRaw.slice(negStart + 16, stepsStart).trim() : null,
-      'SDImageInfo-Params-Button': () => stepsStart !== -1 ? OutputRaw.slice(stepsStart).trim() : null,
-      'SDImageInfo-Seed-Button': () => seedMatch?.[1]?.trim() || null
+      'SDImageInfo-Prompt-Button': () => OutputRaw.substring(0, [neg, steps].find(i => i !== -1) || OutputRaw.length).trim(),
+      'SDImageInfo-NegativePrompt-Button': () => neg !== -1 && steps > neg ? OutputRaw.slice(neg + 16, steps).trim() : null,
+      'SDImageInfo-Params-Button': () => steps !== -1 ? OutputRaw.slice(steps).trim() : null,
+      'SDImageInfo-Seed-Button': () => seed?.[1]?.trim() || null
     }[id]?.();
 
     text && CopyText(text, e.target);

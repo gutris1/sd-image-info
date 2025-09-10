@@ -659,10 +659,11 @@ body.sdimageinfo-body-dont-scroll {
 
 #SDImageInfo-Clear-Button > svg,
 #SDImageInfo-Image-Viewer-Exit-Button > svg {
+  --a: drop-shadow(0 0 1px rgb(0 0 0 / 50%)) !important;
   position: relative;
   top: -1px;
   right: -1px;
-  filter: drop-shadow(0 0 1px rgb(0 0 0 / 50%)) drop-shadow(0 0 1px rgb(0 0 0 / 50%)) drop-shadow(0 0 1px rgb(0 0 0 / 50%));
+  filter: var(--a) var(--a) var(--a);
 }
 
 #SDImageInfo-Clear-Button:hover,

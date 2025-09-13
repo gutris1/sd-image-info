@@ -21,7 +21,7 @@ async function SDImageInfoCreateSetting() {
       title: 'apply the style immediately',
       onclick: () => SDImageInfoLoadSetting()
     }),
-    applyWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Button-Wrapper', children: applyButton }),
+    applyWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Button-Wrapper', append: applyButton }),
 
     preview1 = SDImgInfoEL('img', {
       id: 'SDImageInfo-Setting-Preview-1',
@@ -33,7 +33,7 @@ async function SDImageInfoCreateSetting() {
       class: 'sdimageinfo-setting-preview',
       src: `${window.SDImageInfoFilePath}example/sidebyside.jpg?ts=${Date.now()}`
     }),
-    previewWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Preview-Wrapper', children: [preview1, preview2] });
+    previewWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Preview-Wrapper', append: [preview1, preview2] });
 
     settingColumn.prepend(previewWrap);
     settingColumn.append(applyWrap);

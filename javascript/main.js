@@ -30,7 +30,7 @@ onUiLoaded(() => {
     }),
 
     imgFrame = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Frame' }),
-    customWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Custom-Wrapper', children: [imgFrame, clearButton] }),
+    customWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Custom-Wrapper', append: [imgFrame, clearButton] }),
     frame = SDImgInfoEL('div', { id: 'SDImageInfo-Frame' }),
 
     gearButton = SDImgInfoEL('div', {
@@ -274,7 +274,7 @@ function SDImgInfoEL(t, o = {}) {
     else if (k === 'style' && typeof v === 'object') Object.assign(l.style, v);
     else if (k === 'html') l.innerHTML = v;
     else if (k === 'text') l.textContent = v;
-    else if (k === 'children') (Array.isArray(v) ? v : [v]).forEach(child => l.appendChild(child));
+    else if (k === 'append') l.append(...(Array.isArray(v) ? v : [v]));
     else if (k === 'dataset') Object.assign(l.dataset, v);
     else if (k in l) l[k] = v;
     else l.setAttribute(k, v);

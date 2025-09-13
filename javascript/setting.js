@@ -220,6 +220,10 @@ function SDImageInfoLoadSetting(Opts) {
       backdrop-filter: none !important;
     }
 
+    #SDImageInfo-HTML #SD-Image-Parser-Model-Output .sd-image-parser-modeloutput-hashes:hover {
+      background: var(--sd-img-parser-modeloutput-background) !important;
+    }
+
     @media (max-width: 600px) {
       #SDImageInfo-Column {
         overflow-y: auto !important;

@@ -100,6 +100,7 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-Image {
+  --a: 0 0 1px 1px var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
   display: flex;
   flex: 1 1 0%;
   align-self: center;
@@ -115,7 +116,6 @@ body.sdimageinfo-body-dont-scroll {
   background: transparent;
   overflow: hidden !important;
   transition: box-shadow 0.3s ease;
-  --a: 0 0 1px 1px var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
 }
 
 #SDImageInfo-Image:not(.sdimginfo-style):hover {
@@ -218,6 +218,10 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-SendButton button {
+  --a: #000 !important;
+  --b: var(--background-fill-secondary) !important;
+  --c: 0 0 5px 1px var(--a) !important;
+  --d: 0 0 1px 1px var(--b) !important;
   white-space: nowrap;
   position: relative;
   padding: 5px 20px;
@@ -228,10 +232,6 @@ body.sdimageinfo-body-dont-scroll {
   background: var(--input-background-fill);
   transition: .2s ease;
   outline: none;
-  --a: #000 !important;
-  --b: var(--background-fill-secondary) !important;
-  --c: 0 0 5px 1px var(--a) !important;
-  --d: 0 0 1px 1px var(--b) !important;
 }
 
 #SDImageInfo-SendButton button:hover {
@@ -483,15 +483,23 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-Image-Viewer-Control {
+  display: flex;
+  position: absolute;
+  top: 0;
   z-index: 1;
   height: 100%;
   width: 100%;
-  pointer-events: none;
-  top: 0;
-  display: flex;
-  position: absolute;
   opacity: 1;
   transition: .2s;
+  pointer-events: none;
+}
+
+#SDImageInfo-Image-Viewer-Control.sdimginfo-style {
+  opacity: 0;
+}
+
+#SDImageInfo-Image-Viewer-Control.sdimginfo-style * {
+  pointer-events: none !important;
 }
 
 #SDImageInfo-Image-Viewer-Wrapper {
@@ -525,14 +533,6 @@ body.sdimageinfo-body-dont-scroll {
   background-color: #212121;
   transform: translate(0px, 0px) scale(1.0001);
   transition: transform .2s ease-out;
-}
-
-#SDImageInfo-Image-Viewer-Control.sdimageinfo-pointer-events-none {
-  opacity: 0;
-}
-
-.sdimageinfo-pointer-events-none * {
-  pointer-events: none !important;
 }
 
 /* ############################################################################################################ */

@@ -1,4 +1,4 @@
-let sdimginfoS = 'sdimginfo-style';
+const sdimginfoS = 'sdimginfo-style';
 
 onUiLoaded(() => {
   if (document.getElementById('tab_SDImageInfo')) {
@@ -54,16 +54,16 @@ onUiLoaded(() => {
 
     document.getElementById('SDImageInfo-HTML')?.classList.add('prose');
 
-    const LightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0 }),
-    Control = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Control' }),
+    const lightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0 }),
+    controls = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Control' }),
     exitButton = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Exit-Button', html: SDImageInfoCrossSVG, onclick: window.SDImageInfoImageViewerExit }),
-    Wrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' });
-    Control.prepend(exitButton), LightBox.append(Control, Wrapper), document.body.append(LightBox);
+    imgWrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' });
+    controls.prepend(exitButton), lightBox.append(controls, imgWrapper), document.body.append(lightBox);
 
     ['drop', 'dragover'].forEach(t =>
       document.addEventListener(t, e => {
         const Tab = document.getElementById('tab_SDImageInfo'),
-        LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
+        lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
         column = document.getElementById('SDImageInfo-Column'),
         form = column.querySelector('.form'),
         imgColumn = document.getElementById('SDImageInfo-Image-Column'),
@@ -71,7 +71,7 @@ onUiLoaded(() => {
         panel = document.getElementById('SDImageInfo-Output-Panel'),
         imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
 
-        if (Tab?.style.display !== 'block' || LightBox?.style.display === 'flex') return;
+        if (Tab?.style.display !== 'block' || lightBox?.style.display === 'flex') return;
 
         const el =
           e.target?.id === column?.id || e.target?.id === form?.id || e.target?.id === imgColumn?.id || 
@@ -92,7 +92,7 @@ onUiLoaded(() => {
 
     window.SDimageInfoKeydown = function(e) {
       const Tab = document.getElementById('tab_SDImageInfo'),
-      LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
+      lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
       column = document.getElementById('SDImageInfo-Column'),
       panel = document.getElementById('SDImageInfo-Output-Panel');
 
@@ -102,7 +102,7 @@ onUiLoaded(() => {
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        if (LightBox?.style.display === 'flex') return;
+        if (lightBox?.style.display === 'flex') return;
         if (img) window.SDImageInfoClearImage();
       }
 
@@ -117,47 +117,46 @@ onUiLoaded(() => {
   }
 });
 
-function SDImageInfoImageViewer(img) {
-  const LightBox = document.getElementById('SDImageInfo-Image-Viewer'),
-  Control = LightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
-  Wrapper = LightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
+function SDImageInfoImageViewer(imgEL) {
+  const lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
+  controls = lightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
+  imgWrapper = lightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
 
   noScroll = 'sdimageinfo-body-dont-scroll',
-  pointer = 'sdimageinfo-pointer-events-none',
   imgId = 'SDImageInfo-Image-Viewer-img';
 
-  LightBox.style.display = 'flex';
-  LightBox.focus();
+  lightBox.style.display = 'flex';
+  lightBox.focus();
 
   document.getElementById(imgId)?.remove();
-  const imgEL = SDImgInfoEL('img', { id: imgId, src: img.src });
-  Wrapper.prepend(imgEL);
+  const img = SDImgInfoEL('img', { id: imgId, src: imgEL.src });
+  imgWrapper.prepend(img);
 
   setTimeout(() => requestAnimationFrame(() => {
-    LightBox.classList.add(sdimginfoS);
-    setTimeout(() => Wrapper.classList.add(sdimginfoS), 50);
+    lightBox.classList.add(sdimginfoS);
+    setTimeout(() => imgWrapper.classList.add(sdimginfoS), 50);
   }, 100));
 
   setTimeout(() => {
-    LightBox.onkeydown = (e) => {
+    lightBox.onkeydown = (e) => {
       if (e.key === 'Escape') window.SDImageInfoImageViewerExit();
     };
   }, 400);
 
   const closing = () => {
-    LightBox.onkeydown = null;
+    lightBox.onkeydown = null;
     document.body.classList.remove(noScroll);
-    Wrapper.classList.remove(sdimginfoS);
+    imgWrapper.classList.remove(sdimginfoS);
   },
 
-  imageViewer = SharedImageViewer(imgEL, LightBox, {
-    zoomStart: () => Control.classList.add(pointer),
-    zoomEnd: () => Control.classList.remove(pointer),
-    exitStart: () => LightBox.classList.remove(sdimginfoS),
+  viewer = SharedImageViewer(img, lightBox, {
+    dragStart: () => controls.classList.add(sdimginfoS),
+    dragEnd: () => controls.classList.remove(sdimginfoS),
+    exitStart: () => lightBox.classList.remove(sdimginfoS),
     exitEnd: closing
   });
 
-  window.SDImageInfoImageViewerExit = imageViewer.state.close;
+  window.SDImageInfoImageViewerExit = viewer.state.close;
 }
 
 const SDImageInfoTranslation = (k, f) => {

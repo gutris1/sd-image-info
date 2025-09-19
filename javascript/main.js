@@ -243,28 +243,10 @@ function SDImageInfoTabChange() {
   );
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  window.getRunningScript = () => new Error().stack.match(/file=[^ \n]*\.js/)?.[0];
-  const path = getRunningScript()?.match(/file=[^\/]+\/[^\/]+\//)?.[0];
+document.addEventListener('DOMContentLoaded', () => {
+  const getRunningScript = () => new Error().stack.match(/file=[^ \n]*\.js/)?.[0],
+  path = getRunningScript()?.match(/file=[^\/]+\/[^\/]+\//)?.[0];
   if (path) window.SDImageInfoFilePath = path;
-
-  const css = `
-    :root {
-      --sdimginfo-viewer-background: rgb(200 200 200 / 90%) !important;
-    }
-
-    .dark {
-      --sdimginfo-viewer-background: rgb(0 0 0 / 90%) !important;
-    }
-
-    #SDImageInfo-Image-Viewer {
-      backdrop-filter: none !important;
-    }
-  `;
-
-  if (/firefox/i.test(navigator.userAgent)) {
-    document.body.append(SDImgInfoEL('style', { id: 'SDImageInfo-Styles', html: css }));
-  }
 });
 
 function SDImgInfoEL(t, o = {}) {

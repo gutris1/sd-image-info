@@ -1,13 +1,13 @@
 :root {
   --output-text-color: #fff;
   --sdimginfo-arrow-background: rgb(224 224 224 / 90%);
-  --sdimginfo-viewer-background: rgb(200 200 200 / 90%);
+  --sdimginfo-viewer-background: rgb(200 200 200 / 95%);
 }
 
 .dark {
   --output-text-color: var(--body-text-color);
   --sdimginfo-arrow-background: rgb(32 32 32 / 90%);
-  --sdimginfo-viewer-background: rgb(0 0 0 / 90%);
+  --sdimginfo-viewer-background: rgb(18 18 18 / 95%);
 }
 
 @media (max-width: 768px) {
@@ -420,7 +420,7 @@ body.sdimageinfo-body-dont-scroll {
   align-items: center;
   justify-content: center;
   position: relative;
-  height: 80px;
+  height: 70px;
   width: 100%;
   margin: 0;
   margin-bottom: 10px;
@@ -471,15 +471,15 @@ body.sdimageinfo-body-dont-scroll {
   width: 100%;
   height: 100%;
   opacity: 0;
-  background: var(--sdimginfo-viewer-background) var(--sd-image-scripts-noise);
+  background: var(--sdimginfo-viewer-background);
   background-repeat: repeat;
-  transition: opacity .2s ease;
+  transition: opacity .15s ease;
   overflow: hidden;
 }
 
 #SDImageInfo-Image-Viewer.sdimginfo-style {
   opacity: 1;
-  transition: opacity .25s ease;
+  transition: opacity .2s ease;
 }
 
 #SDImageInfo-Image-Viewer-Control {

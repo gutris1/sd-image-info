@@ -19,7 +19,7 @@ async function SDImageInfoParser() {
 
   [Tab, Column, ImagePanel, gear].forEach(el => el.classList.add(sdimginfoS));
   setTimeout(() => gear.classList.remove(sdimginfoS), 1200);
-  img.onclick = () => SDImageInfoImageViewer(img);
+  img.onclick = () => SDImageInfoDisplayImageViewer(img);
   img.onload = () => img.style.opacity = '1';
 
   const output = await SharedImageParser(img, true);
@@ -106,9 +106,9 @@ async function SDImageInfoPlainTextToHTML(inputs) {
   let text = inputs
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>').replace(/Seed:\s?(\d+),/gi, (_, seedNumber) => 
       `<span id='SDImageInfo-Seed-Button' title='${SDImageInfoTranslation("copy_seed", "Copy Seed")}' onclick='SDImageInfoCopyButtonEvent(event)'>Seed</span>: ${seedNumber},`
-    );
+    ),
 
-  let modelOutput = `<div id='SDImageInfo-Spinner-Wrapper'><div id='SDImageInfo-Spinner'>${SDImageInfoSpinnerSVG}</div></div>`;
+  spinner = `<div id='SDImageInfo-Spinner-Wrapper'><div id='SDImageInfo-Spinner'>${SDImageInfoSVG.spinner()}</div></div>`;
   const { prompt, negativePrompt, params, paramsRAW } = SharedPromptParser(text);
 
   if (paramsRAW) {
@@ -118,18 +118,18 @@ async function SDImageInfoPlainTextToHTML(inputs) {
         try {
           const links = await SharedModelsFetch(paramsRAW);
           if (!links?.trim()) return modelsBox.remove();
-
           modelsBox.innerHTML = links;
         } catch {
           modelsBox.innerHTML = '<div class="sdimageinfo-output-failed">Failed to fetch...</div>';
         }
-        setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
       }
+
+      setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     }, 500);
   }
 
   const sections = [
-    [titles.prompt, prompt], [titles.negativePrompt, negativePrompt], [titles.params, params], [titles.models, modelOutput],
+    [titles.prompt, prompt], [titles.negativePrompt, negativePrompt], [titles.params, params], [titles.models, spinner],
     [titles.postProcessing, ExtrasInfo], [titles.postProcessing, PostProcessingInfo], [titles.software, window.SharedParserSoftwareInfo],
     [titles.encrypt, EncryptInfo], [titles.sha, Sha256Info], [titles.source, NaiSourceInfo]
   ];

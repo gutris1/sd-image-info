@@ -9,7 +9,7 @@ def onSDImageInfoTab():
         with FormRow(equal_height=False, elem_id='SDImageInfo-Column'):
             with FormColumn(variant='compact', scale=3, elem_id='SDImageInfo-Image-Column'):
                 image = gr.Image(elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
-                image.change(fn=None, _js='() => { SDImageInfoParser(); }')
+                image.change(fn=None, _js='() => SDImageInfoParser()')
 
                 with FormRow(variant='compact', elem_id='SDImageInfo-SendButton'):
                     buttons = tempe.create_buttons(['txt2img', 'img2img', 'inpaint', 'extras'])
@@ -28,7 +28,7 @@ def onSDImageInfoTab():
                 )
             )
 
-    return [(sd_image_info, 'Image Info', 'SDImageInfo-Tab')]
+    return [(sd_image_info, 'Image Info', 'SDImageInfo')]
 
 shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', 'SD Image Info'), {
     'sd_image_info_layout': shared.OptionInfo('full width', '', gr.Radio, lambda: {'choices': ['full width', 'side by side']}),

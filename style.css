@@ -1,67 +1,82 @@
 :root {
   --output-text-color: #fff;
+  --sdimginfo-arrow-background: rgb(224 224 224 / 90%);
+  --sdimginfo-viewer-background: rgb(200 200 200 / 95%);
 }
 
 .dark {
   --output-text-color: var(--body-text-color);
+  --sdimginfo-arrow-background: rgb(32 32 32 / 90%);
+  --sdimginfo-viewer-background: rgb(18 18 18 / 95%);
+}
+
+@media (max-width: 768px) {
+  #tab_SDImageInfo * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 body.sdimageinfo-body-dont-scroll {
   overflow: hidden;
 }
 
-#footer.sdimageinfo-tab-block {
+#tabs > .tab-nav.sdimginfo-style {
+  border-color: transparent;
+}
+
+#footer.sdimginfo-style {
   position: fixed;
   bottom: 10px;
   left: 0;
 }
 
-#tab_SDImageInfo-Tab {
-  padding: 0;
+#tab_SDImageInfo {
   box-sizing: border-box;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
   position: fixed;
   left: 0;
   width: 100%;
-  transform: scale(1);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
   background: var(--background-fill-primary);
+  transform: scale(1);
   overflow: auto;
 }
 
-#tab_SDImageInfo-Tab.sdimageinfo-img-enter {
+#tab_SDImageInfo.sdimginfo-style {
   z-index: 1;
 }
 
-#tab_SDImageInfo-Tab > div {
+#tab_SDImageInfo > div {
   height: 100%;
   width: 100%;
   overflow: visible;
 }
 
-#tab_SDImageInfo-Tab > div > .form {
+#tab_SDImageInfo > div > .form {
   height: 100%;
 }
 
 #SDImageInfo-Column {
   display: flex;
-  flex-grow: 10;
-  margin: 0;
-  min-height: max-content;
-  padding: 0 !important;
-  background: var(--input-background-fill-hover) !important;
-  position: fixed;
-  gap: 0 !important;
-  height: 100%;
-  width: 100%;
   flex-direction: row;
+  flex-grow: 10;
   justify-content: center;
   align-items: flex-start;
-  box-sizing: border-box;
+  gap: 0 !important;
+  position: fixed;
   z-index: 1;
+  height: 100%;
+  min-height: max-content;
+  width: 100%;
+  margin: 0;
+  padding: 0 !important;
+  box-shadow: inset 0 0 7px 1px var(--background-fill-primary);
+  background: var(--input-background-fill-hover) !important;
   overflow: hidden;
-  box-shadow: inset 0 0 7px 2px #000;
+  box-sizing: border-box;
+  will-change: opacity;
 }
 
 #SDImageInfo-Column > .form {
@@ -69,7 +84,7 @@ body.sdimageinfo-body-dont-scroll {
   border-radius: 0;
 }
 
-#SDImageInfo-Column.sdimageinfo-img-enter {
+#SDImageInfo-Column.sdimginfo-style {
   box-shadow: unset;
 }
 
@@ -85,6 +100,7 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-Image {
+  --a: 0 0 1px 1px var(--primary-400), 0 0 3px 0 var(--primary-400) !important;
   display: flex;
   flex: 1 1 0%;
   align-self: center;
@@ -93,19 +109,18 @@ body.sdimageinfo-body-dont-scroll {
   top: 20px;
   height: unset !important;
   width: min(320px, 100%);
-  border: 2px solid var(--primary-400) !important;
+  border: 0 !important;
   border-radius: 1rem !important;
-  box-shadow: inset 0 0 20px 1px var(--primary-400) !important;
-  filter: drop-shadow(0 0 6px var(--primary-400));
+  box-shadow: inset 0 0 15px 0 var(--primary-400), var(--a) !important;
+  filter: drop-shadow(0 0 4px var(--primary-400));
   background: transparent;
   overflow: hidden !important;
   transition: box-shadow 0.3s ease;
 }
 
-#SDImageInfo-Image:hover {
-  box-shadow: inset 0 0 5px 1px var(--primary-400) !important;
+#SDImageInfo-Image:not(.sdimginfo-style):hover {
+  box-shadow: inset 0 0 6px 0 var(--primary-400), var(--a) !important;
 }
-
 
 #SDImageInfo-Image > .image-container {
   width: 100%;
@@ -115,6 +130,32 @@ body.sdimageinfo-body-dont-scroll {
   #SDImageInfo-Image {
     width: 100%;
   }
+}
+
+#SDImageInfo-Image .boundedheight {
+  position: relative;
+}
+
+#SDImageInfo-Image.sdimginfo-style .boundedheight {
+  position: fixed;
+  inset: 0;
+  filter: brightness(0.9);
+}
+
+#SDImageInfo-Image img {
+  display: flex;
+  cursor: auto;
+  align-self: flex-start;
+  position: fixed;
+  object-fit: cover;
+  object-position: center 10%;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  border-radius: 0 !important;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 1s ease;
 }
 
 #SDImageInfo-Frame {
@@ -130,14 +171,13 @@ body.sdimageinfo-body-dont-scroll {
   transform: scale(0);
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Frame {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Frame {
   visibility: visible;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter {
+#SDImageInfo-Image.sdimginfo-style {
   height: 100% !important;
   width: 100% !important;
-  border: 0 !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   filter: none !important;
@@ -145,28 +185,12 @@ body.sdimageinfo-body-dont-scroll {
   top: 0;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter > .image-container {
+#SDImageInfo-Image.sdimginfo-style > .image-container {
   display: flex !important;
 }
 
-#SDImageInfo-Image img {
-  display: flex;
-  cursor: auto;
-  align-self: flex-start;
-  position: fixed;
-  object-fit: cover;
-  object-position: center 10%;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  user-select: none;
-  border-radius: 0 !important;
-  -webkit-user-select: none;
-  transition: opacity 1s ease;
-}
-
 #SDImageInfo-Image > div > div > div > button:nth-child(2),
-.gradio-container-4-40-0 #SDImageInfo-Image.sdimageinfo-img-enter > div > div:first-child:not(.upload-container) {
+.gradio-container-4-40-0 #SDImageInfo-Image.sdimginfo-style > div > div:first-child:not(.upload-container) {
   display: none;
 }
 
@@ -175,15 +199,16 @@ body.sdimageinfo-body-dont-scroll {
   grid-template-columns: 1fr !important;
   justify-content: center;
   align-items: center;
+  gap: 5px !important;
   position: absolute;
   z-index: 1;
   left: 0;
   width: max-content;
   padding: 20px 0 0 20px !important;
   opacity: 0;
-  pointer-events: auto;
   transform: scale(0);
   transition: opacity 0s;
+  pointer-events: auto;
 }
 
 #SDImageInfo-SendButton.sdimageinfo-display-output-panel {
@@ -193,21 +218,28 @@ body.sdimageinfo-body-dont-scroll {
 }
 
 #SDImageInfo-SendButton button {
-  border: 1px solid #000;
-  position: relative;
-  padding: 6px 20px;
-  border-radius: 1rem;
-  box-shadow: 0 0 5px 1px #000;
+  --a: #000 !important;
+  --b: var(--background-fill-secondary) !important;
+  --c: 0 0 5px 1px var(--a) !important;
+  --d: 0 0 1px 1px var(--b) !important;
   white-space: nowrap;
-  transition: 0.1s ease-out;
+  position: relative;
+  padding: 5px 20px;
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: var(--c), var(--d);
+  color: var(--primary-400);
+  background: var(--input-background-fill);
+  transition: .2s ease;
+  outline: none;
 }
 
 #SDImageInfo-SendButton button:hover {
-  box-shadow: 0 0 5px 1px var(--primary-400);
-  filter: drop-shadow(0 0 9px var(--primary-400));
-  border-color: var(--background-fill-primary);
-  color: var(--background-fill-primary);
-  background: var(--button-primary-background-fill);
+  --a: var(--primary-400) !important;
+  --b: var(--background-fill-primary) !important;
+  box-shadow: 0 0 15px 1px var(--a), var(--c), var(--d);
+  color: var(--b);
+  background: var(--a);
 }
 
 #SDImageInfo-Output-Panel {
@@ -247,14 +279,15 @@ body.sdimageinfo-body-dont-scroll {
 #SDImageInfo-HTML {
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 1rem !important;
   overflow-wrap: break-word;
+  position: relative;
   height: 100%;
-  gap: 1.2rem;
   max-width: 100%;
-  margin-top: 240px;
-  padding: 0 20px 20px 20px !important;
-  border-radius: 0.8rem !important;
+  border-radius: .8rem !important;
+  margin-top: 190px;
+  padding: 20px !important;
+  padding-top: 0 !important;
   pointer-events: none;
 }
 
@@ -263,9 +296,13 @@ body.sdimageinfo-body-dont-scroll {
   border: 0;
   margin: 0;
   background: transparent;
-  filter: drop-shadow(0 0 4px #000);
+  filter: drop-shadow(0 0 2px #000);
   cursor: default;
-  transition: 0.3s ease;
+  transition: 0.3s ease, filter 0s;
+}
+
+#SDImageInfo-Output-Panel .sdimageinfo-output-section.sdimageinfo-output-models-section {
+  filter: none !important;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-title {
@@ -283,22 +320,19 @@ body.sdimageinfo-body-dont-scroll {
   border: 0;
   border-radius: 0.5rem 0.5rem 0 0;
   padding: 4px 10px;
-  background: var(--sdimageinfo-output-bg);
-  filter: drop-shadow(0 0 5px var(--sdimageinfo-output-bg));
+  background: var(--input-background-fill);
   pointer-events: auto;
-  transition: 0.4s ease;
+  transition: .2s ease;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-copybutton {
   cursor: pointer;
-  transition: 0.4s ease;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-copybutton:hover {
   color: var(--background-fill-primary);
   background: var(--primary-400);
-  box-shadow: 0 0 5px 1px var(--primary-400);
-  filter: drop-shadow(0 0 9px var(--primary-400));
+  box-shadow: 0 0 10px 0px var(--primary-400);
 }
 
 #SDImageInfo-Seed-Button {
@@ -315,51 +349,56 @@ body.sdimageinfo-body-dont-scroll {
   position: relative;
   z-index: 1;
   border: 0;
-  border-radius: 0 0.5rem 0.5rem 0.5rem;
-  background: var(--sdimageinfo-output-bg);
-  filter: drop-shadow(0 0 5px var(--sdimageinfo-output-bg));
+  border-radius: 0 .5rem .5rem .5rem;
+  background: var(--input-background-fill);
   pointer-events: auto;
-  transition: 0.4s ease;
+  transition: .4s ease;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-content {
   line-height: 1.7;
   margin: 0;
   padding: 5px 8px;
-  border: 1px solid transparent;
+  border: 0;
   cursor: default;
-  border-radius: 0 0.5rem 0.5rem 0.5rem;
-  transition: 0.3s ease;
+  border-radius: 0 .5rem .5rem .5rem;
+  transition: .3s ease;
+}
+
+#SDImageInfo-Output-Panel .sdimageinfo-output-content.sdimginfo-style {
+  --a: inset 0 0 0 0 transparent !important;
+  --b: inset 0 0 1px 1px var(--primary-400) !important;
+  animation: sdimginfo-pulseBorder 2s infinite alternate forwards;
+}
+
+@keyframes sdimginfo-pulseBorder {
+  0% {
+    box-shadow: var(--a), var(--a);
+  }
+  25% {
+    box-shadow: var(--b), inset 0 0 15px 2px var(--primary-400);
+  }
+  50% {
+    box-shadow: var(--b), inset 0 0 3px 1px var(--primary-400);
+  }
+  75% {
+    box-shadow: var(--b), inset 0 0 15px 2px var(--primary-400);
+  }
+  100% {
+    box-shadow: var(--a), var(--a);
+  }
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-display-model-output {
-  animation: undressBox 1s forwards ease-out;
+  animation: undressBox 1.5s forwards ease;
 }
 
-.sdimageinfo-borderpulse {
-  animation: pulseBorder 2s infinite alternate forwards;
-}
-
-@keyframes pulseBorder {
+@keyframes undressBox {
   0% {
-    border-color: transparent;
-    box-shadow: inset 0 0 0 0 transparent;
-  }
-  25% {
-    border-color: var(--primary-400);
-    box-shadow: inset 0 0 15px 2px var(--primary-400)
-  }
-  50% {
-    border-color: var(--primary-400);
-    box-shadow: inset 0 0 3px 1px var(--primary-400)
-  }
-  75% {
-    border-color: var(--primary-400);
-    box-shadow: inset 0 0 15px 2px var(--primary-400)
+    opacity: 0;
   }
   100% {
-    border-color: transparent;
-    box-shadow: inset 0 0 0 0 transparent;
+    opacity: 1;
   }
 }
 
@@ -369,17 +408,40 @@ body.sdimageinfo-body-dont-scroll {
   pointer-events: auto;
   padding: 5px 10px;
   color: var(--output-text-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 1rem;
-  box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.1), 0 0 5px 0 rgba(255, 255, 255, 0.2), inset 0 0 5px 0 rgba(255, 255, 255, 0.2);
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5));
-  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px 0 rgb(255 255 255 / 10%), 0 0 5px 0 rgb(255 255 255 / 20%), inset 0 0 5px 0 rgb(255 255 255 / 20%);
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 50%));
+  background: rgb(0 0 0 / 30%);
+}
+
+#SDImageInfo-Spinner-Wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 70px;
+  width: 100%;
+  margin: 0;
+  margin-bottom: 10px;
 }
 
 #SDImageInfo-Spinner {
-  margin: 0 auto;
-  animation: Spin 1.5s linear infinite;
-  filter: drop-shadow(0 0 10px rgba(0,0,0,0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 80px;
+  width: 80px;
+  margin: 0;
+  padding: 0;
+  animation: sdimginfo-spinner 1.5s linear infinite;
+}
+
+#SDImageInfo-Spinner > svg {
+  height: 100%;
+  width: 100%;
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 90%)) drop-shadow(0 0 10px rgb(0 0 0 / 60%)) drop-shadow(0 0 1px var(--primary-400));
 }
 
 #SDImageInfo-Spinner path,
@@ -387,7 +449,7 @@ body.sdimageinfo-body-dont-scroll {
   fill: var(--primary-400);
 }
 
-@keyframes Spin {
+@keyframes sdimginfo-spinner {
   0% {
     transform: rotate(0deg);
   }
@@ -396,87 +458,48 @@ body.sdimageinfo-body-dont-scroll {
   }
 }
 
-@keyframes undressBox {
-  0% {
-    opacity: 0;
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0px);
-  }
-}
-
 /* ############################################################################################################ */
 
 #SDImageInfo-Image-Viewer {
   display: none;
+  justify-content: center;
+  align-items: center;
   position: fixed;
+  z-index: 999999;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
   opacity: 0;
+  background: var(--sdimginfo-viewer-background);
+  background-repeat: repeat;
+  transition: opacity .15s ease;
   overflow: hidden;
-  backdrop-filter: blur(3px);
-  transition: opacity .3s ease;
+}
+
+#SDImageInfo-Image-Viewer.sdimginfo-style {
+  opacity: 1;
+  transition: opacity .2s ease;
 }
 
 #SDImageInfo-Image-Viewer-Control {
+  display: flex;
+  position: absolute;
+  top: 0;
   z-index: 1;
   height: 100%;
   width: 100%;
-  pointer-events: none;
-  top: 0;
-  display: flex;
-  position: absolute;
   opacity: 1;
   transition: .2s;
+  pointer-events: none;
 }
 
-#SDImageInfo-Image-Viewer-Exit-Button {
-  display: flex;
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 60px;
-  width: 60px;
-  margin: 0;
-  gap: 0;
-  padding: 0;
-  border: 0;
-  z-index: 1;
-  border-radius: 0 0 0 1.5rem;
-  box-sizing: border-box;
-  pointer-events: auto;
-  color: var(--primary-400);
-  background: var(--input-background-fill);
-  box-shadow: 0 0 7px 2px #000;
-  filter: none;
-  cursor: pointer;
-  transition: 0.2s ease;
+#SDImageInfo-Image-Viewer-Control.sdimginfo-style {
+  opacity: 0;
 }
 
-#SDImageInfo-Image-Viewer-Exit-Button svg {
-  position: fixed;
-  top: 3px;
-  right: 3px;
-  width: 50px;
-  height: 50px;
-  filter:
-    drop-shadow(0 0 3px rgb(0 0 0 / 50%))
-    drop-shadow(0 0 2px rgb(0 0 0 / 50%))
-    drop-shadow(0 0 2px rgb(0 0 0 / 50%));
-}
-
-#SDImageInfo-Image-Viewer-Exit-Button:hover {
-  color: #fff;
-  background: red;
-  filter: drop-shadow(0 0 5px red);
+#SDImageInfo-Image-Viewer-Control.sdimginfo-style * {
+  pointer-events: none !important;
 }
 
 #SDImageInfo-Image-Viewer-Wrapper {
@@ -487,8 +510,17 @@ body.sdimageinfo-body-dont-scroll {
   height: 100%;
   width: 100%;
   gap: 0;
-  transform: translate(0px, 0px) scale(0.7);
+  transform: translate(0px, 0px) scale(1.2);
   transition: transform .2s ease-out;
+  pointer-events: none;
+}
+
+#SDImageInfo-Image-Viewer-Wrapper * {
+  pointer-events: auto;
+}
+
+#SDImageInfo-Image-Viewer-Wrapper.sdimginfo-style {
+  transform: translate(0px, 0px) scale(1);
 }
 
 #SDImageInfo-Image-Viewer-img {
@@ -508,14 +540,6 @@ body.sdimageinfo-body-dont-scroll {
   transition: transform .2s ease-out;
 }
 
-#SDImageInfo-Image-Viewer-Control.sdimageinfo-pointer-events-none {
-  opacity: 0;
-}
-
-.sdimageinfo-pointer-events-none * {
-  pointer-events: none !important;
-}
-
 /* ############################################################################################################ */
 
 #SDImageInfo-Custom-Wrapper {
@@ -530,7 +554,7 @@ body.sdimageinfo-body-dont-scroll {
   transition: opacity 1.2s ease;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Custom-Wrapper {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Custom-Wrapper {
   opacity: 1;
 }
 
@@ -543,78 +567,113 @@ body.sdimageinfo-body-dont-scroll {
   z-index: 5;
   border-radius: 0 !important;
   pointer-events: none;
-  box-shadow: inset 0 0 10px 4px #000;
-  filter: drop-shadow(0 0 0 #000);
+  box-shadow: inset 0 0 10px 0 var(--background-fill-primary), inset 0 0 5px 0 var(--background-fill-primary);
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Image-Frame {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Image-Frame {
   display: flex;
 }
 
 #SDImageInfo-Gear-Button,
-#SDImageInfo-Clear-Button {
+#SDImageInfo-Clear-Button,
+#SDImageInfo-Image-Viewer-Exit-Button {
   display: flex;
   position: absolute;
-  height: 60px;
-  width: 60px;
+  height: 50px;
+  width: 50px;
   margin: 0;
   gap: 0;
-  padding: 5px;
+  padding: 6px;
   box-sizing: border-box;
   border: 0;
-  color: var(--primary-400);
+  color: var(--primary-400) !important;
   background: var(--input-background-fill);
-  box-shadow: 0 0 5px 3px #000;
+  box-shadow: 0 0 5px 1px #000;
   pointer-events: auto;
   cursor: pointer;
 }
 
-#SDImageInfo-Gear-Button > svg,
-#SDImageInfo-Clear-Button > svg {
-  filter:
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
-}
-
 #SDImageInfo-Gear-Button {
   position: fixed;
-  top: 0;
   z-index: 2;
+  top: 0;
   left: 0;
-  border-bottom-right-radius: 1.5rem;
-  transition: filter .2s ease, color .2s ease, background-color .2s ease;
+  border-bottom-right-radius: 1.2rem;
+  transition: filter .2s ease, color .2s ease, background-color .2s ease, box-shadow .3s ease;
 }
 
-#SDImageInfo-Gear-Button:hover {
-  color: #fff;
+#SDImageInfo-Gear-Button > svg {
+  stroke: var(--primary-400);
+  filter: drop-shadow(0 0 1px #000);
+  transition: .2s ease;
+}
+
+#SDImageInfo-Gear-Button > svg > path {
+  fill: transparent;
+}
+
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button:hover {
   background: var(--primary-400);
   filter: drop-shadow(0 0 5px var(--primary-400));
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Gear-Button {
-  margin: 4px 0 0 0;
+#SDImageInfo-Image:not(.sdimginfo-style) #SDImageInfo-Gear-Button:hover {
+  background: var(--primary-400);
+}
+
+#SDImageInfo-Gear-Button:hover > svg {
+  stroke: #fff;
+}
+
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button {
   top: 0;
-  right: 90px;
+  right: 70px;
   left: unset;
   border-radius: 0 0 100px 100px;
+  filter: unset;
+}
+
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button.sdimginfo-style {
+  animation: gear-fade-in 1.2s ease forwards;
+}
+
+@keyframes gear-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button > svg {
+  position: relative;
+  top: -1px;
 }
 
 #SDImageInfo-Clear-Button {
   display: none;
-  margin: 4px 4px 0 0;
-  right: 0;
-  padding: 7px;
-  border-bottom-left-radius: 1.5rem;
-  transition: .2s ease, filter .2s ease, opacity 1s ease;
 }
 
-#SDImageInfo-Image.sdimageinfo-img-enter #SDImageInfo-Clear-Button {
+#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Clear-Button {
   display: flex;
 }
 
-#SDImageInfo-Clear-Button:hover {
-  color: #fff;
+#SDImageInfo-Clear-Button,
+#SDImageInfo-Image-Viewer-Exit-Button {
+  right: 0;
+  border-bottom-left-radius: 1.2rem;
+  transition: .2s ease, opacity .8s ease;
+}
+
+#SDImageInfo-Clear-Button > svg,
+#SDImageInfo-Image-Viewer-Exit-Button > svg {
+  --a: drop-shadow(0 0 1px rgb(0 0 0 / 50%)) !important;
+  position: relative;
+  top: -1px;
+  right: -1px;
+  filter: var(--a) var(--a) var(--a);
+}
+
+#SDImageInfo-Clear-Button:hover,
+#SDImageInfo-Image-Viewer-Exit-Button:hover {
+  color: #fff !important;
   background: red;
   filter: drop-shadow(0 0 5px red);
 }
@@ -635,6 +694,7 @@ body.sdimageinfo-body-dont-scroll {
   display: flex;
   margin-top: 0 !important;
   padding: 10px !important;
+  background: transparent !important;
 }
 
 #setting_sd_image_info_layout > .wrap:not(.hide) {
@@ -700,34 +760,37 @@ body.sdimageinfo-body-dont-scroll {
 
 #SDImageInfo-Arrow {
   display: flex;
-  position: fixed;
   align-items: center;
   justify-content: center;
-  min-width: 0;
-  right: 30px;
-  bottom: 16px;
+  position: fixed;
+  z-index: 1;
+  right: 23px;
+  bottom: 23px;
   height: 45px;
   width: 45px;
+  min-width: 0;
   padding: 0;
   margin: 0;
   border: 0;
   border-radius: 50%;
-  z-index: 1;
-  cursor: pointer;
-  box-shadow: 0 0 7px 2px #000;
+  box-shadow: inset 0 0 1px 1px var(--primary-400), inset 0 0 7px 0 var(--primary-400), 0 0 10px 1px var(--primary-400);
   color: var(--primary-400);
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--sdimginfo-arrow-background);
   transform: scale(0);
   transition: .3s ease;
+  cursor: pointer;
 }
 
 #SDImageInfo-Arrow svg {
-  border-radius: 50%;
-  box-shadow: inset 0 0 10px 1px var(--primary-400);
-  filter: drop-shadow(0 0 1px var(--primary-400));
+  transition: .3s ease;
 }
 
 #SDImageInfo-Arrow polygon {
-  transform: scale(85%);
+  transform: scale(90%);
   transform-origin: center;
+}
+
+#SDImageInfo-Arrow:hover,
+#SDImageInfo-Arrow:hover svg {
+  filter: drop-shadow(0 0 2px var(--primary-400));
 }

@@ -2,17 +2,22 @@ async function SDImageInfoCreateSetting() {
   const settingColumn = document.getElementById('column_settings_SDImageInfo-Setting');
 
   if (settingColumn) {
-    async function waitForOpts() {
-      for (; ;) {
+    async function getLayout() {
+      const hao = ['classic', 'neo'],
+      v = document.querySelector('#footer .versions > a:nth-child(1)'),
+      n = v?.textContent?.toLowerCase() || '';
+      if (hao.some(s => n.includes(s))) return opts.sd_image_info_layout;
+
+      for (;;) {
         if (window.opts && Object.keys(window.opts).length) {
-          return window.opts;
+          return window.opts.sd_image_info_layout;
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 
-    let get = await waitForOpts();
-    SDImageInfoLoadSetting(get.sd_image_info_layout);
+    let layout = await getLayout();
+    SDImageInfoLoadSetting(layout);
 
     const applyButton = SDImgInfoEL('button', {
       id: 'SDImageInfo-Setting-Apply-Button',

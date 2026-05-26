@@ -1,13 +1,10 @@
-try:
-    import modules.generation_parameters_copypaste as tempe  # type: ignore
-except ModuleNotFoundError:
-    import modules.infotext_utils as tempe
 from modules.ui_components import FormRow, FormColumn
 from modules.script_callbacks import on_ui_tabs
+import modules.infotext_utils as tempe
 from modules import shared
 import gradio as gr
 
-def onSDImageInfoTab():
+def ImageInfoTab():
     with gr.Blocks(analytics_enabled=False) as sd_image_info:
         with FormRow(equal_height=False, elem_id='SDImageInfo-Column'):
             with FormColumn(variant='compact', scale=3, elem_id='SDImageInfo-Image-Column'):
@@ -34,7 +31,10 @@ def onSDImageInfoTab():
     return [(sd_image_info, 'Image Info', 'SDImageInfo')]
 
 shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', 'SD Image Info'), {
-    'sd_image_info_layout': shared.OptionInfo('side by side', '', gr.Radio, lambda: {'choices': ['full width', 'side by side']}),
+    'sd_image_info_layout': shared.OptionInfo(
+        'side by side', '',
+        gr.Radio, lambda: {'choices': ['full width', 'side by side']}
+    ),
 }))
 
-on_ui_tabs(onSDImageInfoTab)
+on_ui_tabs(ImageInfoTab)

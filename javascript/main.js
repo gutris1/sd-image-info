@@ -2,22 +2,12 @@ const sdimginfoS = 'sdimginfo-style';
 let SDImageInfoImageViewer = null
 
 onUiLoaded(() => {
-  if (document.getElementById('tab_SDImageInfo')) {
+  const Tab = document.getElementById('tab_SDImageInfo');
+  if (Tab) {
     SDImageInfoCreateSetting();
 
     const sendButton = document.getElementById('SDImageInfo-SendButton');
     sendButton?.querySelectorAll('button').forEach(btn => btn.onclick = () => SDImageInfoSendButton(btn.id));
-
-    window.SDImageInfoClearImage = () => {
-      const gr3 = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
-      gr4 = document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
-      btn = gr3 || gr4;
-      btn && (
-        btn.click(),
-        window.SDImageInfoRawOutput = '',
-        document.removeEventListener('keydown', window.SDimageInfoKeydown)
-      );
-    };
 
     const column = document.getElementById('SDImageInfo-Column'),
     imgInfo = document.getElementById('SDImageInfo-Image'),
@@ -57,14 +47,15 @@ onUiLoaded(() => {
 
     const exitButton = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Exit-Button', html: SDImageInfoSVG.cross(), onclick: (e) => (e.stopPropagation(), window.SDImageInfoImageViewerExit()) }),
     controls = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Control', append: exitButton }),
-    imgWrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' });
-    lightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0, append: [controls, imgWrapper] }),
+    imgWrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' }),
+    lightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0, append: [controls, imgWrapper] });
     document.body.append(lightBox);
+
+    lightBox.onkeydown = e => e.key === 'Escape' && (e.preventDefault(), e.stopPropagation(), window.SDImageInfoImageViewerExit());
 
     ['drop', 'dragover'].forEach(t =>
       document.addEventListener(t, e => {
         const Tab = document.getElementById('tab_SDImageInfo'),
-        lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
         column = document.getElementById('SDImageInfo-Column'),
         form = column.querySelector('.form'),
         imgColumn = document.getElementById('SDImageInfo-Image-Column'),
@@ -72,7 +63,7 @@ onUiLoaded(() => {
         panel = document.getElementById('SDImageInfo-Output-Panel'),
         imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
 
-        if (Tab?.style.display !== 'block' || lightBox?.style.display === 'flex') return;
+        if (Tab?.style.display !== 'block' || !SDImageInfoImageViewer) return;
 
         const el =
           e.target?.id === column?.id || e.target?.id === form?.id || e.target?.id === imgColumn?.id || 
@@ -91,9 +82,19 @@ onUiLoaded(() => {
       })
     );
 
+    window.SDImageInfoClearImage = () => {
+      const gr3 = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
+      gr4 = document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
+      btn = gr3 || gr4;
+      btn && (
+        btn.click(),
+        window.SDImageInfoRawOutput = '',
+        document.removeEventListener('keydown', window.SDimageInfoKeydown, true)
+      );
+    };
+
     window.SDimageInfoKeydown = function(e) {
       const Tab = document.getElementById('tab_SDImageInfo'),
-      lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
       column = document.getElementById('SDImageInfo-Column'),
       panel = document.getElementById('SDImageInfo-Output-Panel');
 
@@ -102,8 +103,9 @@ onUiLoaded(() => {
       const img = document.querySelector('#SDImageInfo-Image img');
 
       if (e.key === 'Escape') {
+        if (SDImageInfoImageViewer) return;
         e.preventDefault();
-        if (lightBox?.style.display === 'flex') return;
+        e.stopPropagation();
         if (img) window.SDImageInfoClearImage();
       }
 
@@ -127,7 +129,7 @@ function SDImageInfoDisplayImageViewer(imgEL) {
   imgId = 'SDImageInfo-Image-Viewer-img';
 
   if (SDImageInfoImageViewer) {
-    SDImageInfoImageViewer.cleanup();
+    SDImageInfoImageViewer.clearEV();
     SDImageInfoImageViewer = null;
   }
 
@@ -143,14 +145,7 @@ function SDImageInfoDisplayImageViewer(imgEL) {
     setTimeout(() => imgWrapper.classList.add(sdimginfoS), 50);
   }, 100));
 
-  setTimeout(() => {
-    lightBox.onkeydown = (e) => {
-      if (e.key === 'Escape') window.SDImageInfoImageViewerExit();
-    };
-  }, 400);
-
   const closing = () => {
-    lightBox.onkeydown = null;
     document.body.classList.remove(noScroll);
     imgWrapper.classList.remove(sdimginfoS);
     SDImageInfoImageViewer = null;

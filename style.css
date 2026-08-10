@@ -298,11 +298,19 @@ body.sdimageinfo-body-dont-scroll {
   background: transparent;
   filter: drop-shadow(0 0 2px #000);
   cursor: default;
-  transition: 0.3s ease, filter 0s;
+  transition: .3s ease, filter 0s;
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-section.sdimageinfo-output-models-section {
   filter: none !important;
+}
+
+#SDImageInfo-Output-Panel.sdimageinfo-display-output-panel .sdimageinfo-output-section:not(.sdimageinfo-output-models-section) {
+  transition: .2s ease;
+}
+
+#SDImageInfo-Output-Panel.sdimageinfo-display-output-panel .sdimageinfo-output-section:not(.sdimageinfo-output-models-section):hover {
+  filter: drop-shadow(0 0 2px var(--primary-400)) drop-shadow(0 0 2px var(--primary-400));
 }
 
 #SDImageInfo-Output-Panel .sdimageinfo-output-title {

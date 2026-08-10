@@ -5,21 +5,22 @@ async function SDImageInfoParser() {
   HTMLPanel = document.getElementById('SDImageInfo-HTML'),
   ImagePanel = document.getElementById('SDImageInfo-Image'),
   img = ImagePanel.querySelector('img'),
-  gear = document.getElementById('SDImageInfo-Gear-Button');
+  gearButton = document.getElementById('SDImageInfo-Gear-Button');
 
   if (!img) {
     window.SharedParserPostProcessingInfo = window.SharedParserExtrasInfo = '';
     HTMLPanel.innerHTML = await SDImageInfoPlainTextToHTML('');
-    [Tab, Column, ImagePanel, gear].forEach(el => el.classList.remove(sdimginfoS));
+    [Tab, Column, ImagePanel, gearButton].forEach(el => el.classList.remove(sdimginfoS));
     setTimeout(() => window.SDImageInfoArrowScrolling(), 0);
     return;
   }
 
-  setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown), 1000);
+  setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown, true), 100);
 
-  [Tab, Column, ImagePanel, gear].forEach(el => el.classList.add(sdimginfoS));
-  setTimeout(() => gear.classList.remove(sdimginfoS), 1200);
-  img.onclick = () => SDImageInfoDisplayImageViewer(img);
+  [Tab, Column, ImagePanel, gearButton].forEach(el => el.classList.add(sdimginfoS));
+  setTimeout(() => gearButton.classList.remove(sdimginfoS), 1200);
+
+  img.onclick = img.onauxclick = e => (e.button === 0 || e.button === 1) && (e.preventDefault(), SDImageInfoDisplayImageViewer(img));
   img.onload = () => img.style.opacity = '1';
 
   const output = await SharedImageParser(img, true);

@@ -4,9 +4,23 @@ import modules.infotext_utils as tempe
 from modules import shared
 import gradio as gr
 
-def ImageInfoTab():
+L = 'sd_image_info_layout'
+
+shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', 'SD Image Info'), {
+    L: shared.OptionInfo(
+        'default', '',
+        gr.Radio, lambda: {'choices': ['default', 'full width']}
+    ),
+}))
+
+if shared.opts.data.get(L) == 'side by side': shared.opts.data[L] = 'default'
+
+def save_layout(v):
+    if shared.opts.set(L, v): shared.opts.save(shared.config_filename)
+
+def tab():
     with gr.Blocks(analytics_enabled=False) as sd_image_info:
-        with FormRow(equal_height=False, elem_id='SDImageInfo-Column'):
+        with gr.Column(variant='compact', elem_id='SDImageInfo-Column'), gr.Row(equal_height=False, elem_id='SDImageInfo-Row'):
             with FormColumn(variant='compact', scale=3, elem_id='SDImageInfo-Image-Column'):
                 image = gr.Image(elem_id='SDImageInfo-Image', type='pil', source='upload', show_label=False)
                 image.change(fn=None, _js='() => SDImageInfoParser()')
@@ -17,6 +31,19 @@ def ImageInfoTab():
             with FormColumn(variant='compact', scale=7, elem_id='SDImageInfo-Output-Panel'):
                 geninfo = gr.Textbox(elem_id='SDImageInfo-Geninfo', visible=False)
                 gr.HTML(elem_id='SDImageInfo-HTML')
+
+            with FormColumn(variant='compact', elem_id='SDImageInfo-Config-Column'):
+                gr.Radio(
+                    ['default', 'full width'],
+                    value='default',
+                    show_label=False,
+                    interactive=True,
+                    elem_id='SDImageInfo-Config-Radio',
+                    elem_classes='sdimginfo-radio'
+                )
+
+            box = gr.Textbox(elem_id='SDImageInfo-Box', visible=False)
+            box.change(save_layout, box, None)
 
         for tabname, button in buttons.items():
             tempe.register_paste_params_button(
@@ -30,11 +57,4 @@ def ImageInfoTab():
 
     return [(sd_image_info, 'Image Info', 'SDImageInfo')]
 
-shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', 'SD Image Info'), {
-    'sd_image_info_layout': shared.OptionInfo(
-        'side by side', '',
-        gr.Radio, lambda: {'choices': ['full width', 'side by side']}
-    ),
-}))
-
-on_ui_tabs(ImageInfoTab)
+on_ui_tabs(tab)

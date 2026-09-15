@@ -1,27 +1,19 @@
-const sdimginfoS = 'sdimginfo-style';
+window._ ??= id => document.getElementById(id);
+window.$ ??= s => document.querySelector(s);
+window.$$ ??= s => document.querySelectorAll(s);
+
+const sdimginfoS = 'sdimginfo-style', sdimginfoC = 'sdimginfo-config';
 let SDImageInfoImageViewer = null
 
 onUiLoaded(() => {
-  if (document.getElementById('tab_SDImageInfo')) {
+  if (_('tab_SDImageInfo')) {
     SDImageInfoCreateSetting();
 
-    const sendButton = document.getElementById('SDImageInfo-SendButton');
-    sendButton?.querySelectorAll('button').forEach(btn => btn.onclick = () => SDImageInfoSendButton(btn.id));
-
-    window.SDImageInfoClearImage = () => {
-      const gr3 = document.querySelector('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
-      gr4 = document.querySelector('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
-      btn = gr3 || gr4;
-      btn && (
-        btn.click(),
-        window.SDImageInfoRawOutput = '',
-        document.removeEventListener('keydown', window.SDimageInfoKeydown)
-      );
-    };
-
-    const column = document.getElementById('SDImageInfo-Column'),
-    imgInfo = document.getElementById('SDImageInfo-Image'),
-    panel = document.getElementById('SDImageInfo-Output-Panel'),
+    const column = _('SDImageInfo-Column'),
+    row = _('SDImageInfo-Row'),
+    imgPanel = _('SDImageInfo-Image'),
+    outputPanel = _('SDImageInfo-Output-Panel'),
+    htmlPanel = _('SDImageInfo-HTML'),
 
     clearButton = SDImgInfoEL('div', {
       id: 'SDImageInfo-Clear-Button',
@@ -32,138 +24,160 @@ onUiLoaded(() => {
 
     imgFrame = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Frame' }),
     customWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Custom-Wrapper', append: [imgFrame, clearButton] }),
-    frame = SDImgInfoEL('div', { id: 'SDImageInfo-Frame' }),
+    tabFrame = SDImgInfoEL('div', { id: 'SDImageInfo-Tab-Frame' }),
+    arrow = SDImgInfoEL('div', { id: 'SDImageInfo-Arrow', html: SDImageInfoSVG.arrow() }),
+    imgArea = SDImgInfoEL('div', { id: 'SDImageInfo-img-area', onclick: () => $('#SDImageInfo-Image img')?.click() }),
+    outputHTML = SDImgInfoEL('div', { id: 'SDImageInfo-Output-HTML', class: 'prose' }),
 
+    syncConfig = () => $(`#SDImageInfo-Config-Radio input[value="${window.SDImageInfoStyle}" i]`).closest('label').click(),
+
+    gearWrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Gear-Wrapper' }),
     gearButton = SDImgInfoEL('div', {
       id: 'SDImageInfo-Gear-Button',
       title: SDImageInfoTranslation('setting_title', 'Setting'),
       html: SDImageInfoSVG.gear(),
-      onclick: () => {
-        [['#tab_settings #settings .tab-nav button', 'SD Image Info'], ['#tabs .tab-nav button', 'Settings']]
-        .forEach(([el, text]) => [...document.querySelectorAll(el)].find(btn => btn.textContent.trim() === text)?.click());
+      onclick: e => {
+        const cC = '#SDImageInfo-Config-Column';
+        if (e.target.closest(cC)) return;
+
+        syncConfig();
+        [gearButton.querySelector(cC), gearButton].forEach(el => el.classList.add(sdimginfoC));
       }
+    }),
+
+    sendButton = _('SDImageInfo-SendButton');
+    sendButton?.querySelectorAll('button').forEach(btn => btn.onclick = () => SDImageInfoSendButton(btn.id));
+
+    document.addEventListener('click', e => {
+      if (e.target?.closest?.('#tab_settings-button')) syncConfig();
+
+      const configColumn = _('SDImageInfo-Config-Column');
+      if (!configColumn?.classList.contains(sdimginfoC)) return;
+
+      const l = [
+        '#SDImageInfo-Config-Column',
+        '#SDImageInfo-Gear-Button',
+        '#setting_sd_image_info_layout',
+        '#SDImageInfo-Setting-Apply-Button'
+      ].some(s => e.target?.closest?.(s));
+
+      if (l) return;
+
+      [configColumn, gearButton].forEach(i => i.classList.remove(sdimginfoC));
+      setTimeout(syncConfig, 300);
     });
 
-    imgInfo.append(gearButton, customWrap, frame);
+    SharedImageInfo('SDImageInfo', {
+      translate: (k, f) => SDImageInfoTranslation(k, f),
+      rawOutput: () => window.SDImageInfoRawOutput,
+      elements: () => ({ sendButton: sendButton, outputPanel: outputPanel }),
+      classes: () => ({ outputDisplay: 'sdimginfo-display-output-panel', outputFail: 'sdimginfo-display-output-fail' })
+    });
 
-    const arrow = SDImgInfoEL('div', { id: 'SDImageInfo-Arrow', html: SDImageInfoSVG.arrow() });
-    column.append(arrow);
-    SDImageInfoArrowScroll(arrow);
-
-    const imgArea = SDImgInfoEL('div', { id: 'SDImageInfo-img-area', onclick: () => document.querySelector('#SDImageInfo-Image img')?.click() });
-    panel.prepend(imgArea);
-
-    document.getElementById('SDImageInfo-HTML')?.classList.add('prose');
+    gearWrapper.append(gearButton),
+    imgPanel.append(gearWrapper, customWrap),
+    column.append(arrow, tabFrame),
+    htmlPanel.replaceChildren(imgArea, outputHTML);
 
     const exitButton = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Exit-Button', html: SDImageInfoSVG.cross(), onclick: (e) => (e.stopPropagation(), window.SDImageInfoImageViewerExit()) }),
     controls = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Control', append: exitButton }),
-    imgWrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' });
-    lightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0, append: [controls, imgWrapper] }),
+    imgWrapper = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Wrapper' }),
+    lightBox = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer', tabindex: 0, append: [controls, imgWrapper] });
     document.body.append(lightBox);
+
+    lightBox.onkeydown = e => e.key === 'Escape' && (e.preventDefault(), e.stopPropagation(), window.SDImageInfoImageViewerExit());
 
     ['drop', 'dragover'].forEach(t =>
       document.addEventListener(t, e => {
-        const Tab = document.getElementById('tab_SDImageInfo'),
-        lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
-        column = document.getElementById('SDImageInfo-Column'),
-        form = column.querySelector('.form'),
-        imgColumn = document.getElementById('SDImageInfo-Image-Column'),
-        imgArea = document.getElementById('SDImageInfo-img-area'),
-        panel = document.getElementById('SDImageInfo-Output-Panel'),
-        imgCon = document.querySelector('#SDImageInfo-Image > .image-container');
+        const row = _('SDImageInfo-Row'),
+        dropArea = $('#SDImageInfo-Image > .image-container .boundedheight');
 
-        if (Tab?.style.display !== 'block' || lightBox?.style.display === 'flex') return;
-
-        const el =
-          e.target?.id === column?.id || e.target?.id === form?.id || e.target?.id === imgColumn?.id || 
-          e.target?.id === imgArea?.id || e.target?.id === panel?.id || e.target?.classList?.contains('sdimageinfo-output-content');
-
-        if (!el) return;
+        if (_('tab_SDImageInfo').style.display !== 'block') return;
         e.preventDefault();
+        if (SDImageInfoImageViewer) return;
 
-        if (t === 'drop') {
-          const dropArea = imgCon?.querySelector('.boundedheight');
-          if (dropArea) {
-            const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.dataTransfer });
-            dropArea.dispatchEvent(dropEvent);
-          }
+        const area = row.contains(e.target); if (!area) return;
+
+        if (t === 'drop' && dropArea) {
+          const ev = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.dataTransfer });
+          dropArea.dispatchEvent(ev);
         }
       })
     );
 
+    window.SDImageInfoClearImage = () => {
+      const imgColumn = _('SDImageInfo-Image-Column'),
+      gr3 = $('#SDImageInfo-Image > div > div > div > button:nth-child(2)'),
+      gr4 = $('.gradio-container-4-40-0 #SDImageInfo-Image > div > div > button'),
+      btn = gr3 || gr4;
+      btn && (
+        imgColumn.classList.add('popup'), setTimeout(() => imgColumn.classList.remove('popup'), 310),
+        btn.click(),
+        window.SDImageInfoRawOutput = window.SharedParserPostProcessingInfo = window.SharedParserExtrasInfo = '',
+        document.removeEventListener('keydown', window.SDimageInfoKeydown, true)
+      );
+    };
+
     window.SDimageInfoKeydown = function(e) {
-      const Tab = document.getElementById('tab_SDImageInfo'),
-      lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
-      column = document.getElementById('SDImageInfo-Column'),
-      panel = document.getElementById('SDImageInfo-Output-Panel');
+      const Tab = _('tab_SDImageInfo'),
+      outputPanel = _('SDImageInfo-Output-Panel');
 
       if (Tab?.style.display !== 'block') return;
 
-      const img = document.querySelector('#SDImageInfo-Image img');
-
       if (e.key === 'Escape') {
+        if (SDImageInfoImageViewer) return;
         e.preventDefault();
-        if (lightBox?.style.display === 'flex') return;
-        if (img) window.SDImageInfoClearImage();
+        e.stopPropagation();
+        if ($('#SDImageInfo-Image img')) window.SDImageInfoClearImage();
       }
 
-      const el = window.SDImageInfoStyle === 'side by side' ? panel : column,
-      Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? el.scrollHeight : null;
-      if (Scroll !== null) { e.preventDefault(); el.scrollTo({ top: Scroll, behavior: 'smooth' }); }
+      const Scroll = e.key === 'ArrowUp' ? 0 : e.key === 'ArrowDown' ? outputPanel.scrollHeight : null;
+      Scroll !== null && (e.preventDefault(), outputPanel.scrollTo({ top: Scroll, behavior: 'smooth' }));
     };
 
-    typeof SDHubGetTranslation === 'function' && SDImageInfoTranslate();
-    window.addEventListener('resize', SDImageInfoTabLayout);
     SDImageInfoTabChange();
+    SDImageInfoArrowEvent(arrow);
+
+    outputPanel.addEventListener('scroll', window.SDImageInfoArrow);
+    window.addEventListener('resize', SDImageInfoTabLayout);
+
+    typeof SDHubGetTranslation === 'function' && SDImageInfoTranslate();
+
+    let rT;
+    new ResizeObserver(() => (clearTimeout(rT), rT = setTimeout(window.SDImageInfoArrow, 20))).observe(outputHTML);
   }
 });
 
-function SDImageInfoDisplayImageViewer(imgEL) {
-  const lightBox = document.getElementById('SDImageInfo-Image-Viewer'),
-  controls = lightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
-  imgWrapper = lightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
+function SDImageInfoArrowEvent(arrow) {
+  let locked = false;
 
-  noScroll = 'sdimageinfo-body-dont-scroll',
-  imgId = 'SDImageInfo-Image-Viewer-img';
+  const panel = () => _('SDImageInfo-Output-Panel');
 
-  if (SDImageInfoImageViewer) {
-    SDImageInfoImageViewer.cleanup();
-    SDImageInfoImageViewer = null;
-  }
+  arrow.onclick = () => {
+    if (locked) return;
 
-  lightBox.style.display = 'flex';
-  lightBox.focus();
+    locked = true;
+    arrow.classList.remove(sdimginfoS);
 
-  document.getElementById(imgId)?.remove();
-  const img = SDImgInfoEL('img', { id: imgId, src: imgEL.src });
-  imgWrapper.prepend(img);
+    const p = panel();
+    p.scrollTo({ top: p.scrollHeight, behavior: 'smooth' });
 
-  setTimeout(() => requestAnimationFrame(() => {
-    lightBox.classList.add(sdimginfoS);
-    setTimeout(() => imgWrapper.classList.add(sdimginfoS), 50);
-  }, 100));
+    const check = () => p.scrollTop + p.clientHeight >= p.scrollHeight - 5
+      ? (locked = false, window.SDImageInfoArrow())
+      : requestAnimationFrame(check);
 
-  setTimeout(() => {
-    lightBox.onkeydown = (e) => {
-      if (e.key === 'Escape') window.SDImageInfoImageViewerExit();
-    };
-  }, 400);
-
-  const closing = () => {
-    lightBox.onkeydown = null;
-    document.body.classList.remove(noScroll);
-    imgWrapper.classList.remove(sdimginfoS);
-    SDImageInfoImageViewer = null;
+    requestAnimationFrame(check);
   };
 
-  SDImageInfoImageViewer = new SDImageScriptsViewer(img, lightBox, controls, {
-    dragStart: () => controls.classList.add(sdimginfoS),
-    dragEnd: () => controls.classList.remove(sdimginfoS),
-    exitStart: () => lightBox.classList.remove(sdimginfoS),
-    exitEnd: closing
-  });
+  window.SDImageInfoArrow = () => {
+    if (locked) return;
 
-  window.SDImageInfoImageViewerExit = () => SDImageInfoImageViewer?.close();
+    const p = panel(), { scrollTop: sT, scrollHeight: sH, clientHeight: cH } = p;
+    if (!cH) return arrow.classList.remove(sdimginfoS);
+    arrow.classList.toggle(sdimginfoS, sH > cH + 1 && sT + cH < sH - 5);
+  };
+
+  window.addEventListener('resize', window.SDImageInfoArrow);
 }
 
 const SDImageInfoTranslation = (k, f) => {
@@ -183,7 +197,7 @@ function SDImageInfoTranslate() {
   ];
 
   EL.forEach(({ el, key }) => {
-    const e = document.querySelector(el);
+    const e = $(el);
     if (!e) return;
     const t = SDImageInfoTranslation(key, e.textContent);
     e.tagName === 'INPUT' || e.tagName === 'TEXTAREA' ? e.placeholder = t : e.textContent = t;
@@ -191,9 +205,7 @@ function SDImageInfoTranslate() {
 }
 
 function SDImageInfoTabLayout() {
-  const Tab = document.getElementById('tab_SDImageInfo'),
-  Nav = document.querySelector('.tabs.gradio-tabs');
-
+  const Tab = _('tab_SDImageInfo'), Nav = $('.tabs.gradio-tabs');
   if (Tab?.style.display !== 'block') return;
 
   const rect = Nav.getBoundingClientRect(),
@@ -207,8 +219,8 @@ function SDImageInfoTabChange() {
   const styleId = 'SDImageInfo-HideScrollBar',
 
   tabId = 'tab_SDImageInfo',
-  tabNav = document.querySelector('#tabs > .tab-nav'),
-  footer = document.getElementById('footer'),
+  tabNav = $('#tabs > .tab-nav'),
+  footer = _('footer'),
 
   css = `
     ::-webkit-scrollbar {
@@ -218,7 +230,7 @@ function SDImageInfoTabChange() {
   `,
 
   TabChange = (Id, ON, OFF) => {
-    const tab = document.getElementById(Id),
+    const tab = _(Id),
     check = () => {
       const d = window.getComputedStyle(tab).display !== 'none';
       if (d !== tab.__l) { tab.__l = d; d ? ON?.(tab) : OFF?.(tab); }
@@ -233,19 +245,18 @@ function SDImageInfoTabChange() {
   TabChange(tabId,
     () => {
       SDImageInfoTabLayout();
-      setTimeout(() => window.SDImageInfoArrowScrolling?.(), 0);
 
       [footer, tabNav].forEach(el => el?.classList.add(sdimginfoS));
       document.documentElement.style.scrollbarWidth = 'none';
 
-      if (!document.getElementById(styleId)) {
+      if (!_(styleId)) {
         document.head.appendChild(SDImgInfoEL('style', { id: styleId, html: css }));
       }
     },
     () => {
       [footer, tabNav].forEach(el => el?.classList.remove(sdimginfoS));
       document.documentElement.style.scrollbarWidth = '';
-      document.getElementById(styleId)?.remove();
+      _(styleId)?.remove();
     }
   );
 }
@@ -271,6 +282,214 @@ function SDImgInfoEL(t, o = {}) {
   return l;
 }
 
+// viewer ⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+
+function SDImageInfoDisplayImageViewer(imgEL) {
+  const lightBox = _('SDImageInfo-Image-Viewer'),
+  controls = lightBox.querySelector('#SDImageInfo-Image-Viewer-Control'),
+  imgWrapper = lightBox.querySelector('#SDImageInfo-Image-Viewer-Wrapper'),
+  imgId = 'SDImageInfo-Image-Viewer-img',
+
+  noScroll = 'sdimginfo-body-dont-scroll';
+
+  if (SDImageInfoImageViewer) {
+    SDImageInfoImageViewer.clearEV();
+    SDImageInfoImageViewer = null;
+  }
+
+  lightBox.style.display = 'flex';
+  lightBox.focus();
+
+  _(imgId)?.remove();
+  const img = SDImgInfoEL('img', { id: imgId, src: imgEL.src });
+  imgWrapper.prepend(img);
+
+  setTimeout(() => requestAnimationFrame(() => {
+    lightBox.classList.add(sdimginfoS);
+    setTimeout(() => imgWrapper.classList.add(sdimginfoS), 50);
+  }, 100));
+
+  const closing = () => {
+    document.body.classList.remove(noScroll);
+    imgWrapper.classList.remove(sdimginfoS);
+    SDImageInfoImageViewer = null;
+  };
+
+  SDImageInfoImageViewer = new SDImageScriptsViewer(img, lightBox, controls, {
+    dragStart: () => controls.classList.add(sdimginfoS),
+    dragEnd: () => controls.classList.remove(sdimginfoS),
+    exitStart: () => lightBox.classList.remove(sdimginfoS),
+    exitEnd: closing
+  });
+
+  window.SDImageInfoImageViewerExit = () => SDImageInfoImageViewer?.close();
+}
+
+// parser ⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+
+async function SDImageInfoParser() {
+  const Tab = _('tab_SDImageInfo'),
+  RawOutput = $('#SDImageInfo-Geninfo textarea'),
+  Column = _('SDImageInfo-Column'),
+  Row = _('SDImageInfo-Row'),
+  outputHTML = _('SDImageInfo-Output-HTML'),
+  ImagePanel = _('SDImageInfo-Image'),
+  img = ImagePanel.querySelector('img'),
+  gearButton = _('SDImageInfo-Gear-Button');
+
+  if (!img) {
+    outputHTML.innerHTML = await SharedPlainTextToHTML('SDImageInfo', '');
+    [Tab, Column, Row, ImagePanel].forEach(el => el.classList.remove(sdimginfoS));
+    gearButton.className = '';
+    return;
+  }
+
+  gearButton.classList.add('sdimginfo-anim');
+  setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown, true), 100);
+
+  [Tab, Column, Row, ImagePanel].forEach(el => el.classList.add(sdimginfoS));
+  setTimeout(() => (gearButton.classList.remove('sdimginfo-anim'), gearButton.classList.add(sdimginfoS)), 1200);
+
+  img.onclick = img.onauxclick = e => (e.button === 0 || e.button === 1) && (e.preventDefault(), SDImageInfoDisplayImageViewer(img));
+  img.ondrag = img.ondragend = img.ondragstart = (e) => (e.stopPropagation(), e.preventDefault());
+
+  const output = await SharedImageParser(img, true);
+  window.SDImageInfoRawOutput = RawOutput.value = output;
+  updateInput(RawOutput);
+  outputHTML.innerHTML = await SharedPlainTextToHTML('SDImageInfo', output);
+  img.onload = () => img.style.opacity = '1';
+}
+
+function SDImageInfoSendButton(id) {
+  const OutputRaw = window.SDImageInfoRawOutput,
+
+  ADetailer = (id) => {
+    const i = `script_${id.replace('_tab', '')}_adetailer_ad_main_accordion-visible-checkbox`,
+    cb = _(i);
+    if (cb && !cb.checked) cb.click();
+  },
+
+  mahiro = (id) => {
+    const i = `#${id.replace('_tab', '')}_script_container span`,
+    cb = Array.from($$(i)).find(s => s.textContent.trim() === 'Enable Mahiro CFG')?.previousElementSibling;
+    if (cb && !cb.checked) cb.click();
+  };
+
+  if (['txt2img_tab', 'img2img_tab'].includes(id)) {
+    if (OutputRaw?.includes('ADetailer model')) ADetailer(id);
+    if (OutputRaw?.includes('mahiro_cfg_enabled: True')) mahiro(id);
+  }
+
+  if ($('.gradio-container-4-40-0') && id.includes('extras_tab'))
+    setTimeout(() => _('tab_extras-button').click(), 500);
+}
+
+// setting ⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+
+async function SDImageInfoCreateSetting() {
+  const settingColumn = _('column_settings_SDImageInfo-Setting');
+
+  if (settingColumn) {
+    async function getStyle() {
+      const hao = ['classic', 'neo'],
+      v = $('#footer .versions > a:nth-child(1)'),
+      n = v?.textContent?.toLowerCase() || '';
+      if (hao.some(s => n.includes(s))) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        return opts.sd_image_info_layout;
+      }
+
+      for (;;) {
+        if (window.opts && Object.keys(window.opts).length) { return window.opts.sd_image_info_layout; }
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+    }
+
+    let style = await getStyle();
+    SDImageInfoLayout(style);
+    window.SDImageInfoStyle = style;
+    $(`#SDImageInfo-Config-Radio input[value="${window.SDImageInfoStyle}" i]`).closest('label').click()
+
+    const gearButton = _('SDImageInfo-Gear-Button'),
+    configColumn = _('SDImageInfo-Config-Column'),
+
+    applyButton = id => SDImgInfoEL('button', {
+      id,
+      class: 'lg primary gradio-button svelte-cmf5ev',
+      text: 'Apply',
+      title: 'apply the style immediately',
+      onclick: e => {
+        e.stopPropagation();
+
+        const t = v => (
+          gearButton.style.pointerEvents = gearButton.style.transition =
+          gearButton.querySelector('svg').style.transition = configColumn.style.display = v
+        );
+
+        t('none');
+        [gearButton, configColumn].forEach(i => i.classList.remove(sdimginfoC));
+        setTimeout(() => t(''), 300);
+
+        const style = $('#setting_sd_image_info_layout input:checked').value,
+        box = $('#SDImageInfo-Box textarea');
+
+        box.value = style;
+        updateInput(box);
+        SDImageInfoLayout(style);
+      }
+    }),
+
+    applyButtonTab = applyButton('SDImageInfo-Apply-Button'),
+    applyButtonSettingTab = applyButton('SDImageInfo-Setting-Apply-Button'),
+
+    applyWrap1 = SDImgInfoEL('div', { id: 'SDImageInfo-Tab-Setting-Button-Wrapper', append: applyButtonTab }),
+    applyWrap2 = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Button-Wrapper', append: applyButtonSettingTab }),
+
+    preview = (n, f) => SDImgInfoEL('img', {
+      id: `SDImageInfo-Setting-Preview-${n}`,
+      class: 'sdimginfo-setting-preview',
+      src: `${window.SDImageInfoFilePath}example/${f}?ts=${Date.now()}`
+    }),
+
+    preview1 = preview(1, 'fullwidth.jpg'),
+    preview2 = preview(2, 'sidebyside.jpg'),
+    previewWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Setting-Preview-Wrapper', append: [preview1, preview2] }),
+
+    previewChange = () => {
+      const v = $('#setting_sd_image_info_layout input:checked')?.value;
+      preview1.style.display = v === 'full width' ? 'flex' : '';
+      preview2.style.display = v === 'default' ? 'flex' : '';
+    };
+
+    settingColumn.prepend(previewWrap), settingColumn.append(applyWrap2);
+    previewChange();
+
+    $$('#setting_sd_image_info_layout input').forEach(input => {input.onchange = () => previewChange();});
+
+    configColumn.append(applyWrap1), gearButton.append(configColumn);
+    SDImageInfoRadioSync();
+  }
+}
+
+function SDImageInfoLayout(style) {
+  window.SDImageInfoStyle = style;
+  _('tab_SDImageInfo').classList.toggle('sdimginfo-fullwidth', style === 'full width');
+}
+
+function SDImageInfoRadioSync() {
+  let S = false;
+
+  const configRadio = _('SDImageInfo-Config-Radio'),
+  settingRadio = _('setting_sd_image_info_layout');
+
+  [configRadio, settingRadio].forEach(f => {
+    const t = f === configRadio ? settingRadio : configRadio;
+    f.querySelectorAll('input[type="radio"]').forEach((input, n) => {
+      input.onchange = () => S || (S = true, t.querySelectorAll('input[type="radio"]')[n]?.click(), S = false);
+    });
+  });
+}
+
 const SDImageInfoSVG = {
   spinner: () => `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="100" height="100">
@@ -281,18 +500,14 @@ C 6.7 15.1 5.7 15.2 4.7 15.4 L 4 11.6 C 5.3 11.4 6.5 11.3 7.7 11.3 C 18.8 11.3 2
 style="transform-origin: 15.85px 27.55px;" transform="matrix(-1, 0, 0, -1, 0.000003, 0.000001)"/>
 <polygon fill="currentColor" points="4 19 17 17.3 6.3 7" style="transform-origin: 10.5px 13px;" transform="matrix(-1, 0, 0, -1, -0.000003, 0.000001)"/>
 <polygon fill="currentColor" points="44 29 31 30.7 41.7 41" style="transform-origin: 37.5px 35px;" transform="matrix(-1, 0, 0, -1, -0.000005, -0.000003)"/>
-</svg>
-  `,
+</svg>`,
 
   cross: () => `
-<svg width="100%" height="100%" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
+<svg width="35px" height="35px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
 stroke="currentColor" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round;">
-<g transform="matrix(1.14096,-0.140958,-0.140958,1.14096,-0.0559523,0.0559523)">
-<path d="M18,6L6.087,17.913" style="fill: none; fill-rule: nonzero; stroke-width: 5px;"/>
-</g>
-<path d="M4.364,4.364L19.636,19.636" style="fill: none; fill-rule: nonzero; stroke-width: 5px;"/>
-</svg>
-  `,
+<path d="M3.5,3.5L20.5,20.5" style="fill: none; fill-rule: nonzero; stroke-width: 5px;"/>
+<path d="M20.5,3.5L3.5,20.5" style="fill: none; fill-rule: nonzero; stroke-width: 5px;"/>
+</svg>`,
 
   gear: () => `
 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="100%" width="100%" viewBox="0 0 32 32">
@@ -301,12 +516,10 @@ C7.017,7.35,5.794,7.677,5.242,8.634 l-1,1.732 c-0.552,0.957-0.225,2.18,0.732,2.7
 L8.5,23.794 c2-1.155,4.5,0.289,4.5,2.598 V27 c0,1.105,0.895,2,2,2 h2 c1.105,0,2-0.895,2-2 v-0.608 c0-2.309,2.5-3.753,4.5-2.598 l0.526,0.304 c0.957,0.552,2.18,0.225,2.732-0.732 l1-1.732 c0.552-0.957,0.225-2.18-0.732-2.732
 L26.5,18.598 c-2-1.155-2-4.041,0-5.196 l0.526-0.304 C27.983,12.546,28.311,11.323,27.758,10.366 z M16,20 a4,4 0 1,1 0,-8 a4,4 0 1,1 0,8 z"
 fill="currentColor" stroke="" stroke-width="2"/>
-</svg>
-  `,
+</svg>`,
 
   arrow: () => `
 <svg height="100%" width="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
 <polygon fill="currentColor" points="95.936,214.656 256,378.016 416.064,214.656 366.096,165.856 256,278.208 145.904,165.856"/>
-</svg>
-  `
+</svg>`
 };

@@ -179,13 +179,13 @@ body.sdimginfo-body-dont-scroll {
   pointer-events: none;
 }
 
-#SDImageInfo-Row.sdimginfo-style #SDImageInfo-Image-Column::after {
+#tab_SDImageInfo.sdimginfo-style #SDImageInfo-Image-Column::after {
   box-shadow: none;
   filter: unset;
   transition: 0s ease;
 }
 
-#SDImageInfo-Row:not(.sdimginfo-style) #SDImageInfo-Image-Column:hover::after {
+#tab_SDImageInfo:not(.sdimginfo-style) #SDImageInfo-Image-Column:hover::after {
   box-shadow: var(--b);
 }
 
@@ -244,6 +244,50 @@ body.sdimginfo-body-dont-scroll {
   inset: 0;
   filter: brightness(0.9);
 }
+
+#SDImageInfo-Spinner {
+  display: none;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  z-index: 9999;
+  top: 40%;
+  height: 120px;
+  width: 120px;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  transition: opacity .3s ease;
+  animation: sdimginfo-spinner 1.5s linear infinite;
+  pointer-events: none;
+}
+
+#tab_SDImageInfo.sdimginfo-fullwidth #SDImageInfo-Spinner {
+  height: 140px;
+  width: 140px;
+}
+
+#SDImageInfo-Spinner.sdimginfo-style {
+  display: flex;
+}
+
+#SDImageInfo-Spinner.sdimginfo-anim {
+  opacity: 1;
+}
+
+#SDImageInfo-Spinner > svg {
+  height: 100%;
+  width: 100%;
+  filter: var(--sdhub-gallery-spinner-filter);
+}
+
+#SDImageInfo-Spinner path,
+#SDImageInfo-Spinner polygon {
+  fill: var(--primary-400);
+}
+
+@keyframes sdimginfo-spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 #SDImageInfo-Image img {
   display: flex;
@@ -378,6 +422,10 @@ body.sdimginfo-body-dont-scroll {
   width: 100%;
   margin: 0;
   padding: 0 !important;
+}
+
+#SDImageInfo-ENV {
+  display: none;
 }
 
 #SDImageInfo-Output-HTML {
@@ -604,7 +652,8 @@ body.sdimginfo-body-dont-scroll {
   border-top-left-radius: 1rem;
   border-bottom-right-radius: 1.2rem;
   box-shadow: var(--a);
-  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+  opacity: 1;
+  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease, opacity .8s ease;
 }
 
 #SDImageInfo-Gear-Button > svg {
@@ -637,17 +686,14 @@ body.sdimginfo-body-dont-scroll {
   background: var(--primary-400);
 }
 
-#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button.sdimginfo-anim {
-  animation: gear-fade-in 1.2s ease forwards;
+#SDImageInfo-Gear-Button.sdimginfo-anim {
+  box-shadow: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0s;
 }
 
-#SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button.sdimginfo-style {
-  opacity: 1;
-}
-
-@keyframes gear-fade-in {
-  from { opacity: 0; } to { opacity: 1; }
-}
+@keyframes gear-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 #SDImageInfo-Image.sdimginfo-style #SDImageInfo-Gear-Button > svg {
   top: 0;

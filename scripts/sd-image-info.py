@@ -3,6 +3,7 @@ from modules.script_callbacks import on_ui_tabs
 import modules.infotext_utils as tempe
 from modules import shared
 import gradio as gr
+import os
 
 L = 'sd_image_info_layout'
 
@@ -15,8 +16,15 @@ shared.options_templates.update(shared.options_section(('SDImageInfo-Setting', '
 
 if shared.opts.data.get(L) == 'side by side': shared.opts.data[L] = 'default'
 
-def save_layout(v):
+def saveLayout(v):
     if shared.opts.set(L, v): shared.opts.save(shared.config_filename)
+
+def nonLocal():
+    return any(k in os.environ for k in (
+        'COLAB_JUPYTER_TOKEN',
+        'SAGEMAKER_INTERNAL_IMAGE_URI',
+        'KAGGLE_DATA_PROXY_TOKEN',
+    ))
 
 def tab():
     with gr.Blocks(analytics_enabled=False) as sd_image_info:
@@ -30,7 +38,10 @@ def tab():
 
             with FormColumn(variant='compact', scale=7, elem_id='SDImageInfo-Output-Panel'):
                 geninfo = gr.Textbox(elem_id='SDImageInfo-Geninfo', visible=False)
-                gr.HTML(elem_id='SDImageInfo-HTML')
+                box = gr.Textbox(elem_id='SDImageInfo-Box', visible=False)
+                box.change(saveLayout, box, None)
+
+                gr.HTML(f"""<div id='SDImageInfo-ENV'>{nonLocal()}</div>""", elem_id='SDImageInfo-HTML')
 
             with FormColumn(variant='compact', elem_id='SDImageInfo-Config-Column'):
                 gr.Radio(
@@ -41,9 +52,6 @@ def tab():
                     elem_id='SDImageInfo-Config-Radio',
                     elem_classes='sdimginfo-radio'
                 )
-
-            box = gr.Textbox(elem_id='SDImageInfo-Box', visible=False)
-            box.change(save_layout, box, None)
 
         for tabname, button in buttons.items():
             tempe.register_paste_params_button(

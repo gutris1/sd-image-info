@@ -2,8 +2,8 @@ window._ ??= id => document.getElementById(id);
 window.$ ??= s => document.querySelector(s);
 window.$$ ??= s => document.querySelectorAll(s);
 
-const sdimginfoS = 'sdimginfo-style', sdimginfoC = 'sdimginfo-config';
-let SDImageInfoImageViewer = null
+const sdimginfoS = 'sdimginfo-style', sdimginfoC = 'sdimginfo-config', sdimginfoA = 'sdimginfo-anim';
+let SDImageInfoImageViewer = null, SDImageInfoNonLocal = false;
 
 onUiLoaded(() => {
   if (_('tab_SDImageInfo')) {
@@ -14,6 +14,7 @@ onUiLoaded(() => {
     imgPanel = _('SDImageInfo-Image'),
     outputPanel = _('SDImageInfo-Output-Panel'),
     htmlPanel = _('SDImageInfo-HTML'),
+    envInfo = _('SDImageInfo-ENV'),
 
     clearButton = SDImgInfoEL('div', {
       id: 'SDImageInfo-Clear-Button',
@@ -22,6 +23,7 @@ onUiLoaded(() => {
       onclick: () => window.SDImageInfoClearImage()
     }),
 
+    infoSpinner = SDImgInfoEL('div', { id: 'SDImageInfo-Spinner', html: SDImageInfoSVG.spinner() }),
     imgFrame = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Frame' }),
     customWrap = SDImgInfoEL('div', { id: 'SDImageInfo-Custom-Wrapper', append: [imgFrame, clearButton] }),
     tabFrame = SDImgInfoEL('div', { id: 'SDImageInfo-Tab-Frame' }),
@@ -75,9 +77,9 @@ onUiLoaded(() => {
     });
 
     gearWrapper.append(gearButton),
-    imgPanel.append(gearWrapper, customWrap),
+    imgPanel.append(infoSpinner, gearWrapper, customWrap),
     column.append(arrow, tabFrame),
-    htmlPanel.replaceChildren(imgArea, outputHTML);
+    htmlPanel.replaceChildren(envInfo, imgArea, outputHTML);
 
     const exitButton = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Exit-Button', html: SDImageInfoSVG.cross(), onclick: (e) => (e.stopPropagation(), window.SDImageInfoImageViewerExit()) }),
     controls = SDImgInfoEL('div', { id: 'SDImageInfo-Image-Viewer-Control', append: exitButton }),
@@ -145,6 +147,8 @@ onUiLoaded(() => {
 
     let rT;
     new ResizeObserver(() => (clearTimeout(rT), rT = setTimeout(window.SDImageInfoArrow, 20))).observe(outputHTML);
+
+    SDImageInfoNonLocal = envInfo.textContent === 'True';
   }
 });
 
@@ -335,20 +339,20 @@ async function SDImageInfoParser() {
   outputHTML = _('SDImageInfo-Output-HTML'),
   ImagePanel = _('SDImageInfo-Image'),
   img = ImagePanel.querySelector('img'),
-  gearButton = _('SDImageInfo-Gear-Button');
+  gearButton = _('SDImageInfo-Gear-Button'),
+  spinner = _('SDImageInfo-Spinner');
 
   if (!img) {
     outputHTML.innerHTML = await SharedPlainTextToHTML('SDImageInfo', '');
     [Tab, Column, Row, ImagePanel].forEach(el => el.classList.remove(sdimginfoS));
-    gearButton.className = '';
+    spinner.className = gearButton.className = '';
     return;
   }
 
-  gearButton.classList.add('sdimginfo-anim');
-  setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown, true), 100);
+  Tab.classList.add(sdimginfoS);
+  gearButton.classList.add(sdimginfoA);
 
-  [Tab, Column, Row, ImagePanel].forEach(el => el.classList.add(sdimginfoS));
-  setTimeout(() => (gearButton.classList.remove('sdimginfo-anim'), gearButton.classList.add(sdimginfoS)), 1200);
+  if (SDImageInfoNonLocal) requestAnimationFrame(() => spinner.classList.add(sdimginfoA));
 
   img.onclick = img.onauxclick = e => (e.button === 0 || e.button === 1) && (e.preventDefault(), SDImageInfoDisplayImageViewer(img));
   img.ondrag = img.ondragend = img.ondragstart = (e) => (e.stopPropagation(), e.preventDefault());
@@ -357,7 +361,16 @@ async function SDImageInfoParser() {
   window.SDImageInfoRawOutput = RawOutput.value = output;
   updateInput(RawOutput);
   outputHTML.innerHTML = await SharedPlainTextToHTML('SDImageInfo', output);
-  img.onload = () => img.style.opacity = '1';
+
+  img.onload = () => {
+    [Column, Row, ImagePanel].forEach(el => el.classList.add(sdimginfoS));
+
+    img.style.opacity = '1';
+    setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown, true), 100);
+
+    [gearButton, spinner].forEach(el => el.classList.remove(sdimginfoA));
+    setTimeout(() => spinner.classList.add(sdimginfoS), 300);
+  };
 }
 
 function SDImageInfoSendButton(id) {

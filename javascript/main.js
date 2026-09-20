@@ -349,28 +349,28 @@ async function SDImageInfoParser() {
     return;
   }
 
-  Tab.classList.add(sdimginfoS);
+  [Tab, Column, Row, ImagePanel].forEach(el => el.classList.add(sdimginfoS));
   gearButton.classList.add(sdimginfoA);
+  setTimeout(() => gearButton.classList.remove(sdimginfoA), 100);
 
-  if (SDImageInfoNonLocal) requestAnimationFrame(() => spinner.classList.add(sdimginfoA));
+  if (SDImageInfoNonLocal) {
+    spinner.style.display = 'flex';
+    requestAnimationFrame(() => spinner.classList.add(sdimginfoA));
+  }
 
   img.onclick = img.onauxclick = e => (e.button === 0 || e.button === 1) && (e.preventDefault(), SDImageInfoDisplayImageViewer(img));
   img.ondrag = img.ondragend = img.ondragstart = (e) => (e.stopPropagation(), e.preventDefault());
+  img.onload = () => {
+    img.style.opacity = '1';
+    spinner.classList.remove(sdimginfoA)
+    setTimeout(() => spinner.style.display = '', 800);
+    setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown, true), 100);
+  };
 
   const output = await SharedImageParser(img, true);
   window.SDImageInfoRawOutput = RawOutput.value = output;
   updateInput(RawOutput);
   outputHTML.innerHTML = await SharedPlainTextToHTML('SDImageInfo', output);
-
-  img.onload = () => {
-    [Column, Row, ImagePanel].forEach(el => el.classList.add(sdimginfoS));
-
-    img.style.opacity = '1';
-    setTimeout(() => document.addEventListener('keydown', window.SDimageInfoKeydown, true), 100);
-
-    [gearButton, spinner].forEach(el => el.classList.remove(sdimginfoA));
-    setTimeout(() => spinner.classList.add(sdimginfoS), 300);
-  };
 }
 
 function SDImageInfoSendButton(id) {

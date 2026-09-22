@@ -69,13 +69,6 @@ onUiLoaded(() => {
       setTimeout(syncConfig, 300);
     });
 
-    SharedImageInfo('SDImageInfo', {
-      translate: (k, f) => SDImageInfoTranslation(k, f),
-      rawOutput: () => window.SDImageInfoRawOutput,
-      elements: () => ({ sendButton: sendButton, outputPanel: outputPanel }),
-      classes: () => ({ outputDisplay: 'sdimginfo-display-output-panel', outputFail: 'sdimginfo-display-output-fail' })
-    });
-
     gearWrapper.append(gearButton),
     imgPanel.append(infoSpinner, gearWrapper, customWrap),
     column.append(arrow, tabFrame),
@@ -149,6 +142,13 @@ onUiLoaded(() => {
     new ResizeObserver(() => (clearTimeout(rT), rT = setTimeout(window.SDImageInfoArrow, 20))).observe(outputHTML);
 
     SDImageInfoNonLocal = envInfo.textContent === 'True';
+
+    SharedImageInfo('SDImageInfo', {
+      translate: (k, f) => SDImageInfoTranslation(k, f),
+      rawOutput: () => window.SDImageInfoRawOutput,
+      elements: () => ({ sendButton: sendButton, outputPanel: outputPanel }),
+      classes: () => ({ outputDisplay: 'sdimginfo-display-output-panel', outputFail: 'sdimginfo-display-output-fail' })
+    });
   }
 });
 

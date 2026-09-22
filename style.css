@@ -220,7 +220,7 @@ body.sdimginfo-body-dont-scroll {
   min-width: 100% !important;
   transition: none;
   overflow: hidden !important;
-  box-shadow: 0 0 7px 0 #000;
+  box-shadow: 0 0 5px 1px #000, 0 0 1px 1px var(--background-fill-primary);
 }
 
 #SDImageInfo-Image > .image-container {
@@ -363,8 +363,7 @@ body.sdimginfo-body-dont-scroll {
 
 #SDImageInfo-SendButton.sdimginfo-display-output-panel {
   opacity: 1;
-  transform: scale(1);
-  transition: opacity .4s ease-out;
+  transition: opacity 1s ease;
   pointer-events: auto;  
 }
 
@@ -395,12 +394,8 @@ body.sdimginfo-body-dont-scroll {
   pointer-events: auto;
   overflow: auto;
   scrollbar-width: none;
-  transition: opacity .6s ease;
+  transition: opacity 1s ease;
   will-change: transform;
-}
-
-#SDImageInfo-Output-Panel.sdimginfo-display-output-fail {
-  height: 100%;
 }
 
 #SDImageInfo-img-area {
@@ -437,19 +432,6 @@ body.sdimginfo-body-dont-scroll {
   padding: 20px;
   pointer-events: none;
   will-change: transform;
-}
-
-#SDImageInfo-Output-Panel .sdimginfo-output-failed {
-  display: flex;
-  width: 100%;
-  pointer-events: auto;
-  padding: 5px 10px;
-  color: var(--output-text-color);
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 1rem;
-  box-shadow: 0 0 10px 0 rgb(255 255 255 / 10%), 0 0 5px 0 rgb(255 255 255 / 20%), inset 0 0 5px 0 rgb(255 255 255 / 20%);
-  filter: drop-shadow(0 0 1px rgb(0 0 0 / 50%));
-  background: rgb(0 0 0 / 30%);
 }
 
 /* mobile ############################################################################################################ */
@@ -580,7 +562,6 @@ body.sdimginfo-body-dont-scroll {
 
 #SDImageInfo-Image.sdimginfo-style #SDImageInfo-Custom-Wrapper {
   opacity: 1;
-  box-shadow: inset 0 0 5px 0 var(--background-fill-primary);
 }
 
 #SDImageInfo-Image-Frame {
@@ -592,7 +573,6 @@ body.sdimginfo-body-dont-scroll {
   z-index: 5;
   border-radius: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 10px 0 var(--background-fill-primary), inset 0 0 5px 0 var(--background-fill-primary);
 }
 
 #SDImageInfo-Image.sdimginfo-style #SDImageInfo-Image-Frame {
@@ -603,7 +583,7 @@ body.sdimginfo-body-dont-scroll {
   height: 100%;
   width: 100%;
   border-radius: 1rem;
-  box-shadow: inset 0 0 20px 0 var(--background-fill-primary);
+  box-shadow: inset 0 0 10px 1px var(--background-fill-primary);
   filter: unset;
 }
 
@@ -1069,7 +1049,6 @@ body.sdimginfo-body-dont-scroll {
 #tab_SDImageInfo.sdimginfo-fullwidth #SDImageInfo-Image.sdimginfo-style .image-container {
   position: fixed;
   background: var(--background-fill-primary) !important;
-  transition: background .6s ease;
 }
 
 #tab_SDImageInfo.sdimginfo-fullwidth #SDImageInfo-Image.sdimginfo-style .image-container > .upload-container {
@@ -1169,12 +1148,6 @@ body.sdimginfo-body-dont-scroll {
   max-width: 100%;
   border-radius: .8rem !important;
   pointer-events: none;
-}
-
-#tab_SDImageInfo.sdimginfo-fullwidth #SDImageInfo-HTML .sdimginfo-output-failed {
-  position: relative !important;
-  margin-top: 5px !important;
-  bottom: unset !important;
 }
 
 /* mobile full width ############################################################################################################ */
